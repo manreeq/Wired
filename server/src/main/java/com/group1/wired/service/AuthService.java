@@ -16,7 +16,6 @@ public class AuthService {
     private final UserRepository userRepository;
     private final RestTemplate restTemplate;
 
-    // We inject both the database tool and the web-calling tool
     @Autowired
     public AuthService(UserRepository userRepository, RestTemplate restTemplate) {
         this.userRepository = userRepository;
