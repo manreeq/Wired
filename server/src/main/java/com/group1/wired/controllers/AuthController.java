@@ -1,6 +1,6 @@
 package com.group1.wired.controllers;
 
-import com.group1.wired.controllers.AuthRequestDTO;
+import com.group1.wired.controllers.SpotifyLoginRequestDTO;
 import com.group1.wired.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +18,12 @@ public class AuthController {
     }
 
     @PostMapping("/spotify")
-    public ResponseEntity<String> authenticate(@RequestBody AuthRequestDTO request) {
+    public ResponseEntity<String> loginWithSpotify(@RequestBody SpotifyLoginRequestDTO request) {
         try {
-            // Hand the Spotify token to the Service
-            String appToken = authService.authenticateWithSpotify(request.getSpotifyToken());
-            return ResponseEntity.ok(appToken);
+            String result = authService.processSpotifyLogin(request.getCode());
+            return ResponseEntity.ok(result);
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Failed to authenticate with Spotify");
+            return ResponseEntity.badRequest().body("Spotify Login Failed: " + e.getMessage());
         }
     }
 }
