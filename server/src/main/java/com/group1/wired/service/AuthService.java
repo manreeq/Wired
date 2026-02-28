@@ -128,4 +128,61 @@ public class AuthService {
         ResponseEntity<Map> response = restTemplate.exchange(profileUrl, HttpMethod.GET, entity, Map.class);
         return response.getBody();
     }
+    
+    public String getValidAccessToken(User user) {
+        AuthCredentials creds = credentialsRepository.findByUser(user)
+                .orElseThrow(() -> new RuntimeException("No credentials found for user: " + user.getDisplayName()));
+
+        // Add a 1-minute buffer. If it expires in less than a minute, refresh it now.
+        if (creds.getTokenExpiresAt().isBefore(LocalDateTime.now().plusMinutes(1))) {
+            return executeTokenRefresh(creds);
+        }
+
+        return creds.getAccessToken();
+    }
+
+    private String executeTokenRefresh(AuthCredentials creds) {
+        String tokenUrl = "https://accounts.spotify.com/api/token"; 
+
+        String authString = clientId + ":" + clientSecret;
+        String base64Auth = Base64.getEncoder().encodeToString(authString.getBytes());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+        headers.set("Authorization", "Basic " + base64Auth);
+
+        // Spotify requires "grant_type=refresh_token" and the actual refresh token
+        MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
+        body.add("grant_type", "refresh_token");
+        body.add("refresh_token", creds.getRefreshToken());
+
+        HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
+            Map<String, Object> responseBody = response.getBody();
+
+            if (responseBody == null) {
+                throw new RuntimeException("Empty response from Spotify token endpoint");
+            }
+
+            String newAccessToken = (String) responseBody.get("access_token");
+            Integer expiresIn = (Integer) responseBody.get("expires_in");
+
+            // Spotify doesn't always return a NEW refresh token, but if they do, we MUST update it
+            if (responseBody.containsKey("refresh_token")) {
+                creds.setRefreshToken((String) responseBody.get("refresh_token"));
+            }
+
+            // Update the entity and save to the database
+            creds.setAccessToken(newAccessToken);
+            creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
+            credentialsRepository.save(creds);
+
+            return newAccessToken;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to refresh Spotify token: " + e.getMessage());
+        }
+    }
 }
