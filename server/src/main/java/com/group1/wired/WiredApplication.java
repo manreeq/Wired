@@ -10,5 +10,4 @@ public class WiredApplication {
         SpringApplication.run(WiredApplication.class, args);
         System.out.println("Wired backend is now running!");
     }
-
 }
