@@ -1,4 +1,4 @@
-package com.group1.wired.repository;
+package com.group1.wired.repositories;
 
 import com.group1.wired.entities.AuthCredentials;
 import com.group1.wired.entities.User;
