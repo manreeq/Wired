@@ -2,8 +2,8 @@ package com.group1.wired.service;
 
 import com.group1.wired.entities.AuthCredentials;
 import com.group1.wired.entities.User;
-import com.group1.wired.repository.AuthCredentialsRepository;
-import com.group1.wired.repository.UserRepository;
+import com.group1.wired.repositories.AuthCredentialsRepository;
+import com.group1.wired.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
