@@ -16,11 +16,11 @@ public class AuthCredentials {
     private User user; 
 
     @Column(name = "access_token", nullable = false, length = 2048)
-    private String accessToken;
+    private String accessToken = "None";
 
     // This will store your AES-256 encrypted string, not the raw token
     @Column(name = "refresh_token", nullable = false, length = 2048)
-    private String refreshToken;
+    private String refreshToken = "None";
 
     @Column(name = "token_expires_at", nullable = false)
     private LocalDateTime tokenExpiresAt;

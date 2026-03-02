@@ -51,18 +51,16 @@ public class AuthService {
 
         // STEP 2: Use the new Access Token to get the user's Spotify Profile
         Map<String, Object> spotifyProfile = fetchUserProfile(accessToken);
-        String spotifyId = (String) spotifyProfile.get("id");
+        String spotifyURI = (String) spotifyProfile.get("id");
         String displayName = (String) spotifyProfile.get("display_name");
 
         // STEP 3: Database Logic (Register or Login)
-        Optional<User> existingUserOpt = userRepository.findBySpotifyId(spotifyId);
+        Optional<User> existingUserOpt = userRepository.findBySpotifyURI(spotifyURI);
         User user;
 
         if (existingUserOpt.isEmpty()) {
             // New User Registration
-            user = new User();
-            user.setSpotifyId(spotifyId);
-            user.setDisplayName(displayName);
+            user = new User(spotifyURI, displayName);
             user = userRepository.save(user); // Save to generate the ID
             
             // Create their Credentials entry

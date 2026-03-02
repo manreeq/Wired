@@ -15,7 +15,7 @@ public class User {
 	
 	@NotNull 											//prevents null from being passed onto the database
 	@Column(nullable = false) 							//the database itself does not allow null
-	private String spotifyURL = "None";		 		//default value is None
+	private String spotifyURI = "None";		 		//default value is None
 	
 	@NotNull 						
 	@Column(nullable = false) 		
@@ -32,8 +32,8 @@ public class User {
 	
 	protected User() {}
 	
-	public User(String spotifyURL, String displayName) { 	//constructor 
-        this.spotifyURL = spotifyURL;
+	public User(String spotifyURI, String displayName) { 	//constructor 
+        this.spotifyURI = spotifyURI;
         this.displayName = displayName;
     }
 
@@ -45,12 +45,12 @@ public class User {
 		this.userID = userID;
 	}
 
-	public String getSpotifyURL() {
-		return spotifyURL;
+	public String getSpotifyURI() {
+		return spotifyURI;
 	}
 
-	public void setSpotifyURL(String spotifyURL) {
-		this.spotifyURL = spotifyURL;
+	public void setSpotifyURI(String spotifyURI) {
+		this.spotifyURI = spotifyURI;
 	}
 
 	public String getDisplayName() {
