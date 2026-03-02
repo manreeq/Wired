@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudfare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+</head>
+<body>
+    <h2>WebSocket Chat</h2>
+    <input type="text" id="message" placeholder="Type a message..."/>
+    <button onclick="sendMessage()">Send</button>
+    <ul id="messages"></ul>
+    <script>
+        <!-- Using SockJS to connect to a websocket and point to chat-->
+        var socket = new SockJS('http://localhost:8000/chat');
+
+        <!--StompJS to subscribe to the topic /topic/messages -->
+        var stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/messages', function (message) {
+                var msg = JSON.parse(message.body);
+                var li = document.createElement("li");
+                li.appendChild(document.createTextNode(msg.sender + ": " + msg.content));
+                document.getElementById("messages").appendChild(li);
+            });
+        });
+        <!-- Broadcast in real-time to all connected clients-->
+        function sendMessage() {
+            var content = document.getElementById("message").value;
+            var msg = { sender: "User", content: content };
+            stompClient.send("/app/sendMessage", {}, JSON.stringify(msg));
+            document.getElementById("message").value = "";
+        }
+
+    </script>
+</body>
+</html>
