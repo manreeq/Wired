@@ -24,7 +24,6 @@ public class AuthService {
     private final AuthCredentialsRepository credentialsRepository;
     private final RestTemplate restTemplate;
 
-    // You will put these in your application.properties file later
     @Value("${spotify.api.client-id}")
     private String clientId;
 
@@ -47,7 +46,7 @@ public class AuthService {
         
         String accessToken = (String) tokenData.get("access_token");
         String refreshToken = (String) tokenData.get("refresh_token");
-        Integer expiresIn = (Integer) tokenData.get("expires_in"); // Usually 3600 seconds (1 hour)
+        Integer expiresIn = (Integer) tokenData.get("expires_in");
 
         // STEP 2: Use the new Access Token to get the user's Spotify Profile
         Map<String, Object> spotifyProfile = fetchUserProfile(accessToken);
@@ -72,15 +71,13 @@ public class AuthService {
             credentialsRepository.save(creds);
             
         } else {
-            // Existing User Login - Just update their tokens!
             user = existingUserOpt.get();
             AuthCredentials creds = credentialsRepository.findByUser(user)
-                    .orElse(new AuthCredentials()); // Fallback if missing
+                    .orElse(new AuthCredentials());
             
             creds.setUser(user);
             creds.setAccessToken(accessToken);
             
-            // Spotify doesn't always send a new refresh token, so only update if it exists
             if (refreshToken != null) {
                 creds.setRefreshToken(refreshToken);
             }
@@ -91,8 +88,9 @@ public class AuthService {
         return "Successfully logged in as: " + user.getDisplayName();
     }
 
-    // --- Helper Methods to keep code clean ---
 
+    // Helper methods
+    
     private Map<String, Object> fetchTokensFromSpotify(String authCode) {
         String tokenUrl = "https://accounts.spotify.com/api/token";
 
