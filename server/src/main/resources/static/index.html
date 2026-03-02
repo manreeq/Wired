@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-    <script src="https://cdnjs.cloudfare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
 </head>
 <body>
     <h2>WebSocket Chat</h2>
@@ -13,7 +13,7 @@
     <ul id="messages"></ul>
     <script>
         <!-- Using SockJS to connect to a websocket and point to chat-->
-        var socket = new SockJS('http://localhost:8000/chat');
+        var socket = new SockJS('http://localhost:8080/chat');
 
         <!--StompJS to subscribe to the topic /topic/messages -->
         var stompClient = Stomp.over(socket);
