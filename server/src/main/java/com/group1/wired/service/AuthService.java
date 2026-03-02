@@ -25,10 +25,10 @@ public class AuthService {
     private final RestTemplate restTemplate;
 
     // You will put these in your application.properties file later
-    @Value("${spotify.client.id}")
+    @Value("${spotify.api.client-id}")
     private String clientId;
 
-    @Value("${spotify.client.secret}")
+    @Value("${spotify.api.client-secret}")	
     private String clientSecret;
 
     @Value("${spotify.redirect.uri}")

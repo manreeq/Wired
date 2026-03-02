@@ -10,6 +10,5 @@ import java.util.Optional;
 @Repository
 public interface AuthCredentialsRepository extends JpaRepository<AuthCredentials, Long> {
     
-    // Custom query method required by AuthService to find credentials by the associated User entity
     Optional<AuthCredentials> findByUser(User user);
 }
