@@ -12,7 +12,7 @@ public class AuthCredentials {
     private Long credentialId;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userID", referencedColumnName = "userID", nullable = false)
+    @JoinColumn(name = "user_id", referencedColumnName = "userID", nullable = false)
     private User user; 
 
     @Column(name = "access_token", nullable = false, length = 2048)
