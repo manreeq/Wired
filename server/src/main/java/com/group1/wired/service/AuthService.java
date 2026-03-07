@@ -60,6 +60,7 @@ public class AuthService {
         if (existingUserOpt.isEmpty()) {
             // New User Registration
             user = new User(spotifyURI, displayName);
+            user.setJoinDate(LocalDateTime.now());
             user = userRepository.save(user); // Save to generate the ID
             
             // Create their Credentials entry

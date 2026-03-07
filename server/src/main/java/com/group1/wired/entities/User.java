@@ -69,6 +69,10 @@ public class User {
 		this.profilePictureURL = profilePictureURL;
 	}
 
+	public void setJoinDate(LocalDateTime joinDate) {
+	    this.joinDate = joinDate;
+	}
+	
 	public LocalDateTime getJoinDate() {
 		return joinDate;
 	}
