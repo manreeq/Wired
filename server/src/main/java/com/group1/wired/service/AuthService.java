@@ -2,8 +2,8 @@ package com.group1.wired.service;
 
 import com.group1.wired.entities.AuthCredentials;
 import com.group1.wired.entities.User;
-import com.group1.wired.repository.AuthCredentialsRepository;
-import com.group1.wired.repository.UserRepository;
+import com.group1.wired.repositories.AuthCredentialsRepository;
+import com.group1.wired.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -24,7 +24,6 @@ public class AuthService {
     private final AuthCredentialsRepository credentialsRepository;
     private final RestTemplate restTemplate;
 
-    // You will put these in your application.properties file later
     @Value("${spotify.api.client-id}")
     private String clientId;
 
@@ -47,22 +46,21 @@ public class AuthService {
         
         String accessToken = (String) tokenData.get("access_token");
         String refreshToken = (String) tokenData.get("refresh_token");
-        Integer expiresIn = (Integer) tokenData.get("expires_in"); // Usually 3600 seconds (1 hour)
+        Integer expiresIn = (Integer) tokenData.get("expires_in");
 
         // STEP 2: Use the new Access Token to get the user's Spotify Profile
         Map<String, Object> spotifyProfile = fetchUserProfile(accessToken);
-        String spotifyId = (String) spotifyProfile.get("id");
+        String spotifyURI = (String) spotifyProfile.get("id");
         String displayName = (String) spotifyProfile.get("display_name");
 
         // STEP 3: Database Logic (Register or Login)
-        Optional<User> existingUserOpt = userRepository.findBySpotifyId(spotifyId);
+        Optional<User> existingUserOpt = userRepository.findBySpotifyURI(spotifyURI);
         User user;
 
         if (existingUserOpt.isEmpty()) {
             // New User Registration
-            user = new User();
-            user.setSpotifyId(spotifyId);
-            user.setDisplayName(displayName);
+            user = new User(spotifyURI, displayName);
+            user.setJoinDate(LocalDateTime.now());
             user = userRepository.save(user); // Save to generate the ID
             
             // Create their Credentials entry
@@ -74,15 +72,13 @@ public class AuthService {
             credentialsRepository.save(creds);
             
         } else {
-            // Existing User Login - Just update their tokens!
             user = existingUserOpt.get();
             AuthCredentials creds = credentialsRepository.findByUser(user)
-                    .orElse(new AuthCredentials()); // Fallback if missing
+                    .orElse(new AuthCredentials());
             
             creds.setUser(user);
             creds.setAccessToken(accessToken);
             
-            // Spotify doesn't always send a new refresh token, so only update if it exists
             if (refreshToken != null) {
                 creds.setRefreshToken(refreshToken);
             }
@@ -93,8 +89,9 @@ public class AuthService {
         return "Successfully logged in as: " + user.getDisplayName();
     }
 
-    // --- Helper Methods to keep code clean ---
 
+    // Helper methods
+    
     private Map<String, Object> fetchTokensFromSpotify(String authCode) {
         String tokenUrl = "https://accounts.spotify.com/api/token";
 
