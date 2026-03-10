@@ -7,6 +7,7 @@ import com.group1.wired.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.crypto.encrypt.TextEncryptor;
 import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -22,6 +23,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final AuthCredentialsRepository credentialsRepository;
+    private final TextEncryptor textEncryptor;
     private final RestTemplate restTemplate;
 
     @Value("${spotify.api.client-id}")
@@ -34,10 +36,11 @@ public class AuthService {
     private String redirectUri;
 
     @Autowired
-    public AuthService(UserRepository userRepository, AuthCredentialsRepository credentialsRepository, RestTemplate restTemplate) {
+    public AuthService(UserRepository userRepository, AuthCredentialsRepository credentialsRepository, RestTemplate restTemplate, TextEncryptor textEncryptor) {
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
         this.restTemplate = restTemplate;
+        this.textEncryptor = textEncryptor;
     }
 
     public String processSpotifyLogin(String authCode) {
@@ -67,7 +70,7 @@ public class AuthService {
             AuthCredentials creds = new AuthCredentials();
             creds.setUser(user);
             creds.setAccessToken(accessToken);
-            creds.setRefreshToken(refreshToken);
+            creds.setRefreshToken(textEncryptor.encrypt(refreshToken));
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
             
@@ -80,12 +83,11 @@ public class AuthService {
             creds.setAccessToken(accessToken);
             
             if (refreshToken != null) {
-                creds.setRefreshToken(refreshToken);
+                creds.setRefreshToken(textEncryptor.encrypt(refreshToken));
             }
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
         }
-
         return "Successfully logged in as: " + user.getDisplayName();
     }
 
@@ -141,6 +143,9 @@ public class AuthService {
     private String executeTokenRefresh(AuthCredentials creds) {
         String tokenUrl = "https://accounts.spotify.com/api/token"; 
 
+        String encryptedToken = creds.getRefreshToken();
+        String decryptedToken = textEncryptor.decrypt(encryptedToken);
+        
         String authString = clientId + ":" + clientSecret;
         String base64Auth = Base64.getEncoder().encodeToString(authString.getBytes());
 
@@ -151,7 +156,7 @@ public class AuthService {
         // Spotify requires "grant_type=refresh_token" and the actual refresh token
         MultiValueMap<String, String> body = new LinkedMultiValueMap<>();
         body.add("grant_type", "refresh_token");
-        body.add("refresh_token", creds.getRefreshToken());
+        body.add("refresh_token", decryptedToken);
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(body, headers);
 
@@ -168,7 +173,8 @@ public class AuthService {
 
             // Spotify doesn't always return a NEW refresh token, but if they do, we MUST update it
             if (responseBody.containsKey("refresh_token")) {
-                creds.setRefreshToken((String) responseBody.get("refresh_token"));
+            	String newRefresh = (String) responseBody.get("refresh_token");
+                creds.setRefreshToken(textEncryptor.encrypt(newRefresh));
             }
 
             // Update the entity and save to the database
