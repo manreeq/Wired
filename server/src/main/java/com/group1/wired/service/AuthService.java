@@ -44,19 +44,19 @@ public class AuthService {
     }
 
     public String processSpotifyLogin(String authCode) {
-        // STEP 1: Swap the Auth Code for Access & Refresh Tokens
+        // Swap the Auth Code for Access & Refresh Tokens
         Map<String, Object> tokenData = fetchTokensFromSpotify(authCode);
         
         String accessToken = (String) tokenData.get("access_token");
         String refreshToken = (String) tokenData.get("refresh_token");
         Integer expiresIn = (Integer) tokenData.get("expires_in");
 
-        // STEP 2: Use the new Access Token to get the user's Spotify Profile
+        // Use the new Access Token to get the user's Spotify Profile
         Map<String, Object> spotifyProfile = fetchUserProfile(accessToken);
         String spotifyURI = (String) spotifyProfile.get("id");
         String displayName = (String) spotifyProfile.get("display_name");
 
-        // STEP 3: Database Logic (Register or Login)
+        // Database Logic (Register or Login)
         Optional<User> existingUserOpt = userRepository.findBySpotifyURI(spotifyURI);
         User user;
 
@@ -64,13 +64,13 @@ public class AuthService {
             // New User Registration
             user = new User(spotifyURI, displayName);
             user.setJoinDate(LocalDateTime.now());
-            user = userRepository.save(user); // Save to generate the ID
+            user = userRepository.save(user);
             
             // Create their Credentials entry
             AuthCredentials creds = new AuthCredentials();
             creds.setUser(user);
             creds.setAccessToken(accessToken);
-            creds.setRefreshToken(textEncryptor.encrypt(refreshToken));
+            creds.setRefreshToken(textEncryptor.encrypt(refreshToken)); // Encrypts the refresh token before storing to the database
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
             
@@ -83,7 +83,7 @@ public class AuthService {
             creds.setAccessToken(accessToken);
             
             if (refreshToken != null) {
-                creds.setRefreshToken(textEncryptor.encrypt(refreshToken));
+                creds.setRefreshToken(textEncryptor.encrypt(refreshToken)); // Encrypts
             }
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
@@ -91,8 +91,6 @@ public class AuthService {
         return "Successfully logged in as: " + user.getDisplayName();
     }
 
-
-    // Helper methods
     
     private Map<String, Object> fetchTokensFromSpotify(String authCode) {
         String tokenUrl = "https://accounts.spotify.com/api/token";
@@ -143,6 +141,8 @@ public class AuthService {
     private String executeTokenRefresh(AuthCredentials creds) {
         String tokenUrl = "https://accounts.spotify.com/api/token"; 
 
+        
+        // Decryptes the encrypted token from the database
         String encryptedToken = creds.getRefreshToken();
         String decryptedToken = textEncryptor.decrypt(encryptedToken);
         
@@ -171,13 +171,12 @@ public class AuthService {
             String newAccessToken = (String) responseBody.get("access_token");
             Integer expiresIn = (Integer) responseBody.get("expires_in");
 
-            // Spotify doesn't always return a NEW refresh token, but if they do, we MUST update it
+            // Spotify doesn't always return a new refresh token, but if they do, we update it
             if (responseBody.containsKey("refresh_token")) {
             	String newRefresh = (String) responseBody.get("refresh_token");
                 creds.setRefreshToken(textEncryptor.encrypt(newRefresh));
             }
 
-            // Update the entity and save to the database
             creds.setAccessToken(newAccessToken);
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
