@@ -11,7 +11,7 @@ public class SongPost extends Post {
 	@JoinColumn(name = "song_id", nullable = false)
 	private Song song;
 	
-	protected SongPost() {}
+	public SongPost() {}
 	
 	public SongPost(User user, String caption, Song song) { 
 		

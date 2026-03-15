@@ -1,0 +1,50 @@
+top 10 songs
+SELECT s."songName" AS 'Song Title', s."albumArtURL" AS 'Album Art', 
+COUNT(la.activity_id) AS 'Total Plays'
+FROM listening_activities la
+JOIN songs s ON la.song_id = s."songID"
+GROUP BY s."songID", s."songName", s."albumArtURL"
+ORDER BY COUNT(la.activity_id) DESC
+LIMIT 10;;
+
+SELECT s."songName" AS 'Most Popular Song', 
+COUNT(la.activity_id) AS 'Play Count'
+FROM listening_activities la
+JOIN songs s ON la.song_id = s."songID"
+GROUP BY s."songID", s."songName"
+ORDER BY COUNT(la.activity_id) DESC
+LIMIT 1;
+
+top album
+SELECT s."albumArtURL", COUNT(la.activity_id) AS total_plays
+FROM listening_activities la
+JOIN songs s ON la.song_id = s."songID"
+GROUP BY s."albumArtURL"
+ORDER BY total_plays DESC
+LIMIT 1;
+
+recent songs
+SELECT s."songName" AS 'Song Title', la.timestamp AS 'Played At'
+FROM listening_activities la
+JOIN songs s ON la.song_id = s."songID"
+WHERE la.user_id = :userId
+ORDER BY la.timestamp DESC
+LIMIT 20;
+
+app-wide trendingn songs
+SELECT s."songName" AS 'Trending Song', COUNT(la.activity_id) AS 'Recent Plays'
+FROM listening_activities la
+JOIN songs s ON la.song_id = s."songID"
+WHERE la.timestamp > NOW() - INTERVAL '24 hours'
+GROUP BY s."songID", s."songName"
+ORDER BY COUNT(la.activity_id) DESC
+LIMIT 10;
+
+top songs for user
+SELECT s."songName" AS 'Your Favorite', COUNT(la.activity_id) AS 'Times Played'
+FROM listening_activities la
+JOIN songs s ON la.song_id = s."songID"
+WHERE la.user_id = :userId
+GROUP BY s."songID", s."songName"
+ORDER BY COUNT(la.activity_id) DESC
+LIMIT 5;
