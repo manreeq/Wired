@@ -40,5 +40,41 @@ public class SpotifyDataRetrievalEngine {
             return "Server Error: Failed to reach Spotify - " + e.getMessage();
         }
     }
+    
+    public String fetchTrack(String accessToken, String trackId) {
+        try {
+            Response<String> response = spotifyApi.fetchTrack("Bearer " + accessToken, trackId).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            }
+            throw new RuntimeException("Spotify error fetching track: " + response.code());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
+        }
+    }
+ 
+    public String fetchAlbum(String accessToken, String albumId) {
+        try {
+            Response<String> response = spotifyApi.fetchAlbum("Bearer " + accessToken, albumId).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            }
+            throw new RuntimeException("Spotify error fetching album: " + response.code());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
+        }
+    }
+ 
+    public String fetchPlaylist(String accessToken, String playlistId) {
+        try {
+            Response<String> response = spotifyApi.fetchPlaylist("Bearer " + accessToken, playlistId).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            }
+            throw new RuntimeException("Spotify error fetching playlist: " + response.code());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
+        }
+    }
 	
 }
