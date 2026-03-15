@@ -54,12 +54,12 @@ public class ParseService {
 
     private Song parseSongFromJson(String accessToken, String json) {
         try {
-            JsonNode root = objectMapper.readTree(json);
+            JsonNode root = objectMapper.readTree(json); // Parse JSON response heirarchically into JsonNode object 
 
             String spotifyTrackId = root.path("id").asText();
             String songName = root.path("name").asText();
 
-            // album art is nested inside album object
+            // Album art is nested inside album object
             String albumArtUrl = root.path("album")
                     .path("images")
                     .path(0)
@@ -133,7 +133,7 @@ public class ParseService {
         }
     }
 
-    // used by parseSongFromJson to save the artist if not already in the database.
+    // Used by parseSongFromJson to save the artist if not already in the database.
     private Artist parseAndSaveArtist(String accessToken, String spotifyArtistId) {
         return artistRepository.findBySpotifyArtistId(spotifyArtistId).orElseGet(() -> {
             Artist artist = new Artist(spotifyArtistId, "Unknown", "None");
