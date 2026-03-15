@@ -1,11 +1,15 @@
 package com.group1.wired.entities;
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "posts"})
 public class User {
 	
 	@Id

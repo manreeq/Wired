@@ -1,6 +1,9 @@
 package com.group1.wired.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
@@ -19,6 +22,7 @@ public class Post {
 	
 	@ManyToOne(fetch = FetchType.LAZY)					// foreign key; many posts can belong to one user
 	@JoinColumn(name = "user_id", nullable = false)		//lazy fetchtype; only gets the actual post, not everything else that comes with the fk
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "posts"})
 	private User user;
 	
 
@@ -28,8 +32,7 @@ public class Post {
 	
 	@Column(nullable = true) 		
 	private String caption; 					
-	
-	@NotNull 						
+	 						
 	@CreationTimestamp									
     @Column(nullable = false, updatable = false) 		
 	private LocalDateTime timestamp;
