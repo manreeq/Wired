@@ -43,10 +43,15 @@ function Callback() {
             })
             // 'data' holds the final text string ("Successfully logged in as: [Name]")
             .then(data => {
-                // update  screen to show the success message
-                setStatus(data);
+                setStatus(data); // "Successfully logged in as [Name]" string
                 
-                // TODO for later: navigate('/dashboard') to instantly direct them to their profile
+                // Extract the name from the string
+                const nameOnly = data.replace("Successfully logged in as: ", "");
+
+                // wait 1.5 seconds so the user sees the success message, then move to profile
+                setTimeout(() => {
+                    navigate('/profile', { state: { name: nameOnly } });
+                }, 1500);
             })
             // if something goes wrong (network crash, backend error), catch it here
             .catch(error => {
