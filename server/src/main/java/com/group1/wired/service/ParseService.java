@@ -82,6 +82,30 @@ public class ParseService {
         }
     }
 
+    @Transactional
+    public Album parseAndSaveAlbum(String accessToken, String spotifyAlbumId) {
+        return albumRepository.findBySpotifyAlbumId(spotifyAlbumId).orElseGet(() -> {
+            String json = spotifyEngine.fetchAlbum(accessToken, spotifyAlbumId);
+            return parseAlbumFromJson(json);
+        });
+    }
+
+    private Album parseAlbumFromJson(String json) {
+        try {
+            JsonNode root = objectMapper.readTree(json);
+
+            String spotifyAlbumId = root.path("id").asText();
+            String albumName = root.path("name").asText();
+            String albumArtUrl = root.path("images").path(0).path("url").asText("None");
+
+            Album album = new Album(spotifyAlbumId, albumName, albumArtUrl);
+            return albumRepository.save(album);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse album JSON: " + e.getMessage());
+        }
+    }
+
     // used by parseSongFromJson to save the artist if not already in the database.
     private Artist parseAndSaveArtist(String accessToken, String spotifyArtistId) {
         return artistRepository.findBySpotifyArtistId(spotifyArtistId).orElseGet(() -> {
