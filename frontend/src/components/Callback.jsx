@@ -24,7 +24,9 @@ function Callback() {
         // if found a code in the URL, run the login process
         if (code) {
             // send a network request to AuthController
-            fetch('http://127.0.0.1:8080/api/auth/spotify', {
+            // the endpoint is a reverse proxy via nginx and duckdns which points to the EC2 instance (backend)
+            // this is so that the backend is in https
+            fetch('https://wired-backend.duckdns.org/api/auth/spotify', {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json', 
