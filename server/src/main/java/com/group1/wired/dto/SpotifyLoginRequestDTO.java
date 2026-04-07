@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.dto;
 
 public class SpotifyLoginRequestDTO {
 	private String code;

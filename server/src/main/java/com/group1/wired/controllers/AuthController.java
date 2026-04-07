@@ -1,6 +1,6 @@
 package com.group1.wired.controllers;
 
-import com.group1.wired.controllers.SpotifyLoginRequestDTO;
+import com.group1.wired.dto.SpotifyLoginRequestDTO;
 import com.group1.wired.service.AuthService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
