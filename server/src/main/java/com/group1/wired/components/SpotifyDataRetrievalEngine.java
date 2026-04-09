@@ -76,5 +76,24 @@ public class SpotifyDataRetrievalEngine {
             throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
         }
     }
+    
+    public String fetchCurrentlyPlaying(String accessToken) {
+        try {
+            Response<String> response = spotifyApi.fetchCurrentlyPlaying("Bearer " + accessToken).execute();
+            
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            } 
+            // HTTP 204: Request was successful, but nothing is playing rn
+            else if (response.code() == 204) {
+                return null; 
+            }
+            
+            throw new RuntimeException("Spotify error fetching current playback: " + response.code());
+            
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
+        }
+    }
 	
 }
