@@ -26,7 +26,7 @@ function Callback() {
             // send a network request to AuthController
             // the endpoint is a reverse proxy via nginx and duckdns which points to the EC2 instance (backend)
             // this is so that the backend is in https
-            fetch('https://wired-backend.duckdns.org/api/auth/spotify', {
+            fetch('http://localhost:8080/api/auth/spotify', {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json', 
@@ -51,15 +51,19 @@ function Callback() {
                 const nameOnly = data.replace("Successfully logged in as: ", "");
 
                 // wait 1.5 seconds so the user sees the success message, then move to profile
-                setTimeout(() => {
-                    navigate('/profile', { state: { name: nameOnly } });
-                }, 1500);
-            })
+				setTimeout(() => {
+				    navigate('/feed', { state: { name: nameOnly } });
+				}, 1500);})
             // if something goes wrong (network crash, backend error), catch it here
-            .catch(error => {
-                setStatus('Login failed. Please try again.');
-                console.error('Error during login:', error); // Log the technical error to the browser console
-            });
+			.catch(error => {
+			    setStatus('Login failed. Please try again.');
+			    console.error('Error during login:', error);
+			    
+			    // wait 2 seconds so they can see the error, then send back to login
+			    setTimeout(() => {
+			        navigate('/');
+			    }, 2000);
+			});
             
         } else {
             // if the user somehow loaded /callback without a code in the URL

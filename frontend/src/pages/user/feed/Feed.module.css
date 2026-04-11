@@ -1,0 +1,18 @@
+.container {
+    display: flex;
+    height: 100vh;
+}
+ 
+.sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 20px;
+    width: 200px;
+    border-right: 1px solid #ccc;
+}
+ 
+.feed {
+    padding: 20px;
+    flex: 1;
+}

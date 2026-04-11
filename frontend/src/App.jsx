@@ -1,7 +1,8 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './components/Login';
-import Callback from './components/Callback';
-import Profile from './components/Profile';
+import Login from './pages/auth/Login/Login';
+import Callback from './pages/auth/Callback/Callback';
+import Profile from './pages/user/Profile/Profile';
+import Feed from './pages/user/Feed/Feed'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/callback" element={<Callback />} />
 
         <Route path="/profile" element={<Profile />} />
+		<Route path="/feed" element={<Feed />} />
       </Routes>
     </Router>
   );
