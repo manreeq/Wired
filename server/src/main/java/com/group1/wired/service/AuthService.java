@@ -1,9 +1,11 @@
 package com.group1.wired.service;
 
+import com.group1.wired.dto.AuthResponse;
 import com.group1.wired.entities.AuthCredentials;
 import com.group1.wired.entities.User;
 import com.group1.wired.repositories.AuthCredentialsRepository;
 import com.group1.wired.repositories.UserRepository;
+import com.group1.wired.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
@@ -13,8 +15,10 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
@@ -35,6 +39,15 @@ public class AuthService {
     @Value("${spotify.redirect.uri}")
     private String redirectUri;
 
+    @Value("${JWT_SECRET}")
+    private String jwtSecret;
+
+    @Value("${com.group.project.jwt.expires-in}")
+    private int expiresIn;
+
+    @Autowired
+    private JwtUtils jwtUtils;
+
     @Autowired
     public AuthService(UserRepository userRepository, AuthCredentialsRepository credentialsRepository, RestTemplate restTemplate, TextEncryptor textEncryptor) {
         this.userRepository = userRepository;
@@ -43,7 +56,8 @@ public class AuthService {
         this.textEncryptor = textEncryptor;
     }
 
-    public String processSpotifyLogin(String authCode) {
+    public AuthResponse processSpotifyLogin(String authCode) {
+//    public String processSpotifyLogin(String authCode) {
         // Swap the Auth Code for Access & Refresh Tokens
         Map<String, Object> tokenData = fetchTokensFromSpotify(authCode);
         
@@ -59,6 +73,9 @@ public class AuthService {
         // Database Logic (Register or Login)
         Optional<User> existingUserOpt = userRepository.findBySpotifyURI(spotifyURI);
         User user;
+
+//         JWT Authentication
+        SecretKey jwtKey = jwtUtils.generateSecretKey(jwtSecret);
 
         if (existingUserOpt.isEmpty()) {
             // New User Registration
@@ -88,7 +105,27 @@ public class AuthService {
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
         }
-        return "Successfully logged in as: " + user.getDisplayName();
+        // to add additional information in the tokent
+        Map<String, String> claims = new HashMap<>();
+        claims.put("displayName", user.getDisplayName());
+
+        String token = jwtUtils.generateToken(
+                user.getUserID().toString(),
+                "wired-api",
+                claims,
+                expiresIn,
+                jwtKey
+        );
+        // builds an instance of AuthResponse using the following details.
+        return AuthResponse.builder()
+                .userID(user.getUserID())
+                .spotifyURI(user.getSpotifyURI())
+                .displayName(user.getDisplayName())
+                .profilePictureURL(user.getProfilePictureURL())
+                .token(token)
+                .build();
+
+//        return "Successfully logged in as: " + user.getDisplayName();
     }
 
     

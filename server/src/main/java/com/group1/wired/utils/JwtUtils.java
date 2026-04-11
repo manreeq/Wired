@@ -41,7 +41,8 @@ public class JwtUtils {
             throw new IllegalArgumentException("Authentication token has expired.", e);
         }
     }
-
+    // need to adapt to spotify request and user entity
+    // removed claims
     public String generateToken(String subject, String audience, Map<String, ?> claims, int expiresIn,
                                 SecretKey secretKey) {
         validateInputs(subject, audience, secretKey);
