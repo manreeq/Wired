@@ -106,6 +106,7 @@ public class AuthService {
         responsePayload.put("message", "Successfully logged in as: " + user.getDisplayName());
         responsePayload.put("displayName", user.getDisplayName());
         responsePayload.put("profilePicUrl", user.getProfilePictureURL());
+        responsePayload.put("userID", String.valueOf(user.getUserID()));
         
         return responsePayload;
     }
