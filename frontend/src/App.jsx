@@ -1,9 +1,9 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import Login from './pages/auth/Login/Login';
-import Callback from './pages/auth/Callback/Callback';
-import Profile from './pages/user/Profile/Profile';
-import Feed from './pages/user/Feed/Feed'
-import PostHistory from './pages/user/History/PostHistory'
+import Login from './pages/auth/login/Login';
+import Callback from './pages/auth/callback/Callback';
+import Profile from './pages/user/profile/Profile';
+import Feed from './pages/user/feed/Feed'
+import PostHistory from './pages/user/history/PostHistory'
 
 function App() {
   return (
