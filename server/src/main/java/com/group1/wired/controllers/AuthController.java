@@ -1,5 +1,4 @@
 package com.group1.wired.controllers;
-import java.util.HashMap;
 import com.group1.wired.dto.AuthResponse;
 import com.group1.wired.dto.SpotifyLoginRequestDTO;
 import com.group1.wired.service.AuthService;
@@ -46,19 +45,24 @@ public class AuthController {
         try {
             AuthResponse authResponse = authService.processSpotifyLogin(request.getCode());
 
-            // Set the JWT as an HTTP-only cookie
             Cookie cookie = new Cookie("authToken", authResponse.getToken());
-            cookie.setHttpOnly(true); //frontend cannot access cookie
-            cookie.setPath("/");		//sent to all routes on the backend
-            cookie.setMaxAge(cookieExpiresIn);	//persistence
+            cookie.setHttpOnly(true);
+            cookie.setPath("/");
+            cookie.setMaxAge(cookieExpiresIn);
             response.addCookie(cookie);
 
-            return ResponseEntity.ok("Successfully logged in as: " + authResponse.getDisplayName());
+            // Return JSON with all the fields the frontend needs
+            Map<String, String> successResponse = new HashMap<>();
+            successResponse.put("message", "Successfully logged in as: " + authResponse.getDisplayName());
+            successResponse.put("userID", String.valueOf(authResponse.getUserID()));
+            successResponse.put("displayName", authResponse.getDisplayName());
+            successResponse.put("profilePicUrl", authResponse.getProfilePictureURL());
+
+            return ResponseEntity.ok(successResponse);
+
         } catch (Exception e) {
-            // Return errors as JSON so the frontend doesn't crash trying to parse it
             Map<String, String> errorResponse = new HashMap<>();
             errorResponse.put("error", "Spotify Login Failed: " + e.getMessage());
-            
             return ResponseEntity.badRequest().body(errorResponse);
         }
     }
