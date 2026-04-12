@@ -1,23 +1,39 @@
-import React from 'react';
-import { useLocation } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
 
 function Profile() {
-    const location = useLocation();
-    // grabs the name  "sent" from the Callback page
-    const displayName = location.state?.name || "User";
+    const [user, setUser] = useState(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        fetch('http://127.0.0.1:8080/api/auth/me', {
+            credentials: 'include' // sends the cookie
+        })
+        .then(response => {
+            if (!response.ok) throw new Error('Not logged in');
+            return response.json();
+        })
+        .then(data => {
+            setUser(data);
+            setLoading(false);
+        })
+        .catch(() => {
+            // not logged in, redirect to login
+            window.location.href = '/';
+        });
+    }, []);
+
+    if (loading) return <h2>Loading...</h2>;
 
     return (
         <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
             <nav style={{ borderBottom: '1px solid #ccc', marginBottom: '20px' }}>
                 <h1>Wired</h1>
             </nav>
-            
+
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                {/*  Profile Pic Placeholder */}
                 <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#333' }}></div>
-                
                 <div>
-                    <h2 style={{ margin: 0 }}>{displayName}</h2>
+                    <h2 style={{ margin: 0 }}>{user?.displayName || "User"}</h2>
                     <p style={{ color: '#666' }}>Spotify Account Connected</p>
                 </div>
             </div>
