@@ -1,11 +1,34 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 import Navbar from '../../../components/Navbar';
 import styles from './Feed.module.css';
 
 function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
+    const [feedPosts, setFeedPosts] = useState([]);
+
+    useEffect(() => {
+        const client = new Client({
+            webSocketFactory: () => new SockJS('http://localhost:8080/chat'),
+            onConnect: () => {
+                client.subscribe('/topic/feed', (message) => {
+                    const activity = JSON.parse(message.body);
+                    setFeedPosts((prev) => [activity, ...prev]);
+                });
+            },
+            onStompError: (frame) => {
+                console.error('STOMP error:', frame);
+            },
+        });
+
+        client.activate();
+
+        // Cleanup on unmount
+        return () => client.deactivate();
+    }, []);
 
     return (
         <div className={styles.container}>
@@ -25,7 +48,25 @@ function Feed() {
                 {/* Main feed area */}
                 <div className={styles.feed}>
                     <h2>Feed</h2>
-                    <p>Posts will appear here.</p>
+
+                    {feedPosts.length === 0 ? (
+                        <p>Waiting for friends to start listening...</p>
+                    ) : (
+                        <div className={styles.postList}>
+                            {feedPosts.map((post, index) => (
+                                <div key={index} className={styles.postCard}>
+                                    <img
+                                        src={post.albumArtUrl}
+                                        alt={post.songTitle}
+                                    />
+                                    <div className={styles.postInfo}>
+                                        <strong>{post.displayName} is now listening to</strong>
+                                        <span>{post.songTitle}</span>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
             </div>

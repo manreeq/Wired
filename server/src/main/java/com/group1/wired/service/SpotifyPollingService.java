@@ -1,15 +1,15 @@
-// TODO: DELETE THIS ENTIRE FILE BEFORE MERGING TO MAIN
-
 package com.group1.wired.service;
 
 import com.group1.wired.components.SpotifyDataRetrievalEngine;
 import com.group1.wired.controllers.PlaybackStateDTO;
-import com.group1.wired.entities.User;
-import com.group1.wired.repositories.UserRepository;
+import com.group1.wired.dto.LiveActivityDTO;
 import com.group1.wired.entities.ListeningActivity;
-import com.group1.wired.repositories.ListeningActivityRepository;
 import com.group1.wired.entities.Song;
+import com.group1.wired.entities.User;
+import com.group1.wired.repositories.ListeningActivityRepository;
+import com.group1.wired.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +24,7 @@ public class SpotifyPollingService {
     private final SpotifyDataRetrievalEngine spotifyEngine;
     private final ParseService parseService;
     private final ListeningActivityRepository listeningActivityRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
     // RAM memory of live states
     private final ConcurrentHashMap<Long, PlaybackStateDTO> livePlaybackState = new ConcurrentHashMap<>();
@@ -32,12 +33,15 @@ public class SpotifyPollingService {
     public SpotifyPollingService(UserRepository userRepository,
             AuthService authService,
             SpotifyDataRetrievalEngine spotifyEngine,
-            ParseService parseService, ListeningActivityRepository listeningActivityRepository) {
+            ParseService parseService,
+            ListeningActivityRepository listeningActivityRepository,
+            SimpMessagingTemplate messagingTemplate) {
         this.userRepository = userRepository;
         this.authService = authService;
         this.spotifyEngine = spotifyEngine;
         this.parseService = parseService;
         this.listeningActivityRepository = listeningActivityRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public ConcurrentHashMap<Long, PlaybackStateDTO> getLivePlaybackState() {
@@ -74,6 +78,18 @@ public class SpotifyPollingService {
                     // Start fresh
                     livePlaybackState.put(userId, newDto);
                     System.out.println("User " + userId + " started a new song: " + newDto.getTrackId());
+
+                    // Fetch song details to broadcast to feed
+                    Song newSong = parseService.parseAndSaveSong(token, newDto.getTrackId());
+                    LiveActivityDTO activityDto = new LiveActivityDTO(
+                            userId,
+                            user.getDisplayName(),
+                            user.getProfilePictureURL(),
+                            newSong.getSongName(),
+                            newSong.getAlbumArtUrl(),
+                            newSong.getSpotifyTrackId()
+                    );
+                    messagingTemplate.convertAndSend("/topic/feed", activityDto);
                 }
                 // Same song still playing
                 else {
