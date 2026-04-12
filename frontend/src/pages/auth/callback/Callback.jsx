@@ -26,7 +26,7 @@ function Callback() {
             // send a network request to AuthController
             // the endpoint is a reverse proxy via nginx and duckdns which points to the EC2 instance (backend)
             // this is so that the backend is in https
-            fetch('http://localhost:8080/api/auth/spotify', {
+            fetch('http://127.0.0.1:8080/api/auth/spotify', {
                 method: 'POST', 
                 headers: {
                     'Content-Type': 'application/json', 
@@ -41,18 +41,22 @@ function Callback() {
                     throw new Error('Backend rejected the login');
                 }
                 // otherwise, extract the text response 
-                return response.text(); 
+                return response.json(); 
             })
-            // 'data' holds the final text string ("Successfully logged in as: [Name]")
+            // 'data' holds the final JSON object from the backend
             .then(data => {
-                setStatus(data); // "Successfully logged in as [Name]" string
-                
-                // Extract the name from the string
-                const nameOnly = data.replace("Successfully logged in as: ", "");
+                setStatus(data.message); // "Successfully logged in as [Name]" string
+
+                // Save the user data globally to the browser
+                const userData = {
+                    name: data.displayName,
+                    profilePicUrl: data.profilePicUrl
+                };
+                localStorage.setItem('wiredUser', JSON.stringify(userData));
 
                 // wait 1.5 seconds so the user sees the success message, then move to profile
 				setTimeout(() => {
-				    navigate('/feed', { state: { name: nameOnly } });
+				    navigate('/feed');
 				}, 1500);})
             // if something goes wrong (network crash, backend error), catch it here
 			.catch(error => {
