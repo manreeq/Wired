@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
-import Navbar from '../../../components/Navbar';
+import Navbar from '../../../components/navbar';
 import styles from './Feed.module.css';
 
 function Feed() {
