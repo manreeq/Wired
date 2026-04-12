@@ -7,7 +7,7 @@ function Login(){
     const RESPONSE_TYPE = 'code';
     // scopes for actually getting user data later
     // SCOPES define what parts of the user's Spotify account our this code section can access.
-    const SCOPES = 'user-read-private user-read-email'; 
+    const SCOPES = 'user-read-private user-read-email user-read-currently-playing'; 
 
     // encodeURIComponent turns "http://" into "http%3A%2F%2F" so spotify can read it
     const spotifyLoginUrl = `${AUTH_ENDPOINT}?client_id=${CLIENT_ID}` + 
