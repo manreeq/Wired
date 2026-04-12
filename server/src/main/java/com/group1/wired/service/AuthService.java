@@ -15,6 +15,8 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -43,7 +45,7 @@ public class AuthService {
         this.textEncryptor = textEncryptor;
     }
 
-    public String processSpotifyLogin(String authCode) {
+    public Map<String, String> processSpotifyLogin(String authCode) {
         // Swap the Auth Code for Access & Refresh Tokens
         Map<String, Object> tokenData = fetchTokensFromSpotify(authCode);
         
@@ -55,6 +57,13 @@ public class AuthService {
         Map<String, Object> spotifyProfile = fetchUserProfile(accessToken);
         String spotifyURI = (String) spotifyProfile.get("id");
         String displayName = (String) spotifyProfile.get("display_name");
+        
+        // Declare profilePic variable and extract the URL
+        String profilePicUrl = null;
+        List<Map<String, Object>> images = (List<Map<String, Object>>) spotifyProfile.get("images");
+        if (images != null && !images.isEmpty()) {
+            profilePicUrl = (String) images.get(0).get("url"); 
+        }
 
         // Database Logic (Register or Login)
         Optional<User> existingUserOpt = userRepository.findBySpotifyURI(spotifyURI);
@@ -63,6 +72,7 @@ public class AuthService {
         if (existingUserOpt.isEmpty()) {
             // New User Registration
             user = new User(spotifyURI, displayName);
+            user.setProfilePictureURL(profilePicUrl);
             user.setJoinDate(LocalDateTime.now());
             user = userRepository.save(user);
             
@@ -76,6 +86,9 @@ public class AuthService {
             
         } else {
             user = existingUserOpt.get();
+            user.setProfilePictureURL(profilePicUrl); // Apply to returning user
+            user = userRepository.save(user);
+            
             AuthCredentials creds = credentialsRepository.findByUser(user)
                     .orElse(new AuthCredentials());
             
@@ -88,7 +101,13 @@ public class AuthService {
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
         }
-        return "Successfully logged in as: " + user.getDisplayName();
+        // Package the response into a JSON Map
+        Map<String, String> responsePayload = new HashMap<>();
+        responsePayload.put("message", "Successfully logged in as: " + user.getDisplayName());
+        responsePayload.put("displayName", user.getDisplayName());
+        responsePayload.put("profilePicUrl", user.getProfilePictureURL());
+        
+        return responsePayload;
     }
 
     
