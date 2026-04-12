@@ -5,6 +5,7 @@ function Profile() {
     const location = useLocation();
     // grabs the name  "sent" from the Callback page
     const displayName = location.state?.name || "User";
+    const profilePicUrl = location.state?.profilePicUrl;
 
     return (
         <div style={{ padding: '40px', fontFamily: 'sans-serif' }}>
@@ -13,8 +14,18 @@ function Profile() {
             </nav>
             
             <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                {/*  Profile Pic Placeholder */}
-                <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#333' }}></div>
+
+                {/* Conditional Rendering for Profile Picture */}
+                {profilePicUrl && profilePicUrl !== "None" ? (
+                    <img 
+                        src={profilePicUrl} 
+                        alt={`${displayName}'s profile`} 
+                        style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }} 
+                    />
+                ) : (
+                    // Fallback Placeholder if no Spotify Avatar
+                    <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#333' }}></div>
+                )}
                 
                 <div>
                     <h2 style={{ margin: 0 }}>{displayName}</h2>

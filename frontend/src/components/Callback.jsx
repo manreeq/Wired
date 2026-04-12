@@ -41,18 +41,20 @@ function Callback() {
                     throw new Error('Backend rejected the login');
                 }
                 // otherwise, extract the text response 
-                return response.text(); 
+                return response.json(); 
             })
-            // 'data' holds the final text string ("Successfully logged in as: [Name]")
+            // 'data' holds the final JSON object from the backend
             .then(data => {
-                setStatus(data); // "Successfully logged in as [Name]" string
-                
-                // Extract the name from the string
-                const nameOnly = data.replace("Successfully logged in as: ", "");
+                setStatus(data.message); // "Successfully logged in as [Name]" string
 
                 // wait 1.5 seconds so the user sees the success message, then move to profile
                 setTimeout(() => {
-                    navigate('/profile', { state: { name: nameOnly } });
+                    navigate('/profile', { 
+                        state: { 
+                            name: data.displayName,
+                            profilePicUrl: data.profilePicUrl 
+                        } 
+                    });
                 }, 1500);
             })
             // if something goes wrong (network crash, backend error), catch it here
