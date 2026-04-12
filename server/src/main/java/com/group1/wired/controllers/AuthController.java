@@ -2,6 +2,10 @@ package com.group1.wired.controllers;
 
 import com.group1.wired.controllers.SpotifyLoginRequestDTO;
 import com.group1.wired.service.AuthService;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +23,18 @@ public class AuthController {
     }
 
     @PostMapping("/spotify")
-    public ResponseEntity<String> loginWithSpotify(@RequestBody SpotifyLoginRequestDTO request) {
+    public ResponseEntity<Map<String, String>> loginWithSpotify(@RequestBody SpotifyLoginRequestDTO request) {
         try {
-            String result = authService.processSpotifyLogin(request.getCode());
+            // Take a Map instead of a String from the service
+            Map<String, String> result = authService.processSpotifyLogin(request.getCode());
             return ResponseEntity.ok(result);
+            
         } catch (Exception e) {
-            return ResponseEntity.badRequest().body("Spotify Login Failed: " + e.getMessage());
+            // Return errors as JSON so the frontend doesn't crash trying to parse it
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", "Spotify Login Failed: " + e.getMessage());
+            
+            return ResponseEntity.badRequest().body(errorResponse);
         }
     }
 }

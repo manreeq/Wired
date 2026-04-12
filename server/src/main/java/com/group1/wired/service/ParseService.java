@@ -17,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.group1.wired.controllers.PlaybackStateDTO;
+
 @Service
 public class ParseService {
 
@@ -139,5 +141,29 @@ public class ParseService {
             Artist artist = new Artist(spotifyArtistId, "Unknown", "None");
             return artistRepository.save(artist);
         });
+    }
+
+    public PlaybackStateDTO parseCurrentlyPlayingJson(String json) {
+        if (json == null || json.trim().isEmpty()) {
+            return new PlaybackStateDTO(); // Default no-content fallback
+        }
+
+        try {
+            JsonNode root = objectMapper.readTree(json);
+
+            JsonNode itemNode = root.path("item");
+            if (itemNode.isMissingNode() || itemNode.isNull() || !itemNode.has("id")) {
+                return new PlaybackStateDTO();
+            }
+
+            boolean isPlaying = root.path("is_playing").asBoolean(false);
+            long progressMs = root.path("progress_ms").asLong(0);
+            String trackId = itemNode.path("id").asText(null);
+
+            return new PlaybackStateDTO(isPlaying, trackId, progressMs, false);
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to parse currently playing JSON: " + e.getMessage());
+        }
     }
 }
