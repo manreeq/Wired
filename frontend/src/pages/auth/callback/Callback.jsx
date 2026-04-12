@@ -24,7 +24,7 @@ function Callback() {
         // if found a code in the URL, run the login process
         if (code) {
             // send a network request to AuthController
- 			fetch('http://127.0.0.1:8080/api/auth/spotify', {
+ 			fetch(import.meta.env.VITE_SPOTIFY_REDIRECT_URI_CALLBACK, {
 			    method: 'POST',
 			    headers: { 'Content-Type': 'application/json' },
 			    body: JSON.stringify({ code: code }),
