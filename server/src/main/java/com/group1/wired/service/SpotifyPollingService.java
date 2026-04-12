@@ -4,6 +4,9 @@ import com.group1.wired.components.SpotifyDataRetrievalEngine;
 import com.group1.wired.controllers.PlaybackStateDTO;
 import com.group1.wired.entities.User;
 import com.group1.wired.repositories.UserRepository;
+import com.group1.wired.entities.ListeningActivity;
+import com.group1.wired.repositories.ListeningActivityRepository;
+import com.group1.wired.entities.Song;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -18,6 +21,7 @@ public class SpotifyPollingService {
     private final AuthService authService;
     private final SpotifyDataRetrievalEngine spotifyEngine;
     private final ParseService parseService;
+    private final ListeningActivityRepository listeningActivityRepository;
 
     // RAM memory of live states
     private final ConcurrentHashMap<Long, PlaybackStateDTO> livePlaybackState = new ConcurrentHashMap<>();
@@ -26,11 +30,12 @@ public class SpotifyPollingService {
     public SpotifyPollingService(UserRepository userRepository,
             AuthService authService,
             SpotifyDataRetrievalEngine spotifyEngine,
-            ParseService parseService) {
+            ParseService parseService, ListeningActivityRepository listeningActivityRepository) {
         this.userRepository = userRepository;
         this.authService = authService;
         this.spotifyEngine = spotifyEngine;
         this.parseService = parseService;
+        this.listeningActivityRepository = listeningActivityRepository;
     }
 
     public ConcurrentHashMap<Long, PlaybackStateDTO> getLivePlaybackState() {
@@ -75,11 +80,20 @@ public class SpotifyPollingService {
 
                     // Check threshold (30 seconds = 30000 ms) and prevent multiple logs
                     if (cachedState.getProgressMs() >= 30000 && !cachedState.isHasBeenLogged()) {
+                    	// Fetch or create the Song entity using your ParseService
+                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
+                        
+                        // Create new ListeningActivity with the User and Song
+                        ListeningActivity newActivity = new ListeningActivity(user, song);
+                        
+                        // Save to db
+                        listeningActivityRepository.save(newActivity);
+                        
+                        // Mark as logged so it won't trigger again on the next poll
                         cachedState.setHasBeenLogged(true);
-                        // Yet to-do is logic to map the trackId to a Song entity and save to
-                        // ListeningActivityRepository
-                        System.out.println("User " + userId + " hit 30s threshold! Flagging as logged for: "
-                                + cachedState.getTrackId());
+                        
+                        System.out.println("User " + userId + " hit 30s threshold! Officially logged to DB: "
+                                + song.getSongName());
                     }
                 }
 
