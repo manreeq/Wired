@@ -1,8 +1,15 @@
 .container {
     display: flex;
+    flex-direction: column;
     height: 100vh;
 }
- 
+
+.body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+}
+
 .sidebar {
     display: flex;
     flex-direction: column;
@@ -11,8 +18,33 @@
     width: 200px;
     border-right: 1px solid #ccc;
 }
- 
+
 .feed {
     padding: 20px;
     flex: 1;
+}
+
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.modal {
+    background: white;
+    padding: 24px;
+    border-radius: 8px;
+    width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.modalButtons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
 }

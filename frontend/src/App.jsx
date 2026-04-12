@@ -3,6 +3,7 @@ import Login from './pages/auth/Login/Login';
 import Callback from './pages/auth/Callback/Callback';
 import Profile from './pages/user/Profile/Profile';
 import Feed from './pages/user/Feed/Feed'
+import PostHistory from './pages/user/History/PostHistory'
 
 function App() {
   return (
@@ -16,6 +17,8 @@ function App() {
 
         <Route path="/profile" element={<Profile />} />
 		<Route path="/feed" element={<Feed />} />
+		<Route path="/posthistory" element={<PostHistory />} />
+		 
       </Routes>
     </Router>
   );
