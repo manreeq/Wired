@@ -16,7 +16,12 @@ function Feed() {
             onConnect: () => {
                 client.subscribe('/topic/feed', (message) => {
                     const activity = JSON.parse(message.body);
-                    setFeedPosts((prev) => [activity, ...prev]);
+                    setFeedPosts((prev) => {
+                        // Remove any older post from this same user
+                        const filtered = prev.filter(post => post.userId !== activity.userId);
+                        // Prepend the new updated activity at the top!
+                        return [activity, ...filtered];
+                    });
                 });
             },
             onStompError: (frame) => {
@@ -50,7 +55,7 @@ function Feed() {
                     <h2>Feed</h2>
 
                     {feedPosts.length === 0 ? (
-                        <p>Waiting for friends to start listening...</p>
+                        <p>Waiting for you or your friends to start listening to a new song on Spotify...</p>
                     ) : (
                         <div className={styles.postList}>
                             {feedPosts.map((post, index) => (
@@ -60,7 +65,9 @@ function Feed() {
                                         alt={post.songTitle}
                                     />
                                     <div className={styles.postInfo}>
-                                        <strong>{post.displayName} is now listening to</strong>
+                                        <strong>
+                                            {post.displayName} {post.isPlaying ? 'is now listening to' : 'was listening to'}
+                                        </strong>
                                         <span>{post.songTitle}</span>
                                     </div>
                                 </div>
