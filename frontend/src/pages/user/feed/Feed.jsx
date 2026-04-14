@@ -14,12 +14,10 @@ function Feed() {
     const [mediaId, setMediaId] = useState('');
     const [content, setContent] = useState('');
 
-    // ONE unified array for both Live Activities and Manual Posts
+    // One unified array for both Live Activities and Manual Posts
     const [feedItems, setFeedItems] = useState([]);
 
-    // ==========================================
     // EFFECT 1: Fetch Database Posts (Historical)
-    // ==========================================
     useEffect(() => {
         fetch('http://127.0.0.1:8080/api/posts/feed')
             .then(response => {
@@ -36,11 +34,8 @@ function Feed() {
             .catch(error => console.error("Error loading feed history:", error));
     }, []);
 
-    // ==========================================
     // EFFECT 2: WebSocket Connection (Live)
-    // ==========================================
     useEffect(() => {
-        // UPDATED: Using the env variable from your latest commit
         const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
         
         const client = new Client({
@@ -69,9 +64,8 @@ function Feed() {
         return () => client.deactivate();
     }, []);
 
-    // ==========================================
+
     // POST CREATION HANDLER
-    // ==========================================
     const handlePostSubmit = () => {
         const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
         const userId = storedUser.id;
