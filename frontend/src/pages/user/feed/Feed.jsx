@@ -8,6 +8,8 @@ import styles from './Feed.module.css';
 function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
+
+    const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080';
     
     // Form state variables
     const [postType, setPostType] = useState('song');
@@ -19,7 +21,7 @@ function Feed() {
 
     // EFFECT 1: Fetch Database Posts (Historical)
     useEffect(() => {
-        fetch('http://127.0.0.1:8080/api/posts/feed')
+        fetch(`${apiUrl}/api/posts/feed`)
             .then(response => {
                 if (!response.ok) throw new Error('Failed to fetch feed history');
                 return response.json();
@@ -90,7 +92,7 @@ function Feed() {
             userId: parseInt(userId, 10)
         };
 
-        fetch(`http://127.0.0.1:8080/api/posts/${postType}`, {
+        fetch(`${apiUrl}/api/posts/${postType}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)

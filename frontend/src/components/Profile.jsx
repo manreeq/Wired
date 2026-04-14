@@ -5,7 +5,7 @@ function Profile() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://127.0.0.1:8080/api/auth/me', {
+        fetch('${apiUrl}/api/auth/me', {
             credentials: 'include' // sends the cookie
         })
         .then(response => {
