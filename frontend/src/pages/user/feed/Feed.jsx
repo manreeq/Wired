@@ -82,7 +82,7 @@ function Feed() {
     // POST CREATION HANDLER
     const handlePostSubmit = () => {
         const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
-        const userId = storedUser.id;
+        const userId = storedUser.userID;
 
         if (!userId) return alert("Error: User ID not found.");
 
