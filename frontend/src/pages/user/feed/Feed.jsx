@@ -1,121 +1,160 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import Navbar from '../../../components/Navbar';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
+import Navbar from '../../../components/navbar';
 import styles from './Feed.module.css';
 
 function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
-
-    // variables to hold the form data
+    
+    // Form state variables
     const [postType, setPostType] = useState('song');
     const [mediaId, setMediaId] = useState('');
     const [content, setContent] = useState('');
 
-    // state array to hold and display the feed of posts
-    const [posts, setPosts] = useState([]);
+    // ONE unified array for both Live Activities and Manual Posts
+    const [feedItems, setFeedItems] = useState([]);
 
+    // ==========================================
+    // EFFECT 1: Fetch Database Posts (Historical)
+    // ==========================================
+    useEffect(() => {
+        fetch('http://127.0.0.1:8080/api/posts/feed')
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch feed history');
+                return response.json();
+            })
+            .then(data => {
+                // Inject a 'feedType' flag so our UI knows this is a manual post
+                const formattedPosts = data.map(post => ({ ...post, feedType: 'MANUAL_POST' }));
+                
+                // Use a functional state update to safely merge with any live data 
+                setFeedItems(prev => [...prev, ...formattedPosts]);
+            })
+            .catch(error => console.error("Error loading feed history:", error));
+    }, []);
+
+    // ==========================================
+    // EFFECT 2: WebSocket Connection (Live)
+    // ==========================================
+    useEffect(() => {
+        // UPDATED: Using the env variable from your latest commit
+        const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
+        
+        const client = new Client({
+            webSocketFactory: () => new SockJS(wsUrl),
+            onConnect: () => {
+                client.subscribe('/topic/feed', (message) => {
+                    const rawActivity = JSON.parse(message.body);
+                    
+                    // Inject a 'feedType' flag so our UI knows this is live
+                    const activity = { ...rawActivity, feedType: 'LIVE_ACTIVITY' };
+
+                    setFeedItems((prev) => {
+                        // Filter out the older *live* post from this same user
+                        const filtered = prev.filter(item => 
+                            !(item.feedType === 'LIVE_ACTIVITY' && item.userId === activity.userId)
+                        );
+                        // Prepend the new live activity to the top
+                        return [activity, ...filtered];
+                    });
+                });
+            },
+            onStompError: (frame) => console.error('STOMP error:', frame),
+        });
+
+        client.activate();
+        return () => client.deactivate();
+    }, []);
+
+    // ==========================================
+    // POST CREATION HANDLER
+    // ==========================================
     const handlePostSubmit = () => {
-        // Pull globally stored user ID (from calback upon login)
         const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
         const userId = storedUser.id;
 
-        if (!userId) {
-            alert("Error: User ID not found. Please log in again.");
-            return;
-        }
+        if (!userId) return alert("Error: User ID not found.");
 
-        // Setup post payload
         const payload = {
-            mediaId: parseInt(mediaId, 10), 
+            mediaId: parseInt(mediaId, 10),
             content: content,
             userId: parseInt(userId, 10)
         };
 
-        // Send request to dynamic endpoint based on dropdown selection
         fetch(`http://127.0.0.1:8080/api/posts/${postType}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Failed to create post');
-            }
-            return response.json();
-        })
+        .then(res => res.json())
         .then(data => {
-            console.log("Post created successfully:", data);
-
-            // Add new post (returned by springboot) to top of feed
-            setPosts([data, ...posts]);
+            const newPost = { ...data, feedType: 'MANUAL_POST' };
+            setFeedItems([newPost, ...feedItems]);
             
-            // Reset form and close the modal upon success
             setContent('');
             setMediaId('');
-            setPostType('song');
             setShowModal(false);
-            alert("Post created successfully!");
         })
-        .catch(error => {
-            console.error("Error creating post:", error);
-            alert("Failed to create post. Please make sure the Media ID exists in your database.");
-        });
+        .catch(err => console.error(err));
     };
 
     return (
         <div className={styles.container}>
-
             <Navbar />
-
             <div className={styles.body}>
-
-                {/* Sidebar */}
                 <div className={styles.sidebar}>
                     <button onClick={() => navigate('/profile')}>Profile</button>
                     <button>Friends</button>
-                    <button>Add Friends</button>
                     <button onClick={() => setShowModal(true)}>Create Post</button>
                 </div>
 
-                {/* Main feed area */}
                 <div className={styles.feed}>
                     <h2>Feed</h2>
-                    
-                    {/* Conditional rendering for the post feed */}
-                    {posts.length === 0 ? (
-                        <p>No posts yet.</p>
+
+                    {feedItems.length === 0 ? (
+                        <p>Loading feed...</p>
                     ) : (
-                        <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            {posts.map((post, index) => (
-                                <div key={index} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px', backgroundColor: '#fff' }}>
-                                    
-                                    {/* Display User's Name and Caption */}
-                                    <div style={{ marginBottom: '10px' }}>
-                                        <strong style={{ fontSize: '1.1em' }}>
-                                            {post.user?.displayName || "Unknown User"}
-                                        </strong>
-                                        <p style={{ margin: '5px 0' }}>{post.caption}</p>
-                                    </div>
-                                    
-                                    {/* Display Attached Media Name dynamically */}
-                                    <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px', fontSize: '0.9em', color: '#555' }}>
-                                        🎧 <strong>Listening to: </strong> 
-                                        {
-                                            post.song?.songName || 
-                                            post.album?.albumName || 
-                                            post.playlist?.playlistName || 
-                                            "Unknown Media"
-                                        }
-                                    </div>
-                                </div>
-                            ))}
+                        <div className={styles.postList} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+                            {feedItems.map((item, index) => {
+                                
+                                // RENDER LIVE ACTIVITY CARD
+                                if (item.feedType === 'LIVE_ACTIVITY') {
+                                    return (
+                                        <div key={`live-${index}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
+                                                <div>
+                                                    <strong>{item.displayName} {item.isPlaying ? 'is now listening to' : 'was listening to'}</strong>
+                                                    <p style={{ margin: 0 }}>{item.songTitle}</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                }
+
+                                // RENDER MANUAL POST CARD
+                                if (item.feedType === 'MANUAL_POST') {
+                                    return (
+                                        <div key={`post-${item.postId || index}`} className={styles.postCard} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+                                            <div style={{ marginBottom: '10px' }}>
+                                                <strong>{item.user?.displayName || "Unknown User"}</strong>
+                                                <p style={{ margin: '5px 0' }}>{item.caption}</p>
+                                            </div>
+                                            <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+                                                🎧 <strong>Attached Media: </strong> 
+                                                {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
+                                            </div>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })}
                         </div>
                     )}
                 </div>
-
             </div>
 
             {/* Create Post Modal */}
@@ -123,36 +162,13 @@ function Feed() {
                 <div className={styles.modalOverlay} onClick={() => setShowModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Create Post</h2>
-
-                        {/* NEW: Dropdown for Post Type */}
-                        <div style={{ marginBottom: '10px' }}>
-                            <label style={{ marginRight: '10px' }}>Post Type: </label>
-                            <select value={postType} onChange={(e) => setPostType(e.target.value)}>
-                                <option value="song">Song</option>
-                                <option value="album">Album</option>
-                                <option value="playlist">Playlist</option>
-                            </select>
-                        </div>
-
-                        {/* NEW: Input for Media ID */}
-                        <div style={{ marginBottom: '10px' }}>
-                            <input 
-                                type="number" 
-                                placeholder="Enter Database Media ID (e.g., 1)" 
-                                value={mediaId} 
-                                onChange={(e) => setMediaId(e.target.value)} 
-                                style={{ width: '100%', padding: '5px' }}
-                            />
-                        </div>
-
-                        <textarea 
-                            placeholder="What are you listening to?" 
-                            rows={4} 
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            style={{ width: '100%', marginBottom: '10px', padding: '5px' }}
-                        />
-                        
+                        <select value={postType} onChange={(e) => setPostType(e.target.value)} style={{ marginBottom: '10px' }}>
+                            <option value="song">Song</option>
+                            <option value="album">Album</option>
+                            <option value="playlist">Playlist</option>
+                        </select>
+                        <input type="number" placeholder="Media ID" value={mediaId} onChange={(e) => setMediaId(e.target.value)} style={{ width: '100%', marginBottom: '10px' }}/>
+                        <textarea placeholder="What are you listening to?" rows={4} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowModal(false)}>Cancel</button>
                             <button onClick={handlePostSubmit}>Post</button>
