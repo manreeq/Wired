@@ -64,6 +64,18 @@ function Feed() {
         return () => client.deactivate();
     }, []);
 
+    // Transforms the raw backend timestamp into a human-readable format
+    const formatTimestamp = (rawTime) => {
+        if (!rawTime) return '';
+        const date = new Date(rawTime);
+        return date.toLocaleDateString(undefined, { 
+            month: 'short', 
+            day: 'numeric', 
+            hour: '2-digit', 
+            minute: '2-digit' 
+        }); // e.g., "Apr 14, 5:30 PM"
+    };
+
 
     // POST CREATION HANDLER
     const handlePostSubmit = () => {
@@ -133,10 +145,18 @@ function Feed() {
                                 if (item.feedType === 'MANUAL_POST') {
                                     return (
                                         <div key={`post-${item.postId || index}`} className={styles.postCard} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-                                            <div style={{ marginBottom: '10px' }}>
-                                                <strong>{item.user?.displayName || "Unknown User"}</strong>
-                                                <p style={{ margin: '5px 0' }}>{item.caption}</p>
+                                            
+                                            {/* UPDATED: Name and Timestamp Header */}
+                                            <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                                    <strong style={{ fontSize: '1.1em' }}>{item.user?.displayName || "Unknown User"}</strong>
+                                                    <span style={{ fontSize: '0.85em', color: '#888' }}>
+                                                        {formatTimestamp(item.timestamp)}
+                                                    </span>
+                                                </div>
+                                                <p style={{ margin: '8px 0' }}>{item.caption}</p>
                                             </div>
+                                            
                                             <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
                                                 🎧 <strong>Attached Media: </strong> 
                                                 {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
