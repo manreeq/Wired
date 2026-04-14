@@ -81,10 +81,16 @@ function Feed() {
 
     // POST CREATION HANDLER
     const handlePostSubmit = () => {
+        // STEP 1: Prove the button is actually attached
+        alert("1. Button clicked! Starting function..."); 
+        
         const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
-        const userId = storedUser.id;
+        const userId = storedUser.id; 
 
-        if (!userId) return alert("Error: User ID not found.");
+        if (!userId) {
+            alert("FAILED: Could not find user ID in localStorage.");
+            return;
+        }
 
         const payload = {
             mediaId: parseInt(mediaId, 10),
@@ -92,21 +98,39 @@ function Feed() {
             userId: parseInt(userId, 10)
         };
 
-        fetch(`${apiUrl}/api/posts/${postType}`, {
+        // STEP 2: Prove the data is formatted correctly
+        alert("2. Data ready to send: " + JSON.stringify(payload)); 
+
+        const postUrl = `${apiUrl}/api/posts/${postType}`;
+        
+        fetch(postUrl, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json())
+        .then(async res => {
+            // STEP 3: Catch any backend crashes (like 500 or 404 errors)
+            if (!res.ok) {
+                const text = await res.text();
+                alert(`FAILED: Server returned Error ${res.status}. Check console for details.`);
+                throw new Error(`Server Error ${res.status}: ${text}`);
+            }
+            return res.json();
+        })
         .then(data => {
+            // STEP 4: Ultimate victory
+            alert("3. SUCCESS! Database saved the post.");
             const newPost = { ...data, feedType: 'MANUAL_POST' };
             setFeedItems([newPost, ...feedItems]);
-            
             setContent('');
             setMediaId('');
             setShowModal(false);
         })
-        .catch(err => console.error(err));
+        .catch(err => {
+            // This catches network drops or CORS issues
+            console.error("POST CRASHED:", err);
+            alert("FAILED: The fetch request crashed completely. Open your browser console!");
+        });
     };
 
     return (
