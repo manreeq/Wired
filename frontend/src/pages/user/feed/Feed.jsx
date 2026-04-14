@@ -11,8 +11,11 @@ function Feed() {
     const [feedPosts, setFeedPosts] = useState([]);
 
     useEffect(() => {
+        // Fallback to localhost if the env var isn't loaded
+        const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
+        
         const client = new Client({
-            webSocketFactory: () => new SockJS('http://localhost:8080/chat'),
+            webSocketFactory: () => new SockJS(wsUrl),
             onConnect: () => {
                 client.subscribe('/topic/feed', (message) => {
                     const activity = JSON.parse(message.body);
