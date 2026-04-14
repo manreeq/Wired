@@ -2,50 +2,51 @@ package com.group1.wired.controllers;
 
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.group1.wired.components.SocialMediaEngine;
 import com.group1.wired.entities.*;
 
+@CrossOrigin(origins = "*", allowedHeaders = "*") // allows React talk to this controller
 @RestController
-//TO-DO: may change
 @RequestMapping("/api/posts")
 public class SMEController {
 
-	private final SocialMediaEngine socialMediaEngine;
+    private final SocialMediaEngine socialMediaEngine;
 
     public SMEController(SocialMediaEngine socialMediaEngine) {
         this.socialMediaEngine = socialMediaEngine;
     }
     
-    
-    //temporary til frontend is implemented
+    // Song Post
     @PostMapping("/song")
-    public SongPost createSongPost(
-            @RequestParam Long songId, 
-            @RequestParam String content, 
-            @RequestParam Long userId) {
-        return socialMediaEngine.createSongPost(songId, content, userId);
+    public SongPost createSongPost(@RequestBody CreatePostRequestDTO request) {
+        return socialMediaEngine.createSongPost(
+            request.getMediaId(), 
+            request.getContent(), 
+            request.getUserId()
+        );
     }
 
-    // 2. POST an Album
+    // Album Post
     @PostMapping("/album")
-    public AlbumPost createAlbumPost(
-            @RequestParam Long albumId, 
-            @RequestParam String content, 
-            @RequestParam Long userId) {
-        return socialMediaEngine.createAlbumPost(albumId, content, userId);
+    public AlbumPost createAlbumPost(@RequestBody CreatePostRequestDTO request) {
+        return socialMediaEngine.createAlbumPost(
+            request.getMediaId(), 
+            request.getContent(), 
+            request.getUserId()
+        );
     }
 
-    // 3. POST a Playlist
+    // 3. Playlist Post
     @PostMapping("/playlist")
-    public PlaylistPost createPlaylistPost(
-            @RequestParam Long playlistId, 
-            @RequestParam String content, 
-            @RequestParam Long userId) {
-        return socialMediaEngine.createPlaylistPost(playlistId, content, userId);
+    public PlaylistPost createPlaylistPost(@RequestBody CreatePostRequestDTO request) {
+        return socialMediaEngine.createPlaylistPost(
+            request.getMediaId(), 
+            request.getContent(), 
+            request.getUserId()
+        );
     }
-    
-    
 }
