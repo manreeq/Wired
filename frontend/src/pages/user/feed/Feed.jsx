@@ -9,6 +9,9 @@ function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
 
+    // for friends modal
+    const [showFriendsModal, setShowFriendsModal] = useState(false);
+
     const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080';
     
     // Form state variables
@@ -115,7 +118,7 @@ function Feed() {
             <div className={styles.body}>
                 <div className={styles.sidebar}>
                     <button onClick={() => navigate('/profile')}>Profile</button>
-                    <button>Friends</button>
+                    <button onClick={() => setShowFriendsModal(true)}>Friends</button>
                     <button onClick={() => setShowModal(true)}>Create Post</button>
                 </div>
 
@@ -188,6 +191,20 @@ function Feed() {
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowModal(false)}>Cancel</button>
                             <button onClick={handlePostSubmit}>Post</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {showFriendsModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowFriendsModal(false)}>
+                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                        <h2>Add Friend</h2>
+                        <h3>Your friend code: </h3>
+                        <textarea placeholder="Enter Friend Code" rows={1} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
+                        <div className={styles.modalButtons}>
+                            <button onClick={() => setShowFriendModal(false)}>Cancel</button>
+                            <button>Add</button>
                         </div>
                     </div>
                 </div>
