@@ -56,6 +56,7 @@ public class AuthController {
             successResponse.put("message", "Successfully logged in as: " + authResponse.getDisplayName());
             successResponse.put("userID", String.valueOf(authResponse.getUserID()));
             successResponse.put("displayName", authResponse.getDisplayName());
+            successResponse.put("friendCode", authResponse.getFriendCode());
             successResponse.put("profilePicUrl", authResponse.getProfilePictureURL());
 
             return ResponseEntity.ok(successResponse);

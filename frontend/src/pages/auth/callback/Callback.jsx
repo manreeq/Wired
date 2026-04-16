@@ -47,6 +47,7 @@ function Callback() {
                 const userData = {
                     id: data.userID,
                     name: data.displayName,
+                    friendCode: data.friendCode,
                     profilePicUrl: data.profilePicUrl
                 };
                 localStorage.setItem('wiredUser', JSON.stringify(userData));

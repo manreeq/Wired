@@ -12,6 +12,7 @@ function Feed() {
     //entity of logged in user
     const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
     const userId = storedUser.id;
+    const friendCode = storedUser.friendCode;
 
     // for friends modal
     const [showFriendsModal, setShowFriendsModal] = useState(false);
@@ -202,7 +203,7 @@ function Feed() {
                 <div className={styles.modalOverlay} onClick={() => setShowFriendsModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Add Friend</h2>
-                        <h3>Your friend code: </h3>
+                        <h3>Your friend code: {friendCode}</h3>
                         <textarea placeholder="Enter Friend Code" rows={1} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowFriendsModal(false)}>Cancel</button>
