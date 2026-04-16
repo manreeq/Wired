@@ -23,6 +23,7 @@ function Feed() {
     const [postType, setPostType] = useState('song');
     const [mediaId, setMediaId] = useState('');
     const [content, setContent] = useState('');
+    const [targetFriendCode,setTargetFriendCode] = useState('');
 
     // One unified array for both Live Activities and Manual Posts
     const [feedItems, setFeedItems] = useState([]);
@@ -115,6 +116,24 @@ function Feed() {
         .catch(err => console.error(err));
     };
 
+    // FRIEND REQUEST HANDLER
+    const handleFriendRequestSubmit = () => {
+        if (!userId) return alert("Error: User ID not found.");
+        const payload = {
+          "requesterUserId": userId,
+          "targetFriendCode": targetFriendCode,
+          "status": "Accepted"
+        }
+
+        fetch(`${apiUrl}/api/friends`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                })
+
+        setShowFriendsModal(false)
+    }
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -198,16 +217,16 @@ function Feed() {
                     </div>
                 </div>
             )}
-
+            {/*  show friend modal */}
             {showFriendsModal && (
                 <div className={styles.modalOverlay} onClick={() => setShowFriendsModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Add Friend</h2>
                         <h3>Your friend code: {friendCode}</h3>
-                        <textarea placeholder="Enter Friend Code" rows={1} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
+                        <textarea placeholder="Enter Friend Code" rows={1} value={targetFriendCode} onChange={(e) => setTargetFriendCode(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowFriendsModal(false)}>Cancel</button>
-                            <button>Add</button>
+                            <button onClick={handleFriendRequestSubmit}>Add</button>
                         </div>
                     </div>
                 </div>
