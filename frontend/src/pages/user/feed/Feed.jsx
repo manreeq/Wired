@@ -9,11 +9,15 @@ function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
 
+    //entity of logged in user
+    const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
+    const userId = storedUser.id;
+
     // for friends modal
     const [showFriendsModal, setShowFriendsModal] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080';
-    
+
     // Form state variables
     const [postType, setPostType] = useState('song');
     const [mediaId, setMediaId] = useState('');
@@ -32,8 +36,8 @@ function Feed() {
             .then(data => {
                 // Inject a 'feedType' flag so our UI knows this is a manual post
                 const formattedPosts = data.map(post => ({ ...post, feedType: 'MANUAL_POST' }));
-                
-                // Use a functional state update to safely merge with any live data 
+
+                // Use a functional state update to safely merge with any live data
                 setFeedItems(prev => [...prev, ...formattedPosts]);
             })
             .catch(error => console.error("Error loading feed history:", error));
@@ -42,19 +46,19 @@ function Feed() {
     // EFFECT 2: WebSocket Connection (Live)
     useEffect(() => {
         const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
-        
+
         const client = new Client({
             webSocketFactory: () => new SockJS(wsUrl),
             onConnect: () => {
                 client.subscribe('/topic/feed', (message) => {
                     const rawActivity = JSON.parse(message.body);
-                    
+
                     // Inject a 'feedType' flag so our UI knows this is live
                     const activity = { ...rawActivity, feedType: 'LIVE_ACTIVITY' };
 
                     setFeedItems((prev) => {
                         // Filter out the older *live* post from this same user
-                        const filtered = prev.filter(item => 
+                        const filtered = prev.filter(item =>
                             !(item.feedType === 'LIVE_ACTIVITY' && item.userId === activity.userId)
                         );
                         // Prepend the new live activity to the top
@@ -73,19 +77,17 @@ function Feed() {
     const formatTimestamp = (rawTime) => {
         if (!rawTime) return '';
         const date = new Date(rawTime);
-        return date.toLocaleDateString(undefined, { 
-            month: 'short', 
-            day: 'numeric', 
-            hour: '2-digit', 
-            minute: '2-digit' 
+        return date.toLocaleDateString(undefined, {
+            month: 'short',
+            day: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
         }); // e.g., "Apr 14, 5:30 PM"
     };
 
 
     // POST CREATION HANDLER
     const handlePostSubmit = () => {
-        const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
-        const userId = storedUser.id;
 
         if (!userId) return alert("Error: User ID not found.");
 
@@ -104,7 +106,7 @@ function Feed() {
         .then(data => {
             const newPost = { ...data, feedType: 'MANUAL_POST' };
             setFeedItems([newPost, ...feedItems]);
-            
+
             setContent('');
             setMediaId('');
             setShowModal(false);
@@ -203,7 +205,7 @@ function Feed() {
                         <h3>Your friend code: </h3>
                         <textarea placeholder="Enter Friend Code" rows={1} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
-                            <button onClick={() => setShowFriendModal(false)}>Cancel</button>
+                            <button onClick={() => setShowFriendsModal(false)}>Cancel</button>
                             <button>Add</button>
                         </div>
                     </div>
