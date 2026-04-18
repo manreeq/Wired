@@ -20,6 +20,9 @@ function Feed() {
     // for friend requests modal
     const [showRequestsModal, setShowRequestsModal] = useState(false);
 
+    // for the friend list
+    const [friendList, setFriendList] = useState([]);
+
     const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080';
 
     // Form state variables
@@ -77,6 +80,11 @@ function Feed() {
         client.activate();
         return () => client.deactivate();
     }, []);
+
+    useEffect(() => {
+      fetchFriendList();
+    }, [userId]);
+
 
     // Transforms the raw backend timestamp into a human-readable format
     const formatTimestamp = (rawTime) => {
@@ -137,6 +145,22 @@ function Feed() {
         setShowFriendsModal(false)
     }
 
+    // Fetch friend list
+    const fetchFriendList = () => {
+      if (!userId) return alert("Error: User ID not found.");
+
+      fetch(`${apiUrl}/api/friends/list/${userId}`)
+        .then(response => {
+          if (!response.ok) throw new Error("Failed to fetch friend list");
+          return response.json();
+        })
+        .then(data => {
+          // data is an array of FriendListDTO objects
+          setFriendList(data);
+        })
+        .catch(error => console.error("Error loading friend list:", error));
+    };
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -146,6 +170,16 @@ function Feed() {
                     <button onClick={() => setShowRequestsModal(true)}>Friend Requests</button>
                     <button onClick={() => setShowFriendsModal(true)}>Add Friend</button>
                     <button onClick={() => setShowModal(true)}>Create Post</button>
+
+                    <ul>
+                      {friendList.map(friend => (
+                        <li key={friend.connectionId}>
+                          {friend.requesterDisplayName} ({friend.requesterFriendCode}) →
+                          {friend.targetDisplayName} ({friend.targetFriendCode})
+                          — Status: {friend.status}
+                        </li>
+                      ))}
+                    </ul>
                 </div>
 
                 <div className={styles.feed}>
