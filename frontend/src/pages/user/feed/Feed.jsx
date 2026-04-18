@@ -133,16 +133,19 @@ function Feed() {
         const payload = {
           "requesterUserId": userId,
           "targetFriendCode": targetFriendCode,
-          "status": "Accepted"
+          "status": "Pending"
         }
 
         fetch(`${apiUrl}/api/friends/add`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(payload)
-                })
+        })
+        .then(data => {
+            setTargetFriendCode('');
+            setShowFriendsModal(false);
+        })
 
-        setShowFriendsModal(false)
     }
 
     // Fetch friend list
@@ -172,7 +175,9 @@ function Feed() {
                     <button onClick={() => setShowModal(true)}>Create Post</button>
 
                     <ul>
-                      {friendList.map(friend => (
+                      {friendList
+                          .filter(friend => friend.status === "Accepted")
+                          .map(friend => (
                         <li key={friend.connectionId}>
                           {friend.requesterDisplayName} ({friend.requesterFriendCode}) →
                           {friend.targetDisplayName} ({friend.targetFriendCode})
@@ -276,12 +281,25 @@ function Feed() {
                 <div className={styles.modalOverlay} onClick={() => setShowRequestsModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Friend Requests</h2>
-                        <h3>Your friend code: {friendCode}</h3>
-                        <textarea placeholder="THIS IS THE OTHER THING" rows={1} value={targetFriendCode} onChange={(e) => setTargetFriendCode(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
-                        <div className={styles.modalButtons}>
-                            <button onClick={() => setShowRequestsModal(false)}>Cancel</button>
-                            <button onClick={handleFriendRequestSubmit}>Add</button>
-                        </div>
+                        <ul>
+                          {friendList
+                              .filter(friend => friend.status === "Pending")
+                              .map(friend => (
+                            <li key={friend.connectionId}>
+                                {/* left */}
+                                <div>
+                                Requester: {friend.requesterDisplayName} ({friend.requesterFriendCode}) <br/>
+                                Targer: {friend.targetDisplayName} ({friend.targetFriendCode}) <br/>
+                                Status: {friend.status}
+                                </div>
+                                {/* right */}
+                                <div>
+                                    <button onClick={() => setShowRequestsModal(false)}>Accept</button>
+                                    <button onClick={handleFriendRequestSubmit}>Reject</button>
+                                </div>
+                            </li>
+                          ))}
+                        </ul>
                     </div>
                 </div>
             )}
