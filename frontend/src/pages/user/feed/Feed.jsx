@@ -156,7 +156,7 @@ function Feed() {
                     ) : (
                         <div className={styles.postList} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
                             {feedItems.map((item, index) => {
-                                
+
                                 // RENDER LIVE ACTIVITY CARD
                                 if (item.feedType === 'LIVE_ACTIVITY') {
                                     return (
@@ -176,7 +176,7 @@ function Feed() {
                                 if (item.feedType === 'MANUAL_POST') {
                                     return (
                                         <div key={`post-${item.postId || index}`} className={styles.postCard} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-                                            
+
                                             {/* UPDATED: Name and Timestamp Header */}
                                             <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
                                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -187,9 +187,9 @@ function Feed() {
                                                 </div>
                                                 <p style={{ margin: '8px 0' }}>{item.caption}</p>
                                             </div>
-                                            
+
                                             <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
-                                                🎧 <strong>Attached Media: </strong> 
+                                                🎧 <strong>Attached Media: </strong>
                                                 {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
                                             </div>
                                         </div>
@@ -221,6 +221,7 @@ function Feed() {
                     </div>
                 </div>
             )}
+
             {/*  show friend modal */}
             {showFriendsModal && (
                 <div className={styles.modalOverlay} onClick={() => setShowFriendsModal(false)}>
@@ -235,6 +236,8 @@ function Feed() {
                     </div>
                 </div>
             )}
+
+            {/* show requests modal */}
             {showRequestsModal && (
                 <div className={styles.modalOverlay} onClick={() => setShowRequestsModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
