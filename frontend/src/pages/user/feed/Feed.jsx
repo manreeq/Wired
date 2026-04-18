@@ -193,7 +193,19 @@ function Feed() {
                             <option value="album">Album</option>
                             <option value="playlist">Playlist</option>
                         </select>
-                        <input type="text" placeholder="Paste Spotify URL or ID" value={mediaId} onChange={(e) => setMediaId(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
+                        <input 
+                            type="text" 
+                            placeholder="Paste Spotify URL or ID" 
+                            value={mediaId} 
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setMediaId(val);
+                                if (val.includes('/track/')) setPostType('song');
+                                else if (val.includes('/album/')) setPostType('album');
+                                else if (val.includes('/playlist/')) setPostType('playlist');
+                            }} 
+                            style={{ width: '100%', marginBottom: '10px' }} 
+                        />
                         <textarea placeholder="What are you listening to?" rows={4} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowModal(false)}>Cancel</button>
