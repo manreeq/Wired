@@ -16,7 +16,7 @@ public class FriendsController {
         this.friendService = friendService;
     }
 
-    @PostMapping
+    @PostMapping("/add")
     public FriendConnection createFriendConnection(@RequestBody FriendRequestDTO request) {
         return friendService.createFriendConnection(
                 request.getRequesterUserId(),
