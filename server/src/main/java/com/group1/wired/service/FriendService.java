@@ -32,6 +32,13 @@ public class FriendService {
         return connectionRepo.save(connection);
     }
 
+    // Get friend list
+    public List<FriendConnection> getFriendList(Long userId) {
+        User localUser = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
+        return connectionRepo.findByRequesterUserOrTargetUser(localUser, localUser);
+    }
+
     // Get all pending requests for a user
     public List<FriendConnection> getPendingRequests(User targetUser) {
         return connectionRepo.findByTargetUserAndStatus(targetUser, "Pending");

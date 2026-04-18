@@ -12,4 +12,6 @@ public interface FriendConnectionRepository extends JpaRepository<FriendConnecti
 	 List<FriendConnection> findByTargetUserAndStatus(User targetUser, String status);					//pending friend requests
 	 List<FriendConnection> findByRequesterUserAndStatus(User requesterUser, String status);			//sent friend requests
 	 Optional<FriendConnection> findByRequesterUserAndTargetUser(User requesterUser, User targetUser);	//are 2 users friends
+	 List<FriendConnection> findByRequesterUserOrTargetUser(User requesterUser, User targetUser);		//request friend list
+
 }

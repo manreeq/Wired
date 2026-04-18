@@ -10,5 +10,5 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User,Long> {
 	Optional<User> findBySpotifyURI(String spotifyURI);
 	Optional<User> findByFriendCode(String friendCode);
-	
+	Optional<User> findById(Long userId);
 }
