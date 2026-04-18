@@ -14,8 +14,11 @@ function Feed() {
     const userId = storedUser.id;
     const friendCode = storedUser.friendCode;
 
-    // for friends modal
+    // for adding friends modal
     const [showFriendsModal, setShowFriendsModal] = useState(false);
+
+    // for friend requests modal
+    const [showRequestsModal, setShowRequestsModal] = useState(false);
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080';
 
@@ -140,7 +143,8 @@ function Feed() {
             <div className={styles.body}>
                 <div className={styles.sidebar}>
                     <button onClick={() => navigate('/profile')}>Profile</button>
-                    <button onClick={() => setShowFriendsModal(true)}>Friends</button>
+                    <button onClick={() => setShowRequestsModal(true)}>Friend Requests</button>
+                    <button onClick={() => setShowFriendsModal(true)}>Add Friend</button>
                     <button onClick={() => setShowModal(true)}>Create Post</button>
                 </div>
 
@@ -226,6 +230,19 @@ function Feed() {
                         <textarea placeholder="Enter Friend Code" rows={1} value={targetFriendCode} onChange={(e) => setTargetFriendCode(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowFriendsModal(false)}>Cancel</button>
+                            <button onClick={handleFriendRequestSubmit}>Add</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            {showRequestsModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowRequestsModal(false)}>
+                    <div className={styles.modal} onClick={e => e.stopPropagation()}>
+                        <h2>Friend Requests</h2>
+                        <h3>Your friend code: {friendCode}</h3>
+                        <textarea placeholder="THIS IS THE OTHER THING" rows={1} value={targetFriendCode} onChange={(e) => setTargetFriendCode(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
+                        <div className={styles.modalButtons}>
+                            <button onClick={() => setShowRequestsModal(false)}>Cancel</button>
                             <button onClick={handleFriendRequestSubmit}>Add</button>
                         </div>
                     </div>
