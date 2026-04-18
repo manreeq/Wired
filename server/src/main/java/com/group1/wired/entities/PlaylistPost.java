@@ -13,7 +13,7 @@ public class PlaylistPost extends Post {
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private Playlist playlist;
 	
-	protected PlaylistPost() {}
+	public PlaylistPost() {}
 	
 	public PlaylistPost(User user, String caption, Playlist playlist) { 
         super(user, "P", caption); 

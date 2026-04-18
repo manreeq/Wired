@@ -94,7 +94,7 @@ function Feed() {
         if (!userId) return alert("Error: User ID not found.");
 
         const payload = {
-            mediaId: parseInt(mediaId, 10),
+            spotifyUrl: mediaId,
             content: content,
             userId: parseInt(userId, 10)
         };
@@ -104,7 +104,12 @@ function Feed() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Failed to create post. Server returned status ${res.status}`);
+                }
+                return res.json();
+            })
             .then(data => {
                 // Prepend to manualPosts
                 setManualPosts(prev => [data, ...prev]);
@@ -188,7 +193,7 @@ function Feed() {
                             <option value="album">Album</option>
                             <option value="playlist">Playlist</option>
                         </select>
-                        <input type="number" placeholder="Media ID" value={mediaId} onChange={(e) => setMediaId(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
+                        <input type="text" placeholder="Paste Spotify URL or ID" value={mediaId} onChange={(e) => setMediaId(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <textarea placeholder="What are you listening to?" rows={4} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowModal(false)}>Cancel</button>

@@ -53,7 +53,7 @@ public class SMEController {
     @PostMapping("/song")
     public SongPost createSongPost(@RequestBody CreatePostRequestDTO request) {
         return socialMediaEngine.createSongPost(
-                request.getMediaId(),
+                extractSpotifyId(request.getSpotifyUrl()),
                 request.getContent(),
                 request.getUserId());
     }
@@ -62,17 +62,38 @@ public class SMEController {
     @PostMapping("/album")
     public AlbumPost createAlbumPost(@RequestBody CreatePostRequestDTO request) {
         return socialMediaEngine.createAlbumPost(
-                request.getMediaId(),
+                extractSpotifyId(request.getSpotifyUrl()),
                 request.getContent(),
                 request.getUserId());
     }
 
-    // 3. Playlist Post
+    // Playlist Post
     @PostMapping("/playlist")
     public PlaylistPost createPlaylistPost(@RequestBody CreatePostRequestDTO request) {
         return socialMediaEngine.createPlaylistPost(
-                request.getMediaId(),
+                extractSpotifyId(request.getSpotifyUrl()),
                 request.getContent(),
                 request.getUserId());
     }
-}
+
+    /**
+     * Extracts the raw Spotify ID from a full URL or returns the input as-is if it's already an ID.
+     * Handles formats like:
+     *   https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC?si=...
+     *   https://open.spotify.com/album/1234567890abc
+     *   4uLU6hMCjMI75M1A2tKUQC  (raw ID, passed through unchanged)
+     */
+    private String extractSpotifyId(String input) {
+        if (input == null) return null;
+        String trimmed = input.trim();
+        // If it contains open.spotify.com, extract the ID segment after the type
+        if (trimmed.contains("open.spotify.com/")) {
+            // Split on '?' first to drop query params, then grab the last path segment
+            String withoutQuery = trimmed.split("\\?")[0];
+            String[] parts = withoutQuery.split("/");
+            return parts[parts.length - 1];
+        }
+        // Otherwise assume it's already a raw Spotify ID
+        return trimmed;
+    }
+}

@@ -13,7 +13,7 @@ public class AlbumPost extends Post {
 	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private Album album;
 	
-	protected AlbumPost() {}
+	public AlbumPost() {}
 	
 	public AlbumPost(User user, String caption, Album album) { 
 		
