@@ -106,9 +106,10 @@ public class SocialMediaEngine {
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
         Comment comment = new Comment();
-        comment.setUser(user);
-        comment.setPost(post);
         comment.setContent(content);
+        
+        post.addComment(comment);
+        user.addComment(comment);
         
         Comment savedComment = commentRepo.save(comment);
 
@@ -134,8 +135,11 @@ public class SocialMediaEngine {
             
             // User clicked same reaction again (Toggle Off)
             if (existing.getReactionType().equals(reactionType)) {
+                
+                post.removeReaction(existing);
+                user.removeReaction(existing);
+                
                 reactionRepo.delete(existing);
-                // Return a DTO with a "REMOVED" flag so the frontend knows to delete it from UI
                 return new ReactionDTO(existing.getReactionId(), postId, userId, user.getDisplayName(), "REMOVED");
             } 
             // User clicked a different reaction (Change Reaction)
@@ -148,9 +152,10 @@ public class SocialMediaEngine {
 
         // No existing reaction, create new
         Reaction reaction = new Reaction();
-        reaction.setUser(user);
-        reaction.setPost(post);
         reaction.setReactionType(reactionType);
+
+        post.addReaction(reaction);
+        user.addReaction(reaction);
 
         Reaction savedReaction = reactionRepo.save(reaction);
 

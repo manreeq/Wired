@@ -1,5 +1,7 @@
 package com.group1.wired.entities;
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.List;
 import java.util.UUID;
 
 
@@ -37,8 +39,18 @@ public class User {
 	
 	@Column(name = "is_history_private", nullable = false, columnDefinition = "boolean default false")
 	private boolean isHistoryPrivate = false;
+	
 	@Column(unique = true, nullable = false)
 	private String friendCode;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reaction> reactions;
 
 	
 	protected User() {}
@@ -92,4 +104,25 @@ public class User {
 	public LocalDateTime getJoinDate() {
 		return joinDate;
 	}
+	
+	// helper methods for comments and reactions
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setUser(this);
+    }
+
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setUser(null);
+    }
+
+    public void addReaction(Reaction reaction) {
+        reactions.add(reaction);
+        reaction.setUser(this);
+    }
+
+    public void removeReaction(Reaction reaction) {
+        reactions.remove(reaction);
+        reaction.setUser(null);
+    }
 }
