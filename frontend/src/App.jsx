@@ -15,7 +15,11 @@ function App() {
         {/* handles http://127.0.0.1:5173/callback */}
         <Route path="/callback" element={<Callback />} />
 
+        {/* for viewing your own profile */}
         <Route path="/profile" element={<Profile />} />
+
+        {/* for viewing someone else */}
+        <Route path="/profile/:id" element={<Profile />} />
 		<Route path="/feed" element={<Feed />} />
 		<Route path="/posthistory" element={<PostHistory />} />
 		 

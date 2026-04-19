@@ -1,7 +1,9 @@
 package com.group1.wired.controllers;
 import com.group1.wired.dto.AuthResponse;
 import com.group1.wired.dto.SpotifyLoginRequestDTO;
+import com.group1.wired.entities.User;
 import com.group1.wired.service.AuthService;
+import com.group1.wired.repositories.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -23,7 +25,8 @@ import javax.crypto.SecretKey;
 public class AuthController {
 
     private final AuthService authService;
-
+    private final UserRepository userRepository; // Add this!
+    
     @Autowired
     private JwtUtils jwtUtils;
 
@@ -34,8 +37,9 @@ public class AuthController {
     private int cookieExpiresIn;
 
     @Autowired
-    public AuthController(AuthService authService) {
+    public AuthController(AuthService authService, UserRepository userRepository) {
         this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/spotify")
@@ -68,16 +72,14 @@ public class AuthController {
         }
     }
 
-    //handles GET requests to the endpoint, /api/auth/me.  returns the currently logged in user's info
+    // handles GET requests to the endpoint, /api/auth/me.  returns the currently logged in user's info
     @GetMapping("/me")
     public ResponseEntity<?> getMe(HttpServletRequest request) {
         try {
-        	//grabs all the cookies sent by the browser with this request
-        	Cookie[] cookies = request.getCookies();
-            if (cookies == null) return ResponseEntity.status(401).body("Not logged in"); // if no cookies, user is not logged in
-            String token = null; //holds jwt token
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) return ResponseEntity.status(401).body("Not logged in"); 
             
-            //loop through all the cookies and look for authtoken
+            String token = null; 
             for (Cookie cookie : cookies) {
                 if ("authToken".equals(cookie.getName())) {
                     token = cookie.getValue();
@@ -87,14 +89,20 @@ public class AuthController {
 
             if (token == null) return ResponseEntity.status(401).body("Not logged in");
 
-            //convert the secret string into a format the jwt library understands
             SecretKey key = jwtUtils.generateSecretKey(jwtSecret);
-            Claims claims = jwtUtils.getPayload(token, key); 	// // verify the token and extract its data
+            Claims claims = jwtUtils.getPayload(token, key); 	
 
-            //return the user's info extracted from the token to the frontend
+            Long userId = Long.parseLong(claims.getSubject());
+
+            User user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User no longer exists"));
+
             Map<String, Object> result = new HashMap<>();
-            result.put("userID", claims.getSubject());
-            result.put("displayName", claims.get("displayName", String.class));
+            result.put("userID", user.getUserID());
+            result.put("displayName", user.getDisplayName());
+            
+            result.put("profilePicUrl", user.getProfilePictureURL()); 
+
             return ResponseEntity.ok(result);
 
         } catch (Exception e) {
