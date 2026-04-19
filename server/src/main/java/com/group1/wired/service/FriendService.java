@@ -55,4 +55,14 @@ public class FriendService {
     public Optional<FriendConnection> findConnection(User requesterUser, User targetUser) {
         return connectionRepo.findByRequesterUserAndTargetUser(requesterUser, targetUser);
     }
+
+    // change friend connection status to accepted
+    public FriendConnection acceptFriendRequest(Long connectionId) {
+        FriendConnection connection = connectionRepo.findById(connectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
+
+        connection.setStatus("Accepted");
+        return connectionRepo.save(connection);
+    }
+
 }

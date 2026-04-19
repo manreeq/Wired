@@ -44,4 +44,8 @@ public class FriendsController {
                 .toList();
     }
 
+    @PutMapping("/requests/accept/{connectionId}")
+    public FriendConnection acceptFriendRequest(@PathVariable Long connectionId) {
+        return friendService.acceptFriendRequest(connectionId);
+    }
 }
