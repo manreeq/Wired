@@ -241,7 +241,12 @@ function Feed() {
             <div className={styles.body}>
                 <div className={styles.sidebar}>
                     <button onClick={() => navigate('/profile')}>Profile</button>
-                    <button onClick={() => setShowRequestsModal(true)}>Friend Requests</button>
+                    <button onClick={() => {
+                      fetchPendingRequests();   // refresh requests before showing modal
+                      setShowRequestsModal(true);
+                    }}>
+                      Friend Requests
+                    </button>
                     <button onClick={() => setShowFriendsModal(true)}>Add Friend</button>
                     <button onClick={() => setShowModal(true)}>Create Post</button>
 
