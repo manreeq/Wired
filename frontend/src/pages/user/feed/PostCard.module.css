@@ -48,11 +48,18 @@
     cursor: pointer;
     padding: 4px 8px;
     font-size: 1.2em;
-    transition: background-color 0.2s;
+    color: #333; /* Explicitly sets the counter text to a dark gray so it is visible */
+    transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth out the hover animations */
 }
 
 .reactionBtn:hover {
     background-color: #f0f0f0;
+    transform: scale(1.1); /* Slightly enlarges the button when the mouse hovers over it */
+}
+
+/* Optional: Add an active state for when the button is actively being clicked */
+.reactionBtn:active {
+    transform: scale(0.95);
 }
 
 .reactionCount {
