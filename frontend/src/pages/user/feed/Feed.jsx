@@ -213,6 +213,8 @@ function Feed() {
             .then(() => fetchPendingRequests());
         };
 
+
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -224,15 +226,32 @@ function Feed() {
                     <button onClick={() => setShowModal(true)}>Create Post</button>
 
                     <ul>
-                      {friendList
-                          .filter(friend => friend.status === "Accepted")
-                          .map(friend => (
-                        <li key={friend.connectionId}>
-                          {friend.requesterDisplayName} ({friend.requesterFriendCode}) →
-                          {friend.targetDisplayName} ({friend.targetFriendCode})
-                          — Status: {friend.status}
-                        </li>
-                      ))}
+                        {friendList
+                            .filter(friend => friend.status === "Accepted")
+                            .map(friend => {
+                                let friendName;
+                                let listedFriendCode;
+                                if(friendCode == friend.requesterFriendCode) {
+                                    friendName = friend.targetDisplayName;
+                                    listedFriendCode = friend.targetFriendCode;
+                                } else {
+                                    friendName = friend.requesterDisplayName;
+                                    listedFriendCode = friend.requesterFriendCode;
+                                }
+                                return (
+                                <li key={friend.connectionId}>
+                                    {/* right side */}
+                                    <div>
+                                        {friendName} <br/> ({listedFriendCode})
+                                    </div>
+                                    {/* left side */}
+                                    <div>
+                                        <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Remove</button>
+                                    </div>
+                                </li>
+                                )
+                            })
+                        }
                     </ul>
                 </div>
 
