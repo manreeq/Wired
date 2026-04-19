@@ -94,5 +94,18 @@ public class SpotifyDataRetrievalEngine {
             throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
         }
     }
+    
+    //for fetching artists, specifically the profile picture
+    public String fetchArtist(String accessToken, String artistId) {
+        try {
+            Response<String> response = spotifyApi.fetchArtist("Bearer " + accessToken, artistId).execute();
+            if (response.isSuccessful() && response.body() != null) {
+                return response.body();
+            }
+            throw new RuntimeException("Spotify error fetching artist: " + response.code());
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
+        }
+    }
 
 }

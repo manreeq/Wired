@@ -12,7 +12,7 @@ import java.util.List;
 
 @Repository
 public interface ListeningActivityRepository extends JpaRepository<ListeningActivity,Long> {
-	
+	//top songs
 	@Query("""
 	        SELECT la.song.songId, la.song.songName, la.song.albumArtUrl, COUNT(la) as listenCount
 	        FROM ListeningActivity la
@@ -22,4 +22,15 @@ public interface ListeningActivityRepository extends JpaRepository<ListeningActi
 	        LIMIT 5
 	    """)
 	    List<Object[]> findTop5SongsByUser(@Param("user") User user);	
+	//top artists, joins la on song on song artist on artist   
+	@Query("""
+    	    SELECT sa.artist.artistId, sa.artist.artistName, sa.artist.profilePictureUrl, COUNT(la) as listenCount
+    	    FROM ListeningActivity la
+    	    JOIN SongArtist sa ON sa.song = la.song
+    	    WHERE la.user = :user
+    	    GROUP BY sa.artist.artistId, sa.artist.artistName, sa.artist.profilePictureUrl
+    	    ORDER BY listenCount DESC
+    	    LIMIT 5
+    	""")
+    	List<Object[]> findTop5ArtistsByUser(@Param("user") User user);
 }

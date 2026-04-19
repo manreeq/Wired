@@ -19,6 +19,9 @@ public class Artist {
 
     @Column(nullable = true)
     private String primaryGenre = "None";
+    
+    @Column(nullable = true)
+    private String profilePictureUrl = "None";	
 
     protected Artist() {}
 
@@ -58,5 +61,13 @@ public class Artist {
 
     public void setPrimaryGenre(String primaryGenre) {
         this.primaryGenre = primaryGenre;
+    }
+    
+    public String getProfilePictureUrl() {
+        return profilePictureUrl;
+    }
+
+    public void setProfilePictureUrl(String profilePictureUrl) {
+        this.profilePictureUrl = profilePictureUrl;
     }
 }

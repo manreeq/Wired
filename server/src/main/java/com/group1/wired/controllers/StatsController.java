@@ -1,6 +1,7 @@
 package com.group1.wired.controllers;
 
 import com.group1.wired.dto.TopSongDTO;
+import com.group1.wired.dto.TopArtistDTO;
 import com.group1.wired.entities.User;
 import com.group1.wired.repositories.UserRepository;
 import com.group1.wired.service.StatsService;
@@ -82,4 +83,26 @@ public class StatsController {
             return ResponseEntity.status(401).build();
         }
     }
+    
+    //GET /api/stats/top-artists
+    //returns the current user's top 5 most listened artists
+    @GetMapping("/top-artists")
+    public ResponseEntity<?> getTopArtists(HttpServletRequest request) {
+    	try {
+    		User currentUser = getCurrentUser(request);
+
+    		List<TopArtistDTO> topArtists = statsService.getTopArtists(currentUser);
+
+    		// reject if user hasnt listened to enough distinct artists yet
+    		if (topArtists.size() < 5) {
+    			return ResponseEntity.badRequest()
+    					.body("Not enough listening history. Listen to at least 5 artists to see your top artists.");
+    		}
+
+    		return ResponseEntity.ok(topArtists);
+
+    	} catch (Exception e) {
+         return ResponseEntity.status(401).build();
+     }
+ }
 }
