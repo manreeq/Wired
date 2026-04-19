@@ -48,4 +48,9 @@ public class FriendsController {
     public FriendConnection acceptFriendRequest(@PathVariable Long connectionId) {
         return friendService.acceptFriendRequest(connectionId);
     }
+
+    @PutMapping("/requests/decline/{connectionId}")
+    public FriendConnection declineFriendRequest(@PathVariable Long connectionId) {
+        return friendService.declineFriendRequest(connectionId);
+    }
 }

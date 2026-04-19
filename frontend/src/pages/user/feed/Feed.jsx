@@ -207,6 +207,7 @@ function Feed() {
         .then(() => fetchPendingRequests());
     };
 
+    // decline friend request handler
     const handleFriendRequestDecline = (connectionId) => {
           fetch(`${apiUrl}/api/friends/requests/decline/${connectionId}`, { method: "PUT" })
             .then(() => fetchPendingRequests());

@@ -60,8 +60,14 @@ public class FriendService {
     public FriendConnection acceptFriendRequest(Long connectionId) {
         FriendConnection connection = connectionRepo.findById(connectionId)
                 .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
-
         connection.setStatus("Accepted");
+        return connectionRepo.save(connection);
+    }
+    // change friend connection status to declined
+    public FriendConnection declineFriendRequest(Long connectionId) {
+        FriendConnection connection = connectionRepo.findById(connectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
+        connection.setStatus("Declined");
         return connectionRepo.save(connection);
     }
 
