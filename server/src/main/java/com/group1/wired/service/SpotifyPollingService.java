@@ -13,6 +13,7 @@ import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -28,6 +29,9 @@ public class SpotifyPollingService {
 
     // RAM memory of live states
     private final ConcurrentHashMap<Long, PlaybackStateDTO> livePlaybackState = new ConcurrentHashMap<>();
+
+    // RAM memory of latest live activity per user (for initial page load)
+    private final ConcurrentHashMap<Long, LiveActivityDTO> latestLiveActivities = new ConcurrentHashMap<>();
 
     @Autowired
     public SpotifyPollingService(UserRepository userRepository,
@@ -46,6 +50,10 @@ public class SpotifyPollingService {
 
     public ConcurrentHashMap<Long, PlaybackStateDTO> getLivePlaybackState() {
         return livePlaybackState;
+    }
+
+    public List<LiveActivityDTO> getActiveBroadcasts() {
+        return new ArrayList<>(latestLiveActivities.values());
     }
 
     @Scheduled(fixedRateString = "${spotify.polling.rate:10000}")
@@ -70,7 +78,7 @@ public class SpotifyPollingService {
                     // Check if they JUST paused during this poll
                     if (cachedState != null && cachedState.isPlaying() && cachedState.getTrackId() != null) {
                         livePlaybackState.put(userId, newDto);
-                        
+
                         Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
                         LiveActivityDTO activityDto = new LiveActivityDTO(
                                 userId,
@@ -81,6 +89,7 @@ public class SpotifyPollingService {
                                 song.getSpotifyTrackId(),
                                 false
                         );
+                        latestLiveActivities.put(userId, activityDto);
                         messagingTemplate.convertAndSend("/topic/feed", activityDto);
                     } else {
                         livePlaybackState.put(userId, newDto);
@@ -107,6 +116,7 @@ public class SpotifyPollingService {
                             newSong.getSpotifyTrackId(),
                             true
                     );
+                    latestLiveActivities.put(userId, activityDto);
                     messagingTemplate.convertAndSend("/topic/feed", activityDto);
                 }
                 // Same song still playing

@@ -34,10 +34,28 @@ function Feed() {
     const [content, setContent] = useState('');
     const [targetFriendCode,setTargetFriendCode] = useState('');
 
-    // One unified array for both Live Activities and Manual Posts
-    const [feedItems, setFeedItems] = useState([]);
+    // Separate state arrays — keeps live and manual posts completely decoupled
+    const [liveActivities, setLiveActivities] = useState([]);
+    const [manualPosts, setManualPosts] = useState([]);
 
-    // EFFECT 1: Fetch Database Posts (Historical)
+    // Wait for both fetches to complete before deciding if empty
+    const [isLoading, setIsLoading] = useState(true);
+
+    // EFFECT 1: Fetch initial live state (songs already playing before we loaded the page)
+    useEffect(() => {
+        fetch(`${apiUrl}/api/feed/live`)
+            .then(response => {
+                if (!response.ok) throw new Error('Failed to fetch live feed');
+                return response.json();
+            })
+            .then(data => {
+                setLiveActivities(data);
+            })
+            .catch(error => console.error("Error loading live feed:", error))
+            .finally(() => setIsLoading(false));
+    }, []);
+
+    // EFFECT 2: Fetch historical manual posts
     useEffect(() => {
         fetch(`${apiUrl}/api/posts/feed`)
             .then(response => {
@@ -45,16 +63,12 @@ function Feed() {
                 return response.json();
             })
             .then(data => {
-                // Inject a 'feedType' flag so our UI knows this is a manual post
-                const formattedPosts = data.map(post => ({ ...post, feedType: 'MANUAL_POST' }));
-
-                // Use a functional state update to safely merge with any live data
-                setFeedItems(prev => [...prev, ...formattedPosts]);
+                setManualPosts(data);
             })
             .catch(error => console.error("Error loading feed history:", error));
     }, []);
 
-    // EFFECT 2: WebSocket Connection (Live)
+    // EFFECT 3: WebSocket Connection — liveActivities
     useEffect(() => {
         const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
 
@@ -62,17 +76,11 @@ function Feed() {
             webSocketFactory: () => new SockJS(wsUrl),
             onConnect: () => {
                 client.subscribe('/topic/feed', (message) => {
-                    const rawActivity = JSON.parse(message.body);
+                    const activity = JSON.parse(message.body);
 
-                    // Inject a 'feedType' flag so our UI knows this is live
-                    const activity = { ...rawActivity, feedType: 'LIVE_ACTIVITY' };
-
-                    setFeedItems((prev) => {
-                        // Filter out the older *live* post from this same user
-                        const filtered = prev.filter(item =>
-                            !(item.feedType === 'LIVE_ACTIVITY' && item.userId === activity.userId)
-                        );
-                        // Prepend the new live activity to the top
+                    setLiveActivities(prev => {
+                        // Replace the older live entry for this user, or prepend if new
+                        const filtered = prev.filter(item => item.userId !== activity.userId);
                         return [activity, ...filtered];
                     });
                 });
@@ -105,14 +113,13 @@ function Feed() {
         }); // e.g., "Apr 14, 5:30 PM"
     };
 
-
     // POST CREATION HANDLER
     const handlePostSubmit = () => {
 
         if (!userId) return alert("Error: User ID not found.");
 
         const payload = {
-            mediaId: parseInt(mediaId, 10),
+            spotifyUrl: mediaId,
             content: content,
             userId: parseInt(userId, 10)
         };
@@ -122,17 +129,24 @@ function Feed() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => res.json())
-        .then(data => {
-            const newPost = { ...data, feedType: 'MANUAL_POST' };
-            setFeedItems([newPost, ...feedItems]);
+            .then(res => {
+              if (!res.ok) {
+                  throw new Error(`Failed to create post. Server returned status ${res.status}`);
+              }
+              return res.json();
+            })
+            .then(data => {
+                // Prepend to manualPosts
+                setManualPosts(prev => [data, ...prev]);
 
-            setContent('');
-            setMediaId('');
-            setShowModal(false);
-        })
-        .catch(err => console.error(err));
+                setContent('');
+                setMediaId('');
+                setShowModal(false);
+            })
+            .catch(err => console.error(err));
     };
+  
+    const hasContent = liveActivities.length > 0 || manualPosts.length > 0;
 
     // FRIEND REQUEST HANDLER
     const handleFriendRequestSubmit = () => {
@@ -219,52 +233,48 @@ function Feed() {
                 <div className={styles.feed}>
                     <h2>Feed</h2>
 
-                    {feedItems.length === 0 ? (
+                    {isLoading ? (
                         <p>Loading feed...</p>
+                    ) : !hasContent ? (
+                        <p>No posts available yet.</p>
                     ) : (
                         <div className={styles.postList} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
-                            {feedItems.map((item, index) => {
 
-                                // RENDER LIVE ACTIVITY CARD
-                                if (item.feedType === 'LIVE_ACTIVITY') {
-                                    return (
-                                        <div key={`live-${index}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
-                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                                <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
-                                                <div>
-                                                    <strong>{item.displayName} {item.isPlaying ? 'is now listening to' : 'was listening to'}</strong>
-                                                    <p style={{ margin: 0 }}>{item.songTitle}</p>
-                                                </div>
-                                            </div>
+                            {/* LIVE ACTIVITIES */}
+                            {liveActivities.map((item) => (
+                                <div key={`live-${item.userId}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                        <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
+                                        <div>
+                                            <strong>{item.displayName} {item.isPlaying ? 'is now listening to' : 'was listening to'}</strong>
+                                            <p style={{ margin: 0 }}>{item.songTitle}</p>
                                         </div>
-                                    );
-                                }
+                                    </div>
+                                </div>
+                            ))}
 
-                                // RENDER MANUAL POST CARD
-                                if (item.feedType === 'MANUAL_POST') {
-                                    return (
-                                        <div key={`post-${item.postId || index}`} className={styles.postCard} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
+                            {/* MANUAL POSTS */}
+                            {manualPosts.map((item, index) => (
+                                <div key={`post-${item.postID || index}`} className={styles.postCard} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
 
-                                            {/* UPDATED: Name and Timestamp Header */}
-                                            <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                                    <strong style={{ fontSize: '1.1em' }}>{item.user?.displayName || "Unknown User"}</strong>
-                                                    <span style={{ fontSize: '0.85em', color: '#888' }}>
-                                                        {formatTimestamp(item.timestamp)}
-                                                    </span>
-                                                </div>
-                                                <p style={{ margin: '8px 0' }}>{item.caption}</p>
-                                            </div>
-
-                                            <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
-                                                🎧 <strong>Attached Media: </strong>
-                                                {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
-                                            </div>
+                                    {/* Name and Timestamp Header */}
+                                    <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                            <strong style={{ fontSize: '1.1em' }}>{item.user?.displayName || "Unknown User"}</strong>
+                                            <span style={{ fontSize: '0.85em', color: '#888' }}>
+                                                {formatTimestamp(item.timestamp)}
+                                            </span>
                                         </div>
-                                    );
-                                }
-                                return null;
-                            })}
+                                        <p style={{ margin: '8px 0' }}>{item.caption}</p>
+                                    </div>
+
+                                    <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
+                                        🎧 <strong>Attached Media: </strong>
+                                        {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
+                                    </div>
+                                </div>
+                            ))}
+
                         </div>
                     )}
                 </div>
@@ -280,7 +290,19 @@ function Feed() {
                             <option value="album">Album</option>
                             <option value="playlist">Playlist</option>
                         </select>
-                        <input type="number" placeholder="Media ID" value={mediaId} onChange={(e) => setMediaId(e.target.value)} style={{ width: '100%', marginBottom: '10px' }}/>
+                        <input 
+                            type="text" 
+                            placeholder="Paste Spotify URL or ID" 
+                            value={mediaId} 
+                            onChange={(e) => {
+                                const val = e.target.value;
+                                setMediaId(val);
+                                if (val.includes('/track/')) setPostType('song');
+                                else if (val.includes('/album/')) setPostType('album');
+                                else if (val.includes('/playlist/')) setPostType('playlist');
+                            }} 
+                            style={{ width: '100%', marginBottom: '10px' }} 
+                        />
                         <textarea placeholder="What are you listening to?" rows={4} value={content} onChange={(e) => setContent(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
                             <button onClick={() => setShowModal(false)}>Cancel</button>

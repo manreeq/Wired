@@ -1,19 +1,19 @@
 package com.group1.wired.controllers;
 
 public class CreatePostRequestDTO {
-    
-    private Long mediaId; // 'mediaId' catch all for songId, albumId, or playlistId
+
+    private String spotifyUrl; // Accepts a full Spotify URL or a raw Spotify ID
     private String content;
     private Long userId;
 
     public CreatePostRequestDTO() {}
 
-    public Long getMediaId() {
-        return mediaId;
+    public String getSpotifyUrl() {
+        return spotifyUrl;
     }
 
-    public void setMediaId(Long mediaId) {
-        this.mediaId = mediaId;
+    public void setSpotifyUrl(String spotifyUrl) {
+        this.spotifyUrl = spotifyUrl;
     }
 
     public String getContent() {
@@ -31,4 +31,4 @@ public class CreatePostRequestDTO {
     public void setUserId(Long userId) {
         this.userId = userId;
     }
-}
+}
