@@ -79,7 +79,7 @@ public class SpotifyPollingService {
                     if (cachedState != null && cachedState.isPlaying() && cachedState.getTrackId() != null) {
                         livePlaybackState.put(userId, newDto);
 
-                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
+                        Song song = parseService.parseAndSaveSongFromPlaybackJson(json);
                         LiveActivityDTO activityDto = new LiveActivityDTO(
                                 userId,
                                 user.getDisplayName(),
@@ -105,7 +105,7 @@ public class SpotifyPollingService {
                     System.out.println("User " + userId + " started a new song: " + newDto.getTrackId());
 
                     // Fetch song details to broadcast to feed
-                    Song newSong = parseService.parseAndSaveSong(token, newDto.getTrackId());
+                    Song newSong = parseService.parseAndSaveSongFromPlaybackJson(json);
                     LiveActivityDTO activityDto = new LiveActivityDTO(
                             userId,
                             user.getDisplayName(),
@@ -125,7 +125,7 @@ public class SpotifyPollingService {
                     // Check threshold (30 seconds = 30000 ms) and prevent multiple logs
                     if (cachedState.getProgressMs() >= 30000 && !cachedState.isHasBeenLogged()) {
                         // Fetch or create the Song entity using your ParseService
-                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
+                    	Song song = parseService.parseAndSaveSongFromPlaybackJson(json);
 
                         // Create new ListeningActivity with the User and Song
                         ListeningActivity newActivity = new ListeningActivity(user, song);
