@@ -1,20 +1,129 @@
 .navbar {
     display: flex;
-    gap: 12px;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 20px;
-    background-color: #000;
-    border-bottom: 1px solid #333;
+    background-color: #000000;
+    color: white;
 }
 
-.navbar button {
+.navLinks {
+    display: flex;
+    gap: 15px;
+}
+
+.navBtn {
     background: none;
     border: none;
-    color: #fff;
-    font-size: 14px;
+    color: white;
     cursor: pointer;
-    padding: 6px 12px;
+    font-size: 16px;
 }
 
-.navbar button:hover {
+.navBtn:hover {
     text-decoration: underline;
+}
+
+.settingsContainer {
+    position: relative; 
+    display: inline-block;
+}
+
+.settingsIconBtn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+}
+
+.dropdownMenu {
+    position: absolute;
+    top: 40px; 
+    right: 0;  
+    background-color: #1e1e1e; 
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    padding: 8px 0;
+    z-index: 1000; 
+}
+
+.menuItem {
+    background: none;
+    border: none;
+    color: #e3e3e3;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.menuItem:hover {
+    background-color: #333333; 
+}
+
+.menuDivider {
+    border: none;
+    border-top: 1px solid #444;
+    margin: 4px 0;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+}
+
+.modal {
+    background: #1e1e1e;
+    padding: 20px 30px;
+    border-radius: 10px;
+    text-align: center;
+    color: white;
+    max-width: 400px;
+}
+
+.confirmBtn {
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.confirmBtn:hover {
+    background-color: #cc0000;
+}
+
+.modalActions {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    margin-top: 20px;
+}
+
+.modalActions button {
+    min-width: 100px;
+    padding: 10px 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    border: none;
+}
+
+.modal h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
 }
