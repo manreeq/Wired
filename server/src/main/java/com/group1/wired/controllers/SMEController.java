@@ -7,12 +7,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
 
 import com.group1.wired.components.SocialMediaEngine;
 import com.group1.wired.entities.*;
 import com.group1.wired.repositories.SongPostRepository;
 import com.group1.wired.repositories.AlbumPostRepository;
 import com.group1.wired.repositories.PlaylistPostRepository;
+
+import com.group1.wired.dto.CommentDTO;
+import com.group1.wired.dto.ReactionDTO;
+import com.group1.wired.dto.InteractionRequestDTO;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -95,5 +100,23 @@ public class SMEController {
         }
         // Otherwise assume it's already a raw Spotify ID
         return trimmed;
+    }
+    
+    // Add Comment
+    @PostMapping("/{postId}/comments")
+    public ResponseEntity<CommentDTO> addComment(
+            @PathVariable Long postId, 
+            @RequestBody InteractionRequestDTO request) {
+        CommentDTO comment = socialMediaEngine.addComment(postId, request.getUserId(), request.getPayload());
+        return ResponseEntity.ok(comment);
+    }
+
+    // Add Reaction
+    @PostMapping("/{postId}/reactions")
+    public ResponseEntity<ReactionDTO> addReaction(
+            @PathVariable Long postId, 
+            @RequestBody InteractionRequestDTO request) {
+        ReactionDTO reaction = socialMediaEngine.addReaction(postId, request.getUserId(), request.getPayload());
+        return ResponseEntity.ok(reaction);
     }
 }

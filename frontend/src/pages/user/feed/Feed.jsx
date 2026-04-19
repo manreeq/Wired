@@ -4,6 +4,7 @@ import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import Navbar from '../../../components/navbar';
 import styles from './Feed.module.css';
+import PostCard from './PostCard';
 
 function Feed() {
     const navigate = useNavigate();
@@ -261,24 +262,13 @@ function Feed() {
 
                             {/* MANUAL POSTS */}
                             {manualPosts.map((item, index) => (
-                                <div key={`post-${item.postID || index}`} className={styles.postCard} style={{ border: '1px solid #ccc', padding: '15px', borderRadius: '8px' }}>
-
-                                    {/* Name and Timestamp Header */}
-                                    <div style={{ marginBottom: '10px', display: 'flex', flexDirection: 'column' }}>
-                                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                            <strong style={{ fontSize: '1.1em' }}>{item.user?.displayName || "Unknown User"}</strong>
-                                            <span style={{ fontSize: '0.85em', color: '#888' }}>
-                                                {formatTimestamp(item.timestamp)}
-                                            </span>
-                                        </div>
-                                        <p style={{ margin: '8px 0' }}>{item.caption}</p>
-                                    </div>
-
-                                    <div style={{ padding: '10px', backgroundColor: '#f9f9f9', borderRadius: '5px' }}>
-                                        🎧 <strong>Attached Media: </strong>
-                                        {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
-                                    </div>
-                                </div>
+                                <PostCard 
+                                    key={`post-${item.postID || index}`} 
+                                    item={item} 
+                                    userId={userId} 
+                                    apiUrl={apiUrl} 
+                                    formatTimestamp={formatTimestamp} 
+                                />
                             ))}
 
                         </div>
