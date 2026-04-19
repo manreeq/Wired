@@ -49,13 +49,13 @@ public class AuthController {
         try {
             AuthResponse authResponse = authService.processSpotifyLogin(request.getCode());
 
-            Cookie cookie = new Cookie("authToken", authResponse.getToken());
-            cookie.setHttpOnly(true);
-            cookie.setPath("/");
-            cookie.setMaxAge(cookieExpiresIn);
-            response.addCookie(cookie);
+            // set the jwt as an http-only cookie with SameSite=Lax so the browser accepts it
+            response.setHeader("Set-Cookie",
+                "authToken=" + authResponse.getToken() +
+                "; Path=/; HttpOnly; Max-Age=" + cookieExpiresIn +
+                "; SameSite=Lax");
 
-            // Return JSON with all the fields the frontend needs
+            // return json with all the fields the frontend needs
             Map<String, String> successResponse = new HashMap<>();
             successResponse.put("message", "Successfully logged in as: " + authResponse.getDisplayName());
             successResponse.put("userID", String.valueOf(authResponse.getUserID()));
