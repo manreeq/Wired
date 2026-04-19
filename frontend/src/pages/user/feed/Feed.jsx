@@ -15,7 +15,7 @@ function Feed() {
     const friendCode = storedUser.friendCode;
 
     // for adding friends modal
-    const [showFriendsModal, setShowFriendsModal] = useState(false);
+    const [showAddFriendsModal, setShowAddFriendsModal] = useState(false);
 
     // for friend requests modal
     const [showRequestsModal, setShowRequestsModal] = useState(false);
@@ -164,7 +164,7 @@ function Feed() {
         })
         .then(data => {
             setTargetFriendCode('');
-            setShowFriendsModal(false);
+            setShowAddFriendsModal(false);
         })
 
     }
@@ -215,6 +215,13 @@ function Feed() {
             .then(() => fetchFriendList());
         };
 
+    // remove friend handler
+        const handleRemoveFriend = (connectionId) => {
+              fetch(`${apiUrl}/api/friends/remove/${connectionId}`, { method: "DELETE" })
+                .then(() => fetchPendingRequests())
+                .then(() => fetchFriendList());
+            };
+
     function getFriendDisplay (userFriendCode, requesterName, requesterCode, targetName, targetCode) {
         let friendName;
         let listedFriendCode;
@@ -234,8 +241,13 @@ function Feed() {
             <div className={styles.body}>
                 <div className={styles.sidebar}>
                     <button onClick={() => navigate('/profile')}>Profile</button>
-                    <button onClick={() => setShowRequestsModal(true)}>Friend Requests</button>
-                    <button onClick={() => setShowFriendsModal(true)}>Add Friend</button>
+                    <button onClick={() => {
+                      fetchPendingRequests();   // refresh requests before showing modal
+                      setShowRequestsModal(true);
+                    }}>
+                      Friend Requests
+                    </button>
+                    <button onClick={() => setShowAddFriendsModal(true)}>Add Friend</button>
                     <button onClick={() => setShowModal(true)}>Create Post</button>
 
                     <ul>
@@ -258,7 +270,7 @@ function Feed() {
                                     </div>
                                     {/* left side */}
                                     <div>
-                                        <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Remove</button>
+                                        <button onClick={() => handleRemoveFriend(friend.connectionId)}>Remove</button>
                                     </div>
                                 </li>
                                 )
@@ -350,14 +362,14 @@ function Feed() {
             )}
 
             {/*  show friend modal */}
-            {showFriendsModal && (
-                <div className={styles.modalOverlay} onClick={() => setShowFriendsModal(false)}>
+            {showAddFriendsModal && (
+                <div className={styles.modalOverlay} onClick={() => setShowAddFriendsModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Add Friend</h2>
                         <h3>Your friend code: {friendCode}</h3>
                         <textarea placeholder="Enter Friend Code" rows={1} value={targetFriendCode} onChange={(e) => setTargetFriendCode(e.target.value)} style={{ width: '100%', marginBottom: '10px' }} />
                         <div className={styles.modalButtons}>
-                            <button onClick={() => setShowFriendsModal(false)}>Cancel</button>
+                            <button onClick={() => setShowAddFriendsModal(false)}>Cancel</button>
                             <button onClick={handleFriendRequestSubmit}>Add</button>
                         </div>
                     </div>
@@ -389,7 +401,7 @@ function Feed() {
                                     {/* right */}
                                     <div>
                                         <button onClick={() => handleFriendRequestAccept(friend.connectionId)}>Accept</button>
-                                        <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Decline</button>
+                                        <button onClick={() => handleRemoveFriend(friend.connectionId)}>Decline</button>
                                     </div>
                                     </li>
 
