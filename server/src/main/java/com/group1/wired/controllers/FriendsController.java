@@ -28,23 +28,15 @@ public class FriendsController {
         );
     }
 
-//    @PostMapping("/incoming")
-//    public FriendConnection listFriendRequests(@RequestBody FriendListDTO request) {
-//        return friendService.getPendingRequests(
-//                request.getTargetFriendCode()
-//        );
-//    }
-
-//    @PostMapping("/list/{userId}")
-//    public List<FriendConnection> listFriendRequests(@RequestBody FriendListDTO request) {
-//        return friendService.getFriendList(
-//                request.getRequester(),
-//                request.getRequester()
-//        );
-//    }
-
     @GetMapping("/list/{userId}")
     public List<FriendListDTO> getFriendList(@PathVariable Long userId) {
+        return friendService.getFriendList(userId)
+                .stream()
+                .map(FriendListDTO::new)
+                .toList();
+    }
+    @GetMapping("/requests/{userId}")
+    public List<FriendListDTO> getPendingRequests(@PathVariable Long userId) {
         return friendService.getFriendList(userId)
                 .stream()
                 .map(FriendListDTO::new)
