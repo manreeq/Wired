@@ -187,6 +187,12 @@ function Feed() {
             .catch(error => console.error("Error loading pending friend requests:", error));
     };
 
+    // accept friend request handler
+    const handleFriendRequestAccept = (connectionId) => {
+      fetch(`${apiUrl}/api/friends/requests/accept/${connectionId}`, { method: "PUT" })
+        .then(() => fetchPendingRequests());
+    };
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -317,7 +323,7 @@ function Feed() {
                                 </div>
                                 {/* right */}
                                 <div>
-                                    <button onClick={() => setShowRequestsModal(false)}>Accept</button>
+                                    <button onClick={() => handleFriendRequestAccept(friend.connectionId)}>Accept</button>
                                     <button onClick={handleFriendRequestSubmit}>Reject</button>
                                 </div>
                             </li>
