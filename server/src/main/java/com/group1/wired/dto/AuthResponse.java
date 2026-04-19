@@ -13,6 +13,7 @@ public class AuthResponse {
     private String spotifyURI;
     private String displayName;
     private String profilePictureURL;
+    private String friendCode;
 
     // JWT issued by backend
     private String token;
