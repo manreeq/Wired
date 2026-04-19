@@ -58,6 +58,29 @@ public class ParseService {
             return parseSongFromJson(accessToken, json);
         });
     }
+    
+    @Transactional
+    public Song parseAndSaveSongFromPlaybackJson(String json) {
+        try {
+            JsonNode root = objectMapper.readTree(json);
+            JsonNode itemNode = root.path("item");
+            
+            if (itemNode.isMissingNode() || itemNode.isNull() || !itemNode.has("id")) {
+                throw new RuntimeException("No track item found in playback JSON");
+            }
+
+            String spotifyTrackId = itemNode.path("id").asText();
+
+            // Check the database first. If it doesn't exist, parse the JSON already existing.
+            return songRepository.findBySpotifyTrackId(spotifyTrackId).orElseGet(() -> {
+                // Pass nested item JSON directly to existing parser
+                return parseSongFromJson(null, itemNode.toString());
+            });
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract song from playback JSON: " + e.getMessage());
+        }
+    }
 
     private Song parseSongFromJson(String accessToken, String json) {
         try {
