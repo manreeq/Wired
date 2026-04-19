@@ -61,19 +61,36 @@ public class ParseService {
 
     private Song parseSongFromJson(String accessToken, String json) {
         try {
-            JsonNode root = objectMapper.readTree(json); // Parse JSON response heirarchically into JsonNode object 
+            JsonNode root = objectMapper.readTree(json); // Parse JSON response heirarchically into JsonNode object
 
             String spotifyTrackId = root.path("id").asText();
             String songName = root.path("name").asText();
 
-            // Album art is nested inside album object
-            String albumArtUrl = root.path("album")
-                    .path("images")
-                    .path(0)
-                    .path("url")
-                    .asText("None");
+            // The track JSON already contains a SimplifiedAlbumObject — extract it
+            // without making any additional Spotify API calls.
+            JsonNode albumNode = root.path("album");
+            String spotifyAlbumId = albumNode.path("id").asText();
+            String albumName = albumNode.path("name").asText("Unknown");
+            String albumArtUrl = albumNode.path("images").path(0).path("url").asText("None");
 
-            Song song = new Song(spotifyTrackId, songName, albumArtUrl);
+            // Upsert album inline — check DB first, only create if truly new
+            Album album = albumRepository.findBySpotifyAlbumId(spotifyAlbumId).orElseGet(() -> {
+                Album newAlbum = new Album(spotifyAlbumId, albumName, albumArtUrl);
+                newAlbum = albumRepository.save(newAlbum);
+
+                // Persist album artists from the simplified album node
+                JsonNode albumArtistsNode = albumNode.path("artists");
+                for (JsonNode artistNode : albumArtistsNode) {
+                    String artistSpotifyId = artistNode.path("id").asText();
+                    String artistName = artistNode.path("name").asText("Unknown");
+                    Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
+                    albumArtistRepository.save(new AlbumArtist(newAlbum, artist));
+                }
+
+                return newAlbum;
+            });
+
+            Song song = new Song(spotifyTrackId, songName, albumArtUrl, album);
             song = songRepository.save(song);
 
             JsonNode artistsNode = root.path("artists");

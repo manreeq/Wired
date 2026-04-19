@@ -1,10 +1,6 @@
 package com.group1.wired.entities;
 
-import jakarta.persistence.Table;
-import org.hibernate.annotations.CreationTimestamp;
-import java.time.LocalDateTime;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "songs")
@@ -23,13 +19,20 @@ public class Song {
 
     @Column(name = "albumArtURL", nullable = false)
     private String albumArtUrl = "None";
-    
+
+    // Direct reference to parent album — kept as a lazy FK so it doesn't
+    // cause N+1 or LazyInitializationException issues in the WebSocket flow.
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "album_id", nullable = true)
+    private Album album;
+
     protected Song() {}
 
-    public Song(String spotifyTrackId, String songName, String albumArtUrl) {
+    public Song(String spotifyTrackId, String songName, String albumArtUrl, Album album) {
         this.spotifyTrackId = spotifyTrackId;
         this.songName = songName;
         this.albumArtUrl = albumArtUrl;
+        this.album = album;
     }
 
 	public Long getSongId() {
@@ -63,7 +66,13 @@ public class Song {
 	public void setAlbumArtUrl(String albumArtUrl) {
 		this.albumArtUrl = albumArtUrl;
 	}
-    
-    
+
+	public Album getAlbum() {
+		return album;
+	}
+
+	public void setAlbum(Album album) {
+		this.album = album;
+	}
 
 }
