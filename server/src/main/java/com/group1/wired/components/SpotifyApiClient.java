@@ -23,5 +23,9 @@ public interface SpotifyApiClient {
     // For polling engine
     @GET("v1/me/player/currently-playing")
     Call<String> fetchCurrentlyPlaying(@Header("Authorization") String authorizationHeader);
+    
+    //for getting artist picture
+    @GET("v1/artists/{id}")
+    Call<String> fetchArtist(@Header("Authorization") String authorizationHeader, @Path("id") String artistId);
 
 }

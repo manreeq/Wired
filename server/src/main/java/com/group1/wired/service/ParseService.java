@@ -66,7 +66,7 @@ public class ParseService {
             String spotifyTrackId = root.path("id").asText();
             String songName = root.path("name").asText();
 
-            // The track JSON already contains a SimplifiedAlbumObject — extract it
+            // The track JSON already contains a SimplifiedAlbumObject 
             // without making any additional Spotify API calls.
             JsonNode albumNode = root.path("album");
             String spotifyAlbumId = albumNode.path("id").asText();
@@ -83,7 +83,7 @@ public class ParseService {
                 for (JsonNode artistNode : albumArtistsNode) {
                     String artistSpotifyId = artistNode.path("id").asText();
                     String artistName = artistNode.path("name").asText("Unknown");
-                    Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
+                    Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
                     albumArtistRepository.save(new AlbumArtist(newAlbum, artist));
                 }
 
@@ -132,7 +132,7 @@ public class ParseService {
                 String artistSpotifyId = artistNode.path("id").asText();
                 String artistName = artistNode.path("name").asText("Unknown");
                 Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
-                albumArtistRepository.save(new AlbumArtist(album, artist));
+                Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
             }
 
             return album;
@@ -171,17 +171,39 @@ public class ParseService {
 
     // Used by parseSongFromJson and parseAlbumFromJson to upsert an artist in the database.
     // We extract artist names directly from the Track/Album JSON to avoid making extra Spotify API calls.
-    private Artist parseAndSaveArtist(String spotifyArtistId, String artistName) {
+    private Artist parseAndSaveArtist(String accessToken, String spotifyArtistId, String artistName) {
         return artistRepository.findBySpotifyArtistId(spotifyArtistId).map(existingArtist -> {
-            // Backfill name if artist was previously saved without one
+            // backfill name if artist was previously saved without one
             if ("Unknown".equals(existingArtist.getArtistName())) {
                 existingArtist.setArtistName(artistName);
-                return artistRepository.save(existingArtist);
             }
-            return existingArtist;
+            // backfill profile picture if missing
+            if ("None".equals(existingArtist.getProfilePictureUrl())) {
+                try {
+                    String json = spotifyEngine.fetchArtist(accessToken, spotifyArtistId);
+                    JsonNode root = objectMapper.readTree(json);
+                    String picUrl = root.path("images").path(0).path("url").asText("None");
+                    existingArtist.setProfilePictureUrl(picUrl);
+                } catch (Exception e) {
+                    // if fetch fails, just leave it as None
+                }
+            }
+            return artistRepository.save(existingArtist);
         }).orElseGet(() -> {
-            Artist artist = new Artist(spotifyArtistId, artistName, "None");
-            return artistRepository.save(artist);
+            // new artist, fetch all details including the profile picture
+            try {
+                String json = spotifyEngine.fetchArtist(accessToken, spotifyArtistId);
+                JsonNode root = objectMapper.readTree(json);
+                String primaryGenre = root.path("genres").path(0).asText("None");
+                String picUrl = root.path("images").path(0).path("url").asText("None");
+                Artist artist = new Artist(spotifyArtistId, artistName, primaryGenre);
+                artist.setProfilePictureUrl(picUrl);
+                return artistRepository.save(artist);
+            } catch (Exception e) {
+                // if fetch fails, save with no picture
+                Artist artist = new Artist(spotifyArtistId, artistName, "None");
+                return artistRepository.save(artist);
+            }
         });
     }
 
