@@ -23,6 +23,9 @@ function Feed() {
     // for the friend list
     const [friendList, setFriendList] = useState([]);
 
+    // for the friend requests modal
+    const [friendRequests, setFriendRequests] = useState([]);
+
     const apiUrl = import.meta.env.VITE_API_BASE_URL || 'http://127.0.0.1:8080';
 
     // Form state variables
@@ -83,6 +86,10 @@ function Feed() {
 
     useEffect(() => {
       fetchFriendList();
+    }, [userId]);
+
+    useEffect(() => {
+      fetchPendingRequests();
     }, [userId]);
 
 
@@ -162,6 +169,22 @@ function Feed() {
           setFriendList(data);
         })
         .catch(error => console.error("Error loading friend list:", error));
+    };
+
+    // Fetch pending friend requests
+    const fetchPendingRequests = () => {
+          if (!userId) return alert("Error: User ID not found.");
+
+          fetch(`${apiUrl}/api/friends/requests/${userId}`)
+            .then(response => {
+              if (!response.ok) throw new Error("Failed to pending friend requests");
+              return response.json();
+            })
+            .then(data => {
+              // data is an array of PendingRequestsDTO objects
+              setFriendRequests(data);
+            })
+            .catch(error => console.error("Error loading pending friend requests:", error));
     };
 
     return (
@@ -282,8 +305,8 @@ function Feed() {
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Friend Requests</h2>
                         <ul>
-                          {friendList
-                              .filter(friend => friend.status === "Pending")
+                          {friendRequests
+//                               .filter(friend => friend.status === "Pending")
                               .map(friend => (
                             <li key={friend.connectionId}>
                                 {/* left */}
