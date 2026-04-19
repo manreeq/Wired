@@ -87,8 +87,7 @@ public class SpotifyPollingService {
                                 song.getSongName(),
                                 song.getAlbumArtUrl(),
                                 song.getSpotifyTrackId(),
-                                false
-                        );
+                                false);
                         latestLiveActivities.put(userId, activityDto);
                         messagingTemplate.convertAndSend("/topic/feed", activityDto);
                     } else {
@@ -114,8 +113,7 @@ public class SpotifyPollingService {
                             newSong.getSongName(),
                             newSong.getAlbumArtUrl(),
                             newSong.getSpotifyTrackId(),
-                            true
-                    );
+                            true);
                     latestLiveActivities.put(userId, activityDto);
                     messagingTemplate.convertAndSend("/topic/feed", activityDto);
                 }
@@ -126,18 +124,18 @@ public class SpotifyPollingService {
 
                     // Check threshold (30 seconds = 30000 ms) and prevent multiple logs
                     if (cachedState.getProgressMs() >= 30000 && !cachedState.isHasBeenLogged()) {
-                    	// Fetch or create the Song entity using your ParseService
+                        // Fetch or create the Song entity using your ParseService
                         Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
-                        
+
                         // Create new ListeningActivity with the User and Song
                         ListeningActivity newActivity = new ListeningActivity(user, song);
-                        
+
                         // Save to db
                         listeningActivityRepository.save(newActivity);
-                        
+
                         // Mark as logged so it won't trigger again on the next poll
                         cachedState.setHasBeenLogged(true);
-                        
+
                         System.out.println("User " + userId + " hit 30s threshold! Officially logged to DB: "
                                 + song.getSongName());
                     }

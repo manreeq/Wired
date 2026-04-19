@@ -12,9 +12,8 @@ import java.io.IOException;
 @Service
 public class SpotifyDataRetrievalEngine {
 
-	private Retrofit retrofit;
+    private Retrofit retrofit;
     private SpotifyApiClient spotifyApi;
-
 
     public SpotifyDataRetrievalEngine() {
         this.retrofit = new Retrofit.Builder()
@@ -29,18 +28,18 @@ public class SpotifyDataRetrievalEngine {
     public String fetchCurrentUserProfile(String temporaryAccessToken) {
         try {
             Response<String> response = spotifyApi.fetchCurrentUserProfile("Bearer " + temporaryAccessToken).execute();
-            
+
             if (response.isSuccessful() && response.body() != null) {
                 return response.body();
             }
-            
+
             return "Error from Spotify.";
-            
+
         } catch (IOException e) {
             return "Server Error: Failed to reach Spotify - " + e.getMessage();
         }
     }
-    
+
     public String fetchTrack(String accessToken, String trackId) {
         try {
             Response<String> response = spotifyApi.fetchTrack("Bearer " + accessToken, trackId).execute();
@@ -52,7 +51,7 @@ public class SpotifyDataRetrievalEngine {
             throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
         }
     }
- 
+
     public String fetchAlbum(String accessToken, String albumId) {
         try {
             Response<String> response = spotifyApi.fetchAlbum("Bearer " + accessToken, albumId).execute();
@@ -64,7 +63,7 @@ public class SpotifyDataRetrievalEngine {
             throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
         }
     }
- 
+
     public String fetchPlaylist(String accessToken, String playlistId) {
         try {
             Response<String> response = spotifyApi.fetchPlaylist("Bearer " + accessToken, playlistId).execute();
@@ -76,24 +75,24 @@ public class SpotifyDataRetrievalEngine {
             throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
         }
     }
-    
+
     public String fetchCurrentlyPlaying(String accessToken) {
         try {
             Response<String> response = spotifyApi.fetchCurrentlyPlaying("Bearer " + accessToken).execute();
-            
+
             if (response.isSuccessful() && response.body() != null) {
                 return response.body();
-            } 
+            }
             // HTTP 204: Request was successful, but nothing is playing rn
             else if (response.code() == 204) {
-                return null; 
+                return null;
             }
-            
+
             throw new RuntimeException("Spotify error fetching current playback: " + response.code());
-            
+
         } catch (IOException e) {
             throw new RuntimeException("Failed to reach Spotify: " + e.getMessage());
         }
     }
-	
+
 }
