@@ -2,6 +2,7 @@ import Navbar from '../../../components/navbar';
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopSongsModal from './TopSongsModal';
+import TopArtistsModal from './TopArtistsModal';
 
 function Profile() {
 
@@ -137,11 +138,11 @@ function Profile() {
                 />
 
                 {/* top artists modal */}
-                {/* <TopArtistsModal
+                <TopArtistsModal
                     isOpen={showTopArtists}
                     onClose={() => setShowTopArtists(false)}
                     artists={topArtistsData}
-                /> */}
+                />
 
             
             </div>

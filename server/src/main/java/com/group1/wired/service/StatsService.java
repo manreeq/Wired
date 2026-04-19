@@ -1,5 +1,5 @@
 package com.group1.wired.service;
-
+import com.group1.wired.dto.TopArtistDTO;
 import com.group1.wired.dto.TopSongDTO;
 import com.group1.wired.entities.Song;
 import com.group1.wired.entities.SongArtist;
@@ -46,7 +46,7 @@ public class StatsService {
             Song song = songRepository.findById(songId)
                     .orElse(null);
 
-            //if song doesnt exist in db for some reason, skip it
+            //if song doesnt exist in db, skip it
             if (song == null) continue;
 
             //get all artists linked to this song
@@ -61,5 +61,23 @@ public class StatsService {
         }
 
         return topSongs;
+    }
+    
+    public List<TopArtistDTO> getTopArtists(User user) {
+
+        // run the query, each Object[] contains [artistId, artistName, profilePictureUrl, listenCount]
+        List<Object[]> results = listeningActivityRepository.findTop5ArtistsByUser(user);
+
+        List<TopArtistDTO> topArtists = new ArrayList<>();
+
+        for (Object[] row : results) {
+            String artistName = (String) row[1];
+            String profilePictureUrl = (String) row[2];
+            Long listenCount = (Long) row[3];
+
+            topArtists.add(new TopArtistDTO(artistName, profilePictureUrl, listenCount));
+        }
+
+        return topArtists;
     }
 }

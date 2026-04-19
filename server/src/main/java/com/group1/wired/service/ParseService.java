@@ -97,7 +97,7 @@ public class ParseService {
             for (JsonNode artistNode : artistsNode) {
                 String artistSpotifyId = artistNode.path("id").asText();
                 String artistName = artistNode.path("name").asText("Unknown");
-                Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
+                Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
                 songArtistRepository.save(new SongArtist(song, artist));
             }
 
@@ -112,11 +112,11 @@ public class ParseService {
     public Album parseAndSaveAlbum(String accessToken, String spotifyAlbumId) {
         return albumRepository.findBySpotifyAlbumId(spotifyAlbumId).orElseGet(() -> {
             String json = spotifyEngine.fetchAlbum(accessToken, spotifyAlbumId);
-            return parseAlbumFromJson(json);
+            return parseAlbumFromJson(accessToken, json);
         });
     }
 
-    private Album parseAlbumFromJson(String json) {
+    private Album parseAlbumFromJson(String accessToken, String json) {
         try {
             JsonNode root = objectMapper.readTree(json);
 
@@ -131,7 +131,6 @@ public class ParseService {
             for (JsonNode artistNode : artistsNode) {
                 String artistSpotifyId = artistNode.path("id").asText();
                 String artistName = artistNode.path("name").asText("Unknown");
-                Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
                 Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
             }
 
