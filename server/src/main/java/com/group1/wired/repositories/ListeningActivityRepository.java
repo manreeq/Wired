@@ -3,6 +3,7 @@ package com.group1.wired.repositories;
 import com.group1.wired.entities.ListeningActivity;
 import com.group1.wired.entities.User;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,6 +13,13 @@ import java.util.List;
 
 @Repository
 public interface ListeningActivityRepository extends JpaRepository<ListeningActivity,Long> {
+
+	// Listening history for a user ordered by most recent, supports pagination for 5 / 10 / All
+	List<ListeningActivity> findByUser_UserIDOrderByTimestampDesc(Long userId, Pageable pageable);
+
+	// Unlimited version for "All"
+	List<ListeningActivity> findByUser_UserIDOrderByTimestampDesc(Long userId);
+
 	//top songs
 	@Query("""
 	        SELECT la.song.songId, la.song.songName, la.song.albumArtUrl, COUNT(la) as listenCount

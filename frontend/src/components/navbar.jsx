@@ -50,7 +50,6 @@ function Navbar() {
                 {/* onClick triggers a function. When clicked, it tells the router to go to '/feed' */}
                 <button className={styles.navBtn} onClick={() => navigate('/feed')}>Home</button>
                 <button className={styles.navBtn} onClick={() => navigate('/profile')}>Profile</button>
-                <button className={styles.navBtn} onClick={() => navigate('/posthistory')}>Post History</button>
             </div>
 
             {/* RIGHT SIDE: The Settings Dropdown */}
