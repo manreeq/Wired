@@ -30,11 +30,15 @@ public class FriendService {
         if (requester.getUserID().equals(target.getUserID())) {
             throw new IllegalArgumentException("You cannot send a friend request to yourself");
         }
-        // Prevents requests when there's pending or accepted entries
-        boolean existsActiveConnection = connectionRepo
-                .findByRequesterUserOrTargetUser(requester, target)
-                .stream()
-                .anyMatch(conn -> "Pending".equals(conn.getStatus()) || "Accepted".equals(conn.getStatus()));
+        // Prevents requests when there's pending or accepted entries between the target and requester
+        boolean existsActiveConnection =
+                connectionRepo.findByRequesterUserAndTargetUser(requester, target)
+                        .map(conn -> "Pending".equals(conn.getStatus()) || "Accepted".equals(conn.getStatus()))
+                        .orElse(false)
+                        ||
+                connectionRepo.findByRequesterUserAndTargetUser(target, requester)
+                        .map(conn -> "Pending".equals(conn.getStatus()) || "Accepted".equals(conn.getStatus()))
+                        .orElse(false);
 
         if (existsActiveConnection) {
             throw new IllegalStateException("Friend request already exists or you are already friends");
