@@ -53,4 +53,9 @@ public class FriendsController {
     public FriendConnection declineFriendRequest(@PathVariable Long connectionId) {
         return friendService.declineFriendRequest(connectionId);
     }
+
+    @DeleteMapping("/remove/{connectionId}")
+    public void removeFriend(@PathVariable Long connectionId) {
+        friendService.removeFriend(connectionId);
+    }
 }

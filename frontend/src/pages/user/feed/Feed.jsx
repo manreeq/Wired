@@ -215,6 +215,13 @@ function Feed() {
             .then(() => fetchFriendList());
         };
 
+    // remove friend handler
+        const handleRemoveFriend = (connectionId) => {
+              fetch(`${apiUrl}/api/friends/remove/${connectionId}`, { method: "DELETE" })
+                .then(() => fetchPendingRequests())
+                .then(() => fetchFriendList());
+            };
+
     function getFriendDisplay (userFriendCode, requesterName, requesterCode, targetName, targetCode) {
         let friendName;
         let listedFriendCode;
@@ -258,7 +265,7 @@ function Feed() {
                                     </div>
                                     {/* left side */}
                                     <div>
-                                        <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Remove</button>
+                                        <button onClick={() => handleRemoveFriend(friend.connectionId)}>Remove</button>
                                     </div>
                                 </li>
                                 )
@@ -389,7 +396,7 @@ function Feed() {
                                     {/* right */}
                                     <div>
                                         <button onClick={() => handleFriendRequestAccept(friend.connectionId)}>Accept</button>
-                                        <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Decline</button>
+                                        <button onClick={() => handleRemoveFriend(friend.connectionId)}>Decline</button>
                                     </div>
                                     </li>
 

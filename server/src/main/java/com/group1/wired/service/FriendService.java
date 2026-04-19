@@ -84,4 +84,10 @@ public class FriendService {
         return connectionRepo.save(connection);
     }
 
+    public void removeFriend(Long connectionId) {
+        FriendConnection connection = connectionRepo.findById(connectionId)
+                .orElseThrow(() -> new IllegalArgumentException("Connection not found"));
+        connectionRepo.delete(connection);
+    }
+
 }
