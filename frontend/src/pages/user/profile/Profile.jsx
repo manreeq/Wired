@@ -11,6 +11,8 @@ function Profile() {
     const displayName = storedUser.name || "User";
     const profilePicUrl = storedUser.profilePicUrl;
 
+    const apiUrl = import.meta.env.VITE_API_BASE_URL;
+
     //controls which modal is open
     const [showTopSongs, setShowTopSongs] = useState(false);
     const [showTopArtists, setShowTopArtists] = useState(false);
@@ -27,7 +29,7 @@ function Profile() {
     //fetch top songs when disc button is clicked
     const handleTopSongsClick = () => {
         setSongsError('');
-        fetch('http://127.0.0.1:8080/api/stats/top-songs', {
+        fetch(`${apiUrl}/api/stats/top-songs`, {
             credentials: 'include'
         })
         .then(res => {
@@ -46,7 +48,7 @@ function Profile() {
     // fetch top artists when disc button is clicked
     const handleTopArtistsClick = () => {
         setArtistsError('');
-        fetch('http://127.0.0.1:8080/api/stats/top-artists', {
+        fetch(`${apiUrl}/api/stats/top-artists`, {
             credentials: 'include'
         })
         .then(res => {
