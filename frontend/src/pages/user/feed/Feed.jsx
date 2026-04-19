@@ -204,13 +204,15 @@ function Feed() {
     // accept friend request handler
     const handleFriendRequestAccept = (connectionId) => {
       fetch(`${apiUrl}/api/friends/requests/accept/${connectionId}`, { method: "PUT" })
-        .then(() => fetchPendingRequests());
+        .then(() => fetchPendingRequests())
+        .then(() => fetchFriendList());
     };
 
     // decline friend request handler
     const handleFriendRequestDecline = (connectionId) => {
           fetch(`${apiUrl}/api/friends/requests/decline/${connectionId}`, { method: "PUT" })
-            .then(() => fetchPendingRequests());
+            .then(() => fetchPendingRequests())
+            .then(() => fetchFriendList());
         };
 
 
