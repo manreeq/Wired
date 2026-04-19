@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.crypto.SecretKey;
 import java.time.LocalDateTime;
@@ -48,7 +49,7 @@ public class AuthService {
 
     @Autowired
     private JwtUtils jwtUtils;
-
+    
     @Autowired
     public AuthService(UserRepository userRepository, AuthCredentialsRepository credentialsRepository, RestTemplate restTemplate, TextEncryptor textEncryptor) {
         this.userRepository = userRepository;
@@ -236,5 +237,21 @@ public class AuthService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to refresh Spotify token: " + e.getMessage());
         }
+    }
+    
+    @Transactional
+    public void deleteAccount(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        // Remove OAuth data
+        credentialsRepository.findByUser(user).ifPresent(credentials -> {
+        	credentialsRepository.delete(credentials);
+        });
+
+        // Disconnect Spotify
+        user.setSpotifyURI(null);
+        userRepository.save(user); 
+        userRepository.delete(user);
     }
 }

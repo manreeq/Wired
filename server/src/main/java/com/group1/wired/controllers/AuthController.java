@@ -101,4 +101,39 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid or expired session");
         }
     }
+    
+    @DeleteMapping("/me")
+    public ResponseEntity<?> deleteMyAccount(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) return ResponseEntity.status(401).body("Not logged in");
+
+            String token = null;
+            for (Cookie cookie : cookies) {
+                if ("authToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+            if (token == null) return ResponseEntity.status(401).body("Not logged in");
+
+            SecretKey key = jwtUtils.generateSecretKey(jwtSecret);
+            Claims claims = jwtUtils.getPayload(token, key);
+            Long userId = Long.parseLong(claims.getSubject());
+
+            authService.deleteAccount(userId);
+
+            Cookie deleteCookie = new Cookie("authToken", null);
+            deleteCookie.setMaxAge(0);
+            deleteCookie.setPath("/");
+            response.addCookie(deleteCookie);
+
+            Map<String, String> result = new HashMap<>();
+            result.put("message", "Account deleted");
+            return ResponseEntity.ok(result);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(400).body("Error deleting account: " + e.getMessage());
+        }
+    }
 }

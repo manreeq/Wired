@@ -35,6 +35,8 @@ public class User {
     @Column(nullable = false, updatable = false) 		
 	private LocalDateTime joinDate;
 	
+	@Column(name = "is_history_private", nullable = false, columnDefinition = "boolean default false")
+	private boolean isHistoryPrivate = false;
 	@Column(unique = true, nullable = false)
 	private String friendCode;
 
