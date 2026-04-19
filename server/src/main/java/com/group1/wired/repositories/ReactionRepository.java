@@ -7,10 +7,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
+import java.util.List;
 
 @Repository
 public interface ReactionRepository extends JpaRepository<Reaction, Long> {
 
     Optional<Reaction> findByPostAndUser(Post post, User user);
+    List<Reaction> findByPost_PostID(Long postId);
     
 }

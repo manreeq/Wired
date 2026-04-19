@@ -119,4 +119,16 @@ public class SMEController {
         ReactionDTO reaction = socialMediaEngine.addReaction(postId, request.getUserId(), request.getPayload());
         return ResponseEntity.ok(reaction);
     }
+    
+    // Get Comments for a Post
+    @GetMapping("/{postId}/comments")
+    public ResponseEntity<List<CommentDTO>> getComments(@PathVariable Long postId) {
+        return ResponseEntity.ok(socialMediaEngine.getCommentsForPost(postId));
+    }
+
+    // Get Reactions for a Post
+    @GetMapping("/{postId}/reactions")
+    public ResponseEntity<List<ReactionDTO>> getReactions(@PathVariable Long postId) {
+        return ResponseEntity.ok(socialMediaEngine.getReactionsForPost(postId));
+    }
 }

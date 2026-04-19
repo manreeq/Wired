@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import styles from './PostCard.module.css';
 
 function PostCard({ item, userId, apiUrl, formatTimestamp }) {
@@ -8,6 +8,25 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
     const [comments, setComments] = useState(item.comments || []);
     const [reactions, setReactions] = useState(item.reactions || []);
 
+    // Fetch existing comments and reactions when post loads
+    useEffect(() => {
+        // Fetch Reactions
+        fetch(`${apiUrl}/api/posts/${item.postID}/reactions`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setReactions(data);
+            })
+            .catch(err => console.error("Error fetching reactions:", err));
+
+        // Fetch Comments
+        fetch(`${apiUrl}/api/posts/${item.postID}/comments`)
+            .then(res => res.json())
+            .then(data => {
+                if (Array.isArray(data)) setComments(data);
+            })
+            .catch(err => console.error("Error fetching comments:", err));
+    }, [item.postID, apiUrl]);
+    
     const handleAddComment = () => {
         if (!commentText.trim()) return;
 
@@ -120,7 +139,13 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                     {/* List of existing comments */}
                     {comments.map((c, idx) => (
                         <div key={c.commentId || idx} className={styles.commentItem}>
-                            <strong>{c.displayName}: </strong> {c.content}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+                                <strong>{c.displayName}</strong>
+                                <span style={{ fontSize: '0.75em', color: '#888' }}>
+                                    {c.timestamp ? formatTimestamp(c.timestamp) : 'Just now'}
+                                </span>
+                            </div>
+                            <p style={{ margin: '4px 0 0 0' }}>{c.content}</p>
                         </div>
                     ))}
 

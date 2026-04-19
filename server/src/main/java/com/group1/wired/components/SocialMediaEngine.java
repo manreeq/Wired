@@ -3,6 +3,7 @@ package com.group1.wired.components;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import java.util.Optional;
+import java.util.List;
 
 import com.group1.wired.entities.*;
 import com.group1.wired.repositories.*;
@@ -157,6 +158,25 @@ public class SocialMediaEngine {
                 savedReaction.getReactionId(), post.getPostID(), user.getUserID(),
                 user.getDisplayName(), savedReaction.getReactionType()
         );
+    }
+    
+    // Fetch existing comments
+    public List<CommentDTO> getCommentsForPost(Long postId) {
+        return commentRepo.findByPost_PostIDOrderByTimestampAsc(postId).stream()
+                .map(c -> new CommentDTO(
+                        c.getCommentId(), c.getPost().getPostID(), c.getUser().getUserID(),
+                        c.getUser().getDisplayName(), c.getUser().getProfilePictureURL(),
+                        c.getContent(), c.getTimestamp()
+                )).toList();
+    }
+
+    // Fetch existing reactins
+    public List<ReactionDTO> getReactionsForPost(Long postId) {
+        return reactionRepo.findByPost_PostID(postId).stream()
+                .map(r -> new ReactionDTO(
+                        r.getReactionId(), r.getPost().getPostID(), r.getUser().getUserID(),
+                        r.getUser().getDisplayName(), r.getReactionType()
+                )).toList();
     }
 }
 
