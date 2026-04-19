@@ -26,6 +26,19 @@ public class FriendService {
                 .orElseThrow(() -> new IllegalArgumentException("Requester not found"));
         User target = userRepo.findByFriendCode(targetFriendCode)
                 .orElseThrow(() -> new IllegalArgumentException("Target not found"));
+        // Shouldn't be able to add yourself
+        if (requester.getUserID().equals(target.getUserID())) {
+            throw new IllegalArgumentException("You cannot send a friend request to yourself");
+        }
+        // Prevents requests when there's pending or accepted entries
+        boolean existsActiveConnection = connectionRepo
+                .findByRequesterUserOrTargetUser(requester, target)
+                .stream()
+                .anyMatch(conn -> "Pending".equals(conn.getStatus()) || "Accepted".equals(conn.getStatus()));
+
+        if (existsActiveConnection) {
+            throw new IllegalStateException("Friend request already exists or you are already friends");
+        }
 
         FriendConnection connection = new FriendConnection(requester, target);
         connection.setStatus(status != null ? status : "Pending");
