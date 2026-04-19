@@ -56,95 +56,85 @@ public class SpotifyPollingService {
         return new ArrayList<>(latestLiveActivities.values());
     }
 
-    @Scheduled(fixedRateString = "${spotify.polling.rate:10000}")
+    @Scheduled(fixedRateString = "${spotify.polling.rate:15000}")
     public void pollCurrentlyPlaying() {
         List<User> users = userRepository.findAll();
         for (User user : users) {
             try {
-                // Get valid access token
                 String token = authService.getValidAccessToken(user);
-
-                // Fetch raw JSON
+                
+                // We make ONE API call here.
                 String json = spotifyEngine.fetchCurrentlyPlaying(token);
 
-                // Parse to DTO
                 PlaybackStateDTO newDto = parseService.parseCurrentlyPlayingJson(json);
                 Long userId = user.getUserID();
-
                 PlaybackStateDTO cachedState = livePlaybackState.get(userId);
 
                 // No Music / Paused
                 if (newDto.getTrackId() == null || !newDto.isPlaying()) {
-                    // Check if they JUST paused during this poll
                     if (cachedState != null && cachedState.isPlaying() && cachedState.getTrackId() != null) {
                         livePlaybackState.put(userId, newDto);
 
-                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
+                        // Use the JSON payload we already have!
+                        Song song = parseService.extractAndSaveSongFromPlayback(json);
+                        
+                        // Fallback if extraction fails on pause
+                        if (song == null) {
+                            song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
+                        }
+
                         LiveActivityDTO activityDto = new LiveActivityDTO(
-                                userId,
-                                user.getDisplayName(),
-                                user.getProfilePictureURL(),
-                                song.getSongName(),
-                                song.getAlbumArtUrl(),
-                                song.getSpotifyTrackId(),
-                                false
+                                userId, user.getDisplayName(), user.getProfilePictureURL(),
+                                song.getSongName(), song.getAlbumArtUrl(), song.getSpotifyTrackId(), false
                         );
                         latestLiveActivities.put(userId, activityDto);
                         messagingTemplate.convertAndSend("/topic/feed", activityDto);
                     } else {
                         livePlaybackState.put(userId, newDto);
                     }
-                    continue;
                 }
-
-                // New Song, First time logic, or Unpausing the same song
-                if (cachedState == null || cachedState.getTrackId() == null
+                // New Song
+                else if (cachedState == null || cachedState.getTrackId() == null
                         || !cachedState.getTrackId().equals(newDto.getTrackId())
                         || (!cachedState.isPlaying() && newDto.isPlaying())) {
-                    // Start fresh
                     livePlaybackState.put(userId, newDto);
                     System.out.println("User " + userId + " started a new song: " + newDto.getTrackId());
 
-                    // Fetch song details to broadcast to feed
-                    Song newSong = parseService.parseAndSaveSong(token, newDto.getTrackId());
+                    // Use the JSON payload we already have!
+                    Song newSong = parseService.extractAndSaveSongFromPlayback(json);
+                    
                     LiveActivityDTO activityDto = new LiveActivityDTO(
-                            userId,
-                            user.getDisplayName(),
-                            user.getProfilePictureURL(),
-                            newSong.getSongName(),
-                            newSong.getAlbumArtUrl(),
-                            newSong.getSpotifyTrackId(),
-                            true
+                            userId, user.getDisplayName(), user.getProfilePictureURL(),
+                            newSong.getSongName(), newSong.getAlbumArtUrl(), newSong.getSpotifyTrackId(), true
                     );
                     latestLiveActivities.put(userId, activityDto);
                     messagingTemplate.convertAndSend("/topic/feed", activityDto);
                 }
                 // Same song still playing
                 else {
-                    // Update progress in cache
                     cachedState.setProgressMs(newDto.getProgressMs());
-
-                    // Check threshold (30 seconds = 30000 ms) and prevent multiple logs
                     if (cachedState.getProgressMs() >= 30000 && !cachedState.isHasBeenLogged()) {
-                    	// Fetch or create the Song entity using your ParseService
-                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
                         
-                        // Create new ListeningActivity with the User and Song
+                        // Use the JSON payload we already have!
+                        Song song = parseService.extractAndSaveSongFromPlayback(json);
+                        
                         ListeningActivity newActivity = new ListeningActivity(user, song);
-                        
-                        // Save to db
                         listeningActivityRepository.save(newActivity);
-                        
-                        // Mark as logged so it won't trigger again on the next poll
                         cachedState.setHasBeenLogged(true);
-                        
-                        System.out.println("User " + userId + " hit 30s threshold! Officially logged to DB: "
-                                + song.getSongName());
+                        System.out.println("User " + userId + " hit 30s threshold! Officially logged to DB: " + song.getSongName());
                     }
                 }
 
             } catch (Exception e) {
                 System.err.println("Error polling for user " + user.getUserID() + ": " + e.getMessage());
+                
+                if (e.getMessage().contains("429")) {
+                    System.err.println("Spotify 429 Rate Limit hit. Halting entire polling cycle for 30 seconds.");
+                    try { Thread.sleep(30000); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
+                    break; 
+                }
+            } finally {
+                try { Thread.sleep(500); } catch (InterruptedException ie) { Thread.currentThread().interrupt(); }
             }
         }
     }

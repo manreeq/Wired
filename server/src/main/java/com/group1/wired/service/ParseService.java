@@ -166,4 +166,43 @@ public class ParseService {
             throw new RuntimeException("Failed to parse currently playing JSON: " + e.getMessage());
         }
     }
+    
+    @Transactional
+    public Song extractAndSaveSongFromPlayback(String json) {
+        try {
+            JsonNode root = objectMapper.readTree(json);
+            JsonNode itemNode = root.path("item");
+            
+            if (itemNode.isMissingNode() || itemNode.isNull() || !itemNode.has("id")) {
+                return null;
+            }
+
+            String spotifyTrackId = itemNode.path("id").asText();
+
+            // Check DB first, if it doesn't exist, build from the JSON payload already fetched.
+            return songRepository.findBySpotifyTrackId(spotifyTrackId).orElseGet(() -> {
+                String songName = itemNode.path("name").asText();
+                String albumArtUrl = itemNode.path("album")
+                        .path("images")
+                        .path(0)
+                        .path("url")
+                        .asText("None");
+
+                Song song = new Song(spotifyTrackId, songName, albumArtUrl);
+                song = songRepository.save(song);
+
+                JsonNode artistsNode = itemNode.path("artists");
+                for (JsonNode artistNode : artistsNode) {
+                    // Reuses existing method which creates local artists without API calls
+                    Artist artist = parseAndSaveArtist(null, artistNode.path("id").asText());
+                    songArtistRepository.save(new SongArtist(song, artist));
+                }
+
+                return song;
+            });
+
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to extract song from playback JSON: " + e.getMessage());
+        }
+    }
 }

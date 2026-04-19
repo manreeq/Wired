@@ -88,6 +88,11 @@ public class SpotifyDataRetrievalEngine {
             else if (response.code() == 204) {
                 return null; 
             }
+            // HTTP 429: Rate Limit Hit - Extract the Retry-After header
+            else if (response.code() == 429) {
+                String retryAfter = response.headers().get("Retry-After");
+                throw new RuntimeException("429_RATE_LIMIT. Spotify demands a cooldown of: " + retryAfter + " seconds.");
+            }
             
             throw new RuntimeException("Spotify error fetching current playback: " + response.code());
             
