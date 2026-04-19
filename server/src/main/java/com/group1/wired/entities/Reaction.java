@@ -24,7 +24,7 @@ public class Reaction {
     @Column(nullable = false)
     private String reactionType = "None";
 
-    protected Reaction() {}
+    public Reaction() {}
 
     public Reaction(Post post, User user, String reactionType) {
         this.post = post;

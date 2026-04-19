@@ -2,9 +2,12 @@ package com.group1.wired.components;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
+import java.util.List;
 
 import com.group1.wired.entities.*;
 import com.group1.wired.repositories.*;
+import com.group1.wired.dto.*;
 import com.group1.wired.service.AuthService;
 import com.group1.wired.service.ParseService;
 
@@ -20,6 +23,10 @@ public class SocialMediaEngine {
     // entity repositories
     private final UserRepository userRepo;
     private final ListeningActivityRepository listeningActivityRepo;
+    
+    private final CommentRepository commentRepo;
+    private final ReactionRepository reactionRepo;
+    private final PostRepository postRepo;
 
     // services for Spotify parsing
     private final AuthService authService;
@@ -34,7 +41,9 @@ public class SocialMediaEngine {
             UserRepository userRepo,
             ListeningActivityRepository listeningActivityRepo,
             AuthService authService,
-            ParseService parseService) {
+            ParseService parseService, CommentRepository commentRepo, 
+            ReactionRepository reactionRepo,
+            PostRepository postRepo) {
         this.songPostRepo = songPostRepo;
         this.albumPostRepo = albumPostRepo;
         this.playlistPostRepo = playlistPostRepo;
@@ -43,6 +52,10 @@ public class SocialMediaEngine {
         this.listeningActivityRepo = listeningActivityRepo;
         this.authService = authService;
         this.parseService = parseService;
+        
+        this.commentRepo = commentRepo;
+        this.reactionRepo = reactionRepo;
+        this.postRepo = postRepo;
     }
 
     
@@ -83,6 +96,87 @@ public class SocialMediaEngine {
 
         PlaylistPost post = new PlaylistPost(user, content, playlist);
         return playlistPostRepo.save(post);
+    }
+    
+    @Transactional
+    public CommentDTO addComment(Long postId, Long userId, String content) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        Comment comment = new Comment();
+        comment.setUser(user);
+        comment.setPost(post);
+        comment.setContent(content);
+        
+        Comment savedComment = commentRepo.save(comment);
+
+        return new CommentDTO(
+                savedComment.getCommentId(), post.getPostID(), user.getUserID(),
+                user.getDisplayName(), user.getProfilePictureURL(), 
+                savedComment.getContent(), savedComment.getTimestamp()
+        );
+    }
+
+    @Transactional
+    public ReactionDTO addReaction(Long postId, Long userId, String reactionType) {
+        User user = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found"));
+        Post post = postRepo.findById(postId)
+                .orElseThrow(() -> new IllegalArgumentException("Post not found"));
+
+        // Check if the user has already reacted to this post
+        Optional<Reaction> existingReactionOpt = reactionRepo.findByPostAndUser(post, user);
+
+        if (existingReactionOpt.isPresent()) {
+            Reaction existing = existingReactionOpt.get();
+            
+            // User clicked same reaction again (Toggle Off)
+            if (existing.getReactionType().equals(reactionType)) {
+                reactionRepo.delete(existing);
+                // Return a DTO with a "REMOVED" flag so the frontend knows to delete it from UI
+                return new ReactionDTO(existing.getReactionId(), postId, userId, user.getDisplayName(), "REMOVED");
+            } 
+            // User clicked a different reaction (Change Reaction)
+            else {
+                existing.setReactionType(reactionType);
+                Reaction saved = reactionRepo.save(existing);
+                return new ReactionDTO(saved.getReactionId(), postId, userId, user.getDisplayName(), saved.getReactionType());
+            }
+        }
+
+        // No existing reaction, create new
+        Reaction reaction = new Reaction();
+        reaction.setUser(user);
+        reaction.setPost(post);
+        reaction.setReactionType(reactionType);
+
+        Reaction savedReaction = reactionRepo.save(reaction);
+
+        return new ReactionDTO(
+                savedReaction.getReactionId(), post.getPostID(), user.getUserID(),
+                user.getDisplayName(), savedReaction.getReactionType()
+        );
+    }
+    
+    // Fetch existing comments
+    public List<CommentDTO> getCommentsForPost(Long postId) {
+        return commentRepo.findByPost_PostIDOrderByTimestampAsc(postId).stream()
+                .map(c -> new CommentDTO(
+                        c.getCommentId(), c.getPost().getPostID(), c.getUser().getUserID(),
+                        c.getUser().getDisplayName(), c.getUser().getProfilePictureURL(),
+                        c.getContent(), c.getTimestamp()
+                )).toList();
+    }
+
+    // Fetch existing reactins
+    public List<ReactionDTO> getReactionsForPost(Long postId) {
+        return reactionRepo.findByPost_PostID(postId).stream()
+                .map(r -> new ReactionDTO(
+                        r.getReactionId(), r.getPost().getPostID(), r.getUser().getUserID(),
+                        r.getUser().getDisplayName(), r.getReactionType()
+                )).toList();
     }
 }
 
