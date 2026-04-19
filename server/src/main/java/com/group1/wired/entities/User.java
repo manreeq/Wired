@@ -32,6 +32,9 @@ public class User {
 	@CreationTimestamp										//creation timestamp at current time
     @Column(nullable = false, updatable = false) 		
 	private LocalDateTime joinDate;
+	
+	@Column(name = "is_history_private", nullable = false, columnDefinition = "boolean default false")
+	private boolean isHistoryPrivate = false;
 
 	
 	protected User() {}
