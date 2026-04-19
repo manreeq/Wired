@@ -215,7 +215,18 @@ function Feed() {
             .then(() => fetchFriendList());
         };
 
-
+    function getFriendDisplay (userFriendCode, requesterName, requesterCode, targetName, targetCode) {
+        let friendName;
+        let listedFriendCode;
+        if(userFriendCode == requesterCode) {
+            friendName = targetName;
+            listedFriendCode = targetCode;
+        } else {
+            friendName = requesterName;
+            listedFriendCode = requesterCode;
+        }
+        return [friendName,listedFriendCode]
+    }
 
     return (
         <div className={styles.container}>
@@ -231,20 +242,19 @@ function Feed() {
                         {friendList
                             .filter(friend => friend.status === "Accepted")
                             .map(friend => {
-                                let friendName;
-                                let listedFriendCode;
-                                if(friendCode == friend.requesterFriendCode) {
-                                    friendName = friend.targetDisplayName;
-                                    listedFriendCode = friend.targetFriendCode;
-                                } else {
-                                    friendName = friend.requesterDisplayName;
-                                    listedFriendCode = friend.requesterFriendCode;
-                                }
+                                let friendDisplay =
+                                    getFriendDisplay(
+                                        friendCode,
+                                        friend.requesterDisplayName,
+                                        friend.requesterFriendCode,
+                                        friend.targetDisplayName,
+                                        friend.targetFriendCode
+                                    )
                                 return (
                                 <li key={friend.connectionId}>
                                     {/* right side */}
                                     <div>
-                                        {friendName} <br/> ({listedFriendCode})
+                                        {friendDisplay[0]} <br/> ({friendDisplay[1]})
                                     </div>
                                     {/* left side */}
                                     <div>
@@ -360,23 +370,32 @@ function Feed() {
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>
                         <h2>Friend Requests</h2>
                         <ul>
-                          {friendRequests
-//                               .filter(friend => friend.status === "Pending")
-                              .map(friend => (
-                            <li key={friend.connectionId}>
-                                {/* left */}
-                                <div>
-                                Requester: {friend.requesterDisplayName} ({friend.requesterFriendCode}) <br/>
-                                Targer: {friend.targetDisplayName} ({friend.targetFriendCode}) <br/>
-                                Status: {friend.status}
-                                </div>
-                                {/* right */}
-                                <div>
-                                    <button onClick={() => handleFriendRequestAccept(friend.connectionId)}>Accept</button>
-                                    <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Decline</button>
-                                </div>
-                            </li>
-                          ))}
+                            {friendRequests
+                                .map(friend => {
+                                    let friendDisplay =
+                                    getFriendDisplay(
+                                        friendCode,
+                                        friend.requesterDisplayName,
+                                        friend.requesterFriendCode,
+                                        friend.targetDisplayName,
+                                        friend.targetFriendCode
+                                    )
+                                return (
+                                    <li key={friend.connectionId}>
+                                    {/* left */}
+                                    <div>
+                                    {friendDisplay[0]} ({friendDisplay[1]}) is asking to be your friend!
+                                    </div>
+                                    {/* right */}
+                                    <div>
+                                        <button onClick={() => handleFriendRequestAccept(friend.connectionId)}>Accept</button>
+                                        <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Decline</button>
+                                    </div>
+                                    </li>
+
+                                )
+                                })
+                            }
                         </ul>
                     </div>
                 </div>
