@@ -1,6 +1,7 @@
 package com.group1.wired.controllers;
 
 import com.group1.wired.dto.FriendListDTO;
+import com.group1.wired.dto.PendingRequestsDTO;
 import org.springframework.web.bind.annotation.*;
 import com.group1.wired.entities.FriendConnection;
 import com.group1.wired.dto.FriendRequestDTO;
@@ -36,10 +37,10 @@ public class FriendsController {
                 .toList();
     }
     @GetMapping("/requests/{userId}")
-    public List<FriendListDTO> getPendingRequests(@PathVariable Long userId) {
+    public List<PendingRequestsDTO> getPendingRequests(@PathVariable Long userId) {
         return friendService.getFriendList(userId)
                 .stream()
-                .map(FriendListDTO::new)
+                .map(PendingRequestsDTO::new)
                 .toList();
     }
 
