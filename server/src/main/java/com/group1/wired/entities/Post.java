@@ -10,7 +10,7 @@ import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "posts")
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Inheritance(strategy = InheritanceType.JOINED) // identifies that post is a parent class; tells hibernate 
 												// to create separate tables for children
 public class Post {
