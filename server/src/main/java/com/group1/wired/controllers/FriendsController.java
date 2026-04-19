@@ -38,7 +38,7 @@ public class FriendsController {
     }
     @GetMapping("/requests/{userId}")
     public List<PendingRequestsDTO> getPendingRequests(@PathVariable Long userId) {
-        return friendService.getFriendList(userId)
+        return friendService.getPendingRequests(userId)
                 .stream()
                 .map(PendingRequestsDTO::new)
                 .toList();

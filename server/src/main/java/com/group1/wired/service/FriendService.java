@@ -40,7 +40,9 @@ public class FriendService {
     }
 
     // Get all pending requests for a user
-    public List<FriendConnection> getPendingRequests(User targetUser) {
+    public List<FriendConnection> getPendingRequests(Long userId) {
+        User targetUser = userRepo.findById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + userId));
         return connectionRepo.findByTargetUserAndStatus(targetUser, "Pending");
     }
 
