@@ -48,10 +48,34 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
             return res.json();
         })
         .then(newReactionDto => {
-            setReactions(prev => [...prev, newReactionDto]);
+            setReactions(prev => {
+                
+                const filtered = prev.filter(r => String(r.userId) !== String(userId));
+                
+                // Toggle Off (Backend removed it)
+                if (newReactionDto.reactionType === 'REMOVED') {
+                    return filtered; 
+                }
+                
+                // New Reaction or Updated Reaction
+                return [...filtered, newReactionDto];
+            });
         })
         .catch(err => console.error(err));
     };
+
+    // dynamically calculate current reaction counts
+    const getReactionCounts = () => {
+        const counts = { Like: 0, Fire: 0, Love: 0 };
+        reactions.forEach(r => {
+            if (counts[r.reactionType] !== undefined) {
+                counts[r.reactionType]++;
+            }
+        });
+        return counts;
+    };
+
+    const reactionCounts = getReactionCounts();
 
     return (
         <div className={styles.postCardContainer}>
@@ -69,14 +93,17 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                 {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
             </div>
 
-            {/* Reactions Bar */}
+             {/* Reactions Bar */}
             <div className={styles.reactionsBar}>
-                <button className={styles.reactionBtn} onClick={() => handleReaction('Like')}>👍</button>
-                <button className={styles.reactionBtn} onClick={() => handleReaction('Fire')}>🔥</button>
-                <button className={styles.reactionBtn} onClick={() => handleReaction('Love')}>❤️</button>
-                <span className={styles.reactionCount}>
-                    {reactions.length} reactions
-                </span>
+                <button className={styles.reactionBtn} onClick={() => handleReaction('Like')}>
+                    👍 {reactionCounts.Like > 0 && <span style={{ marginLeft: '4px', fontWeight: 'bold' }}>{reactionCounts.Like}</span>}
+                </button>
+                <button className={styles.reactionBtn} onClick={() => handleReaction('Fire')}>
+                    🔥 {reactionCounts.Fire > 0 && <span style={{ marginLeft: '4px', fontWeight: 'bold' }}>{reactionCounts.Fire}</span>}
+                </button>
+                <button className={styles.reactionBtn} onClick={() => handleReaction('Love')}>
+                    ❤️ {reactionCounts.Love > 0 && <span style={{ marginLeft: '4px', fontWeight: 'bold' }}>{reactionCounts.Love}</span>}
+                </button>
             </div>
 
             {/* Comments Toggle */}

@@ -2,6 +2,7 @@ package com.group1.wired.components;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import java.util.Optional;
 
 import com.group1.wired.entities.*;
 import com.group1.wired.repositories.*;
@@ -124,6 +125,27 @@ public class SocialMediaEngine {
         Post post = postRepo.findById(postId)
                 .orElseThrow(() -> new IllegalArgumentException("Post not found"));
 
+        // Check if the user has already reacted to this post
+        Optional<Reaction> existingReactionOpt = reactionRepo.findByPostAndUser(post, user);
+
+        if (existingReactionOpt.isPresent()) {
+            Reaction existing = existingReactionOpt.get();
+            
+            // User clicked same reaction again (Toggle Off)
+            if (existing.getReactionType().equals(reactionType)) {
+                reactionRepo.delete(existing);
+                // Return a DTO with a "REMOVED" flag so the frontend knows to delete it from UI
+                return new ReactionDTO(existing.getReactionId(), postId, userId, user.getDisplayName(), "REMOVED");
+            } 
+            // User clicked a different reaction (Change Reaction)
+            else {
+                existing.setReactionType(reactionType);
+                Reaction saved = reactionRepo.save(existing);
+                return new ReactionDTO(saved.getReactionId(), postId, userId, user.getDisplayName(), saved.getReactionType());
+            }
+        }
+
+        // No existing reaction, create new
         Reaction reaction = new Reaction();
         reaction.setUser(user);
         reaction.setPost(post);
