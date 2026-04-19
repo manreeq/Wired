@@ -207,6 +207,11 @@ function Feed() {
         .then(() => fetchPendingRequests());
     };
 
+    const handleFriendRequestDecline = (connectionId) => {
+          fetch(`${apiUrl}/api/friends/requests/decline/${connectionId}`, { method: "PUT" })
+            .then(() => fetchPendingRequests());
+        };
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -346,7 +351,7 @@ function Feed() {
                                 {/* right */}
                                 <div>
                                     <button onClick={() => handleFriendRequestAccept(friend.connectionId)}>Accept</button>
-                                    <button onClick={handleFriendRequestSubmit}>Reject</button>
+                                    <button onClick={() => handleFriendRequestDecline(friend.connectionId)}>Decline</button>
                                 </div>
                             </li>
                           ))}
