@@ -51,6 +51,7 @@ public class ParseService {
         this.objectMapper = new ObjectMapper();
     }
 
+    //=========SONGS==========================================================================
     @Transactional
     public Song parseAndSaveSong(String accessToken, String spotifyTrackId) {
         return songRepository.findBySpotifyTrackId(spotifyTrackId).orElseGet(() -> {
@@ -62,16 +63,17 @@ public class ParseService {
     @Transactional
     public Song parseAndSaveSongFromPlaybackJson(String json) {
         try {
-            JsonNode root = objectMapper.readTree(json);
-            JsonNode itemNode = root.path("item");
+            JsonNode root = objectMapper.readTree(json);  //parse the raw JSON string into a Jackson JsonNode tree
+            JsonNode itemNode = root.path("item");        //Extract the "item" node (this typically contains the currently playing track)
             
+            // Validate that the node exists and is not null and contains an id 
             if (itemNode.isMissingNode() || itemNode.isNull() || !itemNode.has("id")) {
                 throw new RuntimeException("No track item found in playback JSON");
             }
 
-            String spotifyTrackId = itemNode.path("id").asText();
+            String spotifyTrackId = itemNode.path("id").asText(); // Extract the Spotify track ID from the JSON
 
-            // Check the database first. If it doesn't exist, parse the JSON already existing.
+            // Check the database first. If it doesn't exist, parse the JSON and save the new song
             return songRepository.findBySpotifyTrackId(spotifyTrackId).orElseGet(() -> {
                 // Pass nested item JSON directly to existing parser
                 return parseSongFromJson(null, itemNode.toString());
@@ -89,48 +91,35 @@ public class ParseService {
             String spotifyTrackId = root.path("id").asText();
             String songName = root.path("name").asText();
 
-            // The track JSON already contains a SimplifiedAlbumObject 
-            // without making any additional Spotify API calls.
-            JsonNode albumNode = root.path("album");
-            String spotifyAlbumId = albumNode.path("id").asText();
-            String albumName = albumNode.path("name").asText("Unknown");
-            String albumArtUrl = albumNode.path("images").path(0).path("url").asText("None");
+            //The track JSON already contains a SimplifiedAlbumObject, parse and save an album 
+            //without making any additional Spotify API calls.
+            Album album = parseAndSaveAlbumFromNode(accessToken, root.path("album"));
 
-            // Upsert album inline — check DB first, only create if truly new
-            Album album = albumRepository.findBySpotifyAlbumId(spotifyAlbumId).orElseGet(() -> {
-                Album newAlbum = new Album(spotifyAlbumId, albumName, albumArtUrl);
-                newAlbum = albumRepository.save(newAlbum);
-
-                // Persist album artists from the simplified album node
-                JsonNode albumArtistsNode = albumNode.path("artists");
-                for (JsonNode artistNode : albumArtistsNode) {
-                    String artistSpotifyId = artistNode.path("id").asText();
-                    String artistName = artistNode.path("name").asText("Unknown");
-                    Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
-                    albumArtistRepository.save(new AlbumArtist(newAlbum, artist));
-                }
-
-                return newAlbum;
-            });
-
+            //create a new song
+            String albumArtUrl = root.path("album").path("images").path(0).path("url").asText("None");
             Song song = new Song(spotifyTrackId, songName, albumArtUrl, album);
             song = songRepository.save(song);
 
+            //save song artists
             JsonNode artistsNode = root.path("artists");
             for (JsonNode artistNode : artistsNode) {
                 String artistSpotifyId = artistNode.path("id").asText();
                 String artistName = artistNode.path("name").asText("Unknown");
-                Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
+                Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
+                if (accessToken != null) {
+                	backfillArtistPicture(accessToken, artist);
+                }
+                
                 songArtistRepository.save(new SongArtist(song, artist));
             }
-
+            
             return song;
-
+            
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse track JSON: " + e.getMessage());
         }
     }
-
+  //=========ALBUMS==========================================================================
     @Transactional
     public Album parseAndSaveAlbum(String accessToken, String spotifyAlbumId) {
         return albumRepository.findBySpotifyAlbumId(spotifyAlbumId).orElseGet(() -> {
@@ -142,28 +131,37 @@ public class ParseService {
     private Album parseAlbumFromJson(String accessToken, String json) {
         try {
             JsonNode root = objectMapper.readTree(json);
-
-            String spotifyAlbumId = root.path("id").asText();
-            String albumName = root.path("name").asText();
-            String albumArtUrl = root.path("images").path(0).path("url").asText("None");
-
-            Album album = new Album(spotifyAlbumId, albumName, albumArtUrl);
-            album = albumRepository.save(album);
-
-            JsonNode artistsNode = root.path("artists");
-            for (JsonNode artistNode : artistsNode) {
-                String artistSpotifyId = artistNode.path("id").asText();
-                String artistName = artistNode.path("name").asText("Unknown");
-                Artist artist = parseAndSaveArtist(accessToken, artistSpotifyId, artistName);
-            }
-
-            return album;
-
+            return parseAndSaveAlbumFromNode(accessToken, root);
         } catch (Exception e) {
             throw new RuntimeException("Failed to parse album JSON: " + e.getMessage());
         }
     }
     
+    // handles album saving from any JsonNode; previously this logic was duplicated in parseSongFromJson and parseAlbumFromJson
+    private Album parseAndSaveAlbumFromNode(String accessToken, JsonNode albumNode) {
+    	String spotifyAlbumId = albumNode.path("id").asText();
+    	String albumName = albumNode.path("name").asText("Unknown");
+    	String albumArtUrl = albumNode.path("images").path(0).path("url").asText("None");
+
+    	return albumRepository.findBySpotifyAlbumId(spotifyAlbumId).orElseGet(() -> {
+    		Album newAlbum = new Album(spotifyAlbumId, albumName, albumArtUrl);
+    		newAlbum = albumRepository.save(newAlbum);
+
+         // save album artists
+    		JsonNode albumArtistsNode = albumNode.path("artists");
+    		for (JsonNode artistNode : albumArtistsNode) {
+    			String artistSpotifyId = artistNode.path("id").asText();
+    			String artistName = artistNode.path("name").asText("Unknown");
+    			// artist saving and picture backfill are separate
+    			Artist artist = parseAndSaveArtist(artistSpotifyId, artistName);
+    			if (accessToken != null) backfillArtistPicture(accessToken, artist);
+    			albumArtistRepository.save(new AlbumArtist(newAlbum, artist));
+    		}
+    		
+    		return newAlbum;
+     });
+	}
+    //=========PLAYLIST==========================================================================
     @Transactional
     public Playlist parseAndSavePlaylist(String accessToken, String spotifyPlaylistId) {
         return playlistRepository.findBySpotifyPlaylistId(spotifyPlaylistId).orElseGet(() -> {
@@ -191,43 +189,45 @@ public class ParseService {
         }
     }
 
-    // Used by parseSongFromJson and parseAlbumFromJson to upsert an artist in the database.
-    // We extract artist names directly from the Track/Album JSON to avoid making extra Spotify API calls.
-    private Artist parseAndSaveArtist(String accessToken, String spotifyArtistId, String artistName) {
+    //=========ARTIST==========================================================================
+    @Transactional 
+    // Stores minimal artist data (name + genre); image is populated later via backfillArtistPicture()
+    public Artist parseAndSaveArtist(String spotifyArtistId, String artistName) {
         return artistRepository.findBySpotifyArtistId(spotifyArtistId).map(existingArtist -> {
-            // backfill name if artist was previously saved without one
+
+            // If the artist was previously saved with a placeholder name, update it
             if ("Unknown".equals(existingArtist.getArtistName())) {
                 existingArtist.setArtistName(artistName);
+                return artistRepository.save(existingArtist);
             }
-            // backfill profile picture if missing
-            if ("None".equals(existingArtist.getProfilePictureUrl())) {
-                try {
-                    String json = spotifyEngine.fetchArtist(accessToken, spotifyArtistId);
-                    JsonNode root = objectMapper.readTree(json);
-                    String picUrl = root.path("images").path(0).path("url").asText("None");
-                    existingArtist.setProfilePictureUrl(picUrl);
-                } catch (Exception e) {
-                    // if fetch fails, just leave it as None
-                }
-            }
-            return artistRepository.save(existingArtist);
+            return existingArtist;
+
         }).orElseGet(() -> {
-            // new artist, fetch all details including the profile picture
-            try {
-                String json = spotifyEngine.fetchArtist(accessToken, spotifyArtistId);
-                JsonNode root = objectMapper.readTree(json);
-                String primaryGenre = root.path("genres").path(0).asText("None");
-                String picUrl = root.path("images").path(0).path("url").asText("None");
-                Artist artist = new Artist(spotifyArtistId, artistName, primaryGenre);
-                artist.setProfilePictureUrl(picUrl);
-                return artistRepository.save(artist);
-            } catch (Exception e) {
-                // if fetch fails, save with no picture
-                Artist artist = new Artist(spotifyArtistId, artistName, "None");
-                return artistRepository.save(artist);
-            }
+            // First-time save with basic fields; image handled in a separate flow
+            Artist artist = new Artist(spotifyArtistId, artistName, "None");
+            return artistRepository.save(artist);
         });
     }
+    
+    // if there are no photos for the current artist, get it 
+    private void backfillArtistPicture(String accessToken, Artist artist) {
+
+        // skip if picture already exists
+        if (!"None".equals(artist.getProfilePictureUrl())) {
+        	return;
+        }
+        try {
+            String json = spotifyEngine.fetchArtist(accessToken, artist.getSpotifyArtistId());
+            JsonNode root = objectMapper.readTree(json);
+            String picUrl = root.path("images").path(0).path("url").asText("None");
+            String genre = root.path("genres").path(0).asText("None");
+            artist.setProfilePictureUrl(picUrl);
+            artist.setPrimaryGenre(genre);
+            artistRepository.save(artist);
+        } catch (Exception e) {}
+    }
+    
+    
 
     public PlaybackStateDTO parseCurrentlyPlayingJson(String json) {
         if (json == null || json.trim().isEmpty()) {
