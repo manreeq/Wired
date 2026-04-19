@@ -7,6 +7,7 @@ import com.group1.wired.repositories.UserRepository;
 
 import java.util.HashMap;
 import java.util.Map;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.group1.wired.utils.JwtUtils;
 import io.jsonwebtoken.Claims;
@@ -22,10 +23,11 @@ import javax.crypto.SecretKey;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "https://iteration4.d2t0j7fh8av7wl.amplifyapp.com", allowCredentials = "true")
 public class AuthController {
 
     private final AuthService authService;
-    private final UserRepository userRepository; // Add this!
+    private final UserRepository userRepository; 
     
     @Autowired
     private JwtUtils jwtUtils;
@@ -51,9 +53,9 @@ public class AuthController {
 
             // set the jwt as an http-only cookie with SameSite=Lax so the browser accepts it
             response.setHeader("Set-Cookie",
-                "authToken=" + authResponse.getToken() +
-                "; Path=/; HttpOnly; Max-Age=" + cookieExpiresIn +
-                "; SameSite=Lax");
+                    "authToken=" + authResponse.getToken() +
+                    "; Path=/; HttpOnly; Max-Age=" + cookieExpiresIn +
+                    "; SameSite=None; Secure");
 
             // return json with all the fields the frontend needs
             Map<String, String> successResponse = new HashMap<>();
