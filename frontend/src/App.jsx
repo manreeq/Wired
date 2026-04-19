@@ -3,7 +3,6 @@ import Login from './pages/auth/login/Login';
 import Callback from './pages/auth/callback/Callback';
 import Profile from './pages/user/profile/Profile';
 import Feed from './pages/user/feed/Feed'
-import PostHistory from './pages/user/history/PostHistory'
 
 function App() {
   return (
@@ -21,7 +20,6 @@ function App() {
         {/* for viewing someone else */}
         <Route path="/profile/:id" element={<Profile />} />
 		<Route path="/feed" element={<Feed />} />
-		<Route path="/posthistory" element={<PostHistory />} />
 		 
       </Routes>
     </Router>
