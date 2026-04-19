@@ -34,7 +34,7 @@ public class AuthService {
     @Value("${spotify.api.client-id}")
     private String clientId;
 
-    @Value("${spotify.api.client-secret}")	
+    @Value("${spotify.api.client-secret}")
     private String clientSecret;
 
     @Value("${spotify.redirect.uri}")
@@ -61,7 +61,7 @@ public class AuthService {
 //    public String processSpotifyLogin(String authCode) {
         // Swap the Auth Code for Access & Refresh Tokens
         Map<String, Object> tokenData = fetchTokensFromSpotify(authCode);
-        
+
         String accessToken = (String) tokenData.get("access_token");
         String refreshToken = (String) tokenData.get("refresh_token");
         Integer expiresIn = (Integer) tokenData.get("expires_in");
@@ -70,12 +70,12 @@ public class AuthService {
         Map<String, Object> spotifyProfile = fetchUserProfile(accessToken);
         String spotifyURI = (String) spotifyProfile.get("id");
         String displayName = (String) spotifyProfile.get("display_name");
-        
+
         // Declare profilePic variable and extract the URL
         String profilePicUrl = null;
         List<Map<String, Object>> images = (List<Map<String, Object>>) spotifyProfile.get("images");
         if (images != null && !images.isEmpty()) {
-            profilePicUrl = (String) images.get(0).get("url"); 
+            profilePicUrl = (String) images.get(0).get("url");
         }
 
         // Database Logic (Register or Login)
@@ -91,7 +91,7 @@ public class AuthService {
             user.setProfilePictureURL(profilePicUrl);
             user.setJoinDate(LocalDateTime.now());
             user = userRepository.save(user);
-            
+
             // Create their Credentials entry
             AuthCredentials creds = new AuthCredentials();
             creds.setUser(user);
@@ -99,18 +99,18 @@ public class AuthService {
             creds.setRefreshToken(textEncryptor.encrypt(refreshToken)); // Encrypts the refresh token before storing to the database
             creds.setTokenExpiresAt(LocalDateTime.now().plusSeconds(expiresIn));
             credentialsRepository.save(creds);
-            
+
         } else {
             user = existingUserOpt.get();
             user.setProfilePictureURL(profilePicUrl); // Apply to returning user
             user = userRepository.save(user);
-            
+
             AuthCredentials creds = credentialsRepository.findByUser(user)
                     .orElse(new AuthCredentials());
-            
+
             creds.setUser(user);
             creds.setAccessToken(accessToken);
-            
+
             if (refreshToken != null) {
                 creds.setRefreshToken(textEncryptor.encrypt(refreshToken)); // Encrypts
             }
@@ -134,13 +134,14 @@ public class AuthService {
                 .spotifyURI(user.getSpotifyURI())
                 .displayName(user.getDisplayName())
                 .profilePictureURL(user.getProfilePictureURL())
+                .friendCode(user.getFriendCode())
                 .token(token)
                 .build();
 
 //        return "Successfully logged in as: " + user.getDisplayName();
     }
 
-    
+
     private Map<String, Object> fetchTokensFromSpotify(String authCode) {
         String tokenUrl = "https://accounts.spotify.com/api/token";
 
@@ -166,15 +167,15 @@ public class AuthService {
 
     private Map<String, Object> fetchUserProfile(String accessToken) {
         String profileUrl = "https://api.spotify.com/v1/me";
-        
+
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         HttpEntity<String> entity = new HttpEntity<>("", headers);
-        
+
         ResponseEntity<Map> response = restTemplate.exchange(profileUrl, HttpMethod.GET, entity, Map.class);
         return response.getBody();
     }
-    
+
     public String getValidAccessToken(User user) {
         AuthCredentials creds = credentialsRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("No credentials found for user: " + user.getDisplayName()));
@@ -188,13 +189,13 @@ public class AuthService {
     }
 
     private String executeTokenRefresh(AuthCredentials creds) {
-        String tokenUrl = "https://accounts.spotify.com/api/token"; 
+        String tokenUrl = "https://accounts.spotify.com/api/token";
 
-        
+
         // Decryptes the encrypted token from the database
         String encryptedToken = creds.getRefreshToken();
         String decryptedToken = textEncryptor.decrypt(encryptedToken);
-        
+
         String authString = clientId + ":" + clientSecret;
         String base64Auth = Base64.getEncoder().encodeToString(authString.getBytes());
 

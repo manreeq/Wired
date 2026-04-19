@@ -1,5 +1,7 @@
 package com.group1.wired.entities;
 import org.hibernate.annotations.CreationTimestamp;
+import java.util.UUID;
+
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -32,6 +34,9 @@ public class User {
 	@CreationTimestamp										//creation timestamp at current time
     @Column(nullable = false, updatable = false) 		
 	private LocalDateTime joinDate;
+	
+	@Column(unique = true, nullable = false)
+	private String friendCode;
 
 	
 	protected User() {}
@@ -39,6 +44,7 @@ public class User {
 	public User(String spotifyURI, String displayName) { 	//constructor 
         this.spotifyURI = spotifyURI;
         this.displayName = displayName;
+        this.friendCode = "WIRED-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase(); //create friendcode
     }
 
 	public Long getUserID() {
@@ -60,6 +66,10 @@ public class User {
 	public String getDisplayName() {
 		return displayName;
 	}
+	
+	public String getFriendCode() {
+	    return friendCode;
+	}
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
@@ -80,7 +90,4 @@ public class User {
 	public LocalDateTime getJoinDate() {
 		return joinDate;
 	}
-
-	
-	
 }
