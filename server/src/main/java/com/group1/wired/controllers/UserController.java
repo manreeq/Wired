@@ -23,6 +23,7 @@ public class UserController {
             .map(user -> {
 
                 UserProfileDTO profileData = new UserProfileDTO(
+                    user.getUserID(),
                     user.getDisplayName(), 
                     user.getProfilePictureURL()
                 );
