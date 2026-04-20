@@ -1,9 +1,10 @@
 .postCardContainer {
-    border: 1px solid #ccc;
+    border: 1px solid #333;
     padding: 15px;
     border-radius: 8px;
     margin-bottom: 15px;
-    background-color: #fff;
+    background-color: #1a1a1a;
+    color: #fff;
 }
 
 .header {
@@ -16,6 +17,7 @@
 .authorName {
     font-size: 1.1em;
     font-weight: bold;
+    color: #fff;
 }
 
 .timestamp {
@@ -25,16 +27,17 @@
 
 .caption {
     margin: 8px 0;
+    color: #ccc;
 }
 
 .mediaBox {
     display: flex;
     align-items: center;
     padding: 12px;
-    background-color: #f9f9f9;
+    background-color: #2a2a2a;
     border-radius: 8px;
     margin-bottom: 12px;
-    border: 1px solid #eee;
+    border: 1px solid #333;
 }
 
 .coverArt {
@@ -42,24 +45,24 @@
     height: 60px;
     border-radius: 4px;
     object-fit: cover;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    margin-right: 15px; 
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+    margin-right: 15px;
 }
 
 .mediaInfo {
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center; 
-    text-align: center;  
-    flex-grow: 1;        
+    align-items: center;
+    text-align: center;
+    flex-grow: 1;
 }
 
 .mediaType {
     font-size: 0.75em;
     text-transform: uppercase;
     letter-spacing: 1px;
-    color: #1DB954; 
+    color: #1DB954;
     font-weight: bold;
     margin-bottom: 2px;
 }
@@ -67,18 +70,18 @@
 .mediaTitle {
     font-size: 1.1em;
     font-weight: bold;
-    color: #333;
+    color: #fff;
 }
 
 .artistName {
     font-size: 0.9em;
-    color: #666;
+    color: #aaa;
     margin-top: 2px;
 }
 
 .spotifyLink {
     text-decoration: none;
-    color: #333;
+    color: #fff;
     transition: color 0.2s;
 }
 
@@ -96,28 +99,27 @@
 
 .reactionBtn {
     background: none;
-    border: 1px solid #eee;
+    border: 1px solid #333;
     border-radius: 4px;
     cursor: pointer;
     padding: 4px 8px;
     font-size: 1.2em;
-    color: #333; /* Explicitly sets the counter text to a dark gray so it is visible */
-    transition: background-color 0.2s ease, transform 0.1s ease; /* Smooth out the hover animations */
+    color: #fff;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .reactionBtn:hover {
-    background-color: #f0f0f0;
-    transform: scale(1.1); /* Slightly enlarges the button when the mouse hovers over it */
+    background-color: #2a2a2a;
+    transform: scale(1.1);
 }
 
-/* Optional: Add an active state for when the button is actively being clicked */
 .reactionBtn:active {
     transform: scale(0.95);
 }
 
 .reactionCount {
     font-size: 0.9em;
-    color: #666;
+    color: #888;
 }
 
 .toggleBtn {
@@ -135,13 +137,14 @@
 
 .commentsSection {
     margin-top: 10px;
-    border-top: 1px solid #eee;
+    border-top: 1px solid #333;
     padding-top: 10px;
 }
 
 .commentItem {
     margin-bottom: 8px;
     font-size: 0.9em;
+    color: #ccc;
 }
 
 .commentInputArea {
@@ -153,8 +156,14 @@
 .commentInput {
     flex-grow: 1;
     padding: 8px;
-    border: 1px solid #ccc;
+    border: 1px solid #444;
     border-radius: 4px;
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+.commentInput::placeholder {
+    color: #666;
 }
 
 .postCommentBtn {
