@@ -64,14 +64,26 @@ public class StatsController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
-    //GET /api/stats/top-songs
-    //returns the current user's top 5 most listened songs
-    @GetMapping("/top-songs")
-    public ResponseEntity<?> getTopSongs( @RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
-        try {
-            User currentUser = getCurrentUser(request);
+    // resolves the target user: if userId param is supplied use that, otherwise fall back to the session user
+    private User resolveTargetUser(Long userId, HttpServletRequest request) {
+        if (userId != null) {
+            return userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+        }
+        return getCurrentUser(request);
+    }
 
-            List<TopSongDTO> topSongs = statsService.getTopSongs(currentUser, range);
+    //GET /api/stats/top-songs
+    //returns the target user's top 5 most listened songs
+    @GetMapping("/top-songs")
+    public ResponseEntity<?> getTopSongs(
+            @RequestParam(defaultValue = "month") String range,
+            @RequestParam(required = false) Long userId,
+            HttpServletRequest request) {
+        try {
+            User targetUser = resolveTargetUser(userId, request);
+
+            List<TopSongDTO> topSongs = statsService.getTopSongs(targetUser, range);
 
             //failsafe; reject the request if the user hasnt listened to at least 5 distinct songs yet
             if (topSongs.size() < 5) {
@@ -87,13 +99,16 @@ public class StatsController {
     }
     
     //GET /api/stats/top-artists
-    //returns the current user's top 5 most listened artists
+    //returns the target user's top 5 most listened artists
     @GetMapping("/top-artists")
-    public ResponseEntity<?> getTopArtists(@RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
+    public ResponseEntity<?> getTopArtists(
+            @RequestParam(defaultValue = "month") String range,
+            @RequestParam(required = false) Long userId,
+            HttpServletRequest request) {
     	try {
-    		User currentUser = getCurrentUser(request);
+    		User targetUser = resolveTargetUser(userId, request);
 
-    		List<TopArtistDTO> topArtists = statsService.getTopArtists(currentUser, range);
+    		List<TopArtistDTO> topArtists = statsService.getTopArtists(targetUser, range);
 
     		// reject if user hasnt listened to enough distinct artists yet
     		if (topArtists.size() < 5) {
@@ -108,25 +123,31 @@ public class StatsController {
      }
  }
     //GET /api/stats/listening-time
-	//returns the current user's total listening time
+	//returns the target user's total listening time
 	@GetMapping("/listening-time")
-	public ResponseEntity<?> getTotalListeningTime(@RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
+	public ResponseEntity<?> getTotalListeningTime(
+			@RequestParam(defaultValue = "month") String range,
+			@RequestParam(required = false) Long userId,
+			HttpServletRequest request) {
 		try {
-				User currentUser = getCurrentUser(request);
-				String listeningTime = statsService.getTotalListeningTime(currentUser, range);
+				User targetUser = resolveTargetUser(userId, request);
+				String listeningTime = statsService.getTotalListeningTime(targetUser, range);
 				return ResponseEntity.ok(listeningTime);
 		} catch (Exception e) {
 			return ResponseEntity.status(401).build();
 		}
 	}
 	//GET /api/stats/top-albums
-	//returns the current user's top 5 most listened albums
+	//returns the target user's top 5 most listened albums
 	@GetMapping("/top-albums")
-	public ResponseEntity<?> getTopAlbums(@RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
+	public ResponseEntity<?> getTopAlbums(
+			@RequestParam(defaultValue = "month") String range,
+			@RequestParam(required = false) Long userId,
+			HttpServletRequest request) {
 	    try {
-	        User currentUser = getCurrentUser(request);
+	        User targetUser = resolveTargetUser(userId, request);
 
-	        List<TopAlbumDTO> topAlbums = statsService.getTopAlbums(currentUser, range);
+	        List<TopAlbumDTO> topAlbums = statsService.getTopAlbums(targetUser, range);
 
 	        // reject if user hasnt listened to enough distinct albums yet
 	        if (topAlbums.size() < 5) {

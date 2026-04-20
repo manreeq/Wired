@@ -91,7 +91,8 @@ function Profile() {
 	
 	//fetch listening stats on page load
 	useEffect(() => {
-	    fetch(`${apiUrl}/api/stats/listening-time?range=${range}`, {
+	    const userParam = id ? `&userId=${id}` : '';
+	    fetch(`${apiUrl}/api/stats/listening-time?range=${range}${userParam}`, {
 	        credentials: 'include'
 	    })
 	    .then(res => {
@@ -100,12 +101,13 @@ function Profile() {
 	    })
 	    .then(time => setListeningTime(time))
 	    .catch(err => console.error(err));
-	}, []);
+	}, [id]);
 
     //fetch top songs when disc button is clicked
     const handleTopSongsClick = () => {
         setSongsError('');
-        fetch(`${apiUrl}/api/stats/top-songs?range=${range}`, {
+        const userParam = id ? `&userId=${id}` : '';
+        fetch(`${apiUrl}/api/stats/top-songs?range=${range}${userParam}`, {
             credentials: 'include'
         })
         .then(res => {
@@ -124,7 +126,8 @@ function Profile() {
     // fetch top artists when disc button is clicked
     const handleTopArtistsClick = () => {
         setArtistsError('');
-        fetch(`${apiUrl}/api/stats/top-artists?range=${range}`, {
+        const userParam = id ? `&userId=${id}` : '';
+        fetch(`${apiUrl}/api/stats/top-artists?range=${range}${userParam}`, {
             credentials: 'include'
         })
         .then(res => {
@@ -142,7 +145,8 @@ function Profile() {
 	
 	const handleTopAlbumsClick = () => {
 	    setAlbumsError('');
-	    fetch(`${apiUrl}/api/stats/top-albums?range=${range}`, {
+	    const userParam = id ? `&userId=${id}` : '';
+	    fetch(`${apiUrl}/api/stats/top-albums?range=${range}${userParam}`, {
 	        credentials: 'include'
 	    })
 	    .then(res => {
