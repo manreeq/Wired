@@ -146,4 +146,15 @@ public class AuthController {
             return ResponseEntity.status(400).body("Error deleting account: " + e.getMessage());
         }
     }
+    
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+        // Overwrite the cookie with one that expires instantly
+        response.setHeader("Set-Cookie",
+                "authToken=; Path=/; HttpOnly; Max-Age=0; SameSite=None; Secure");
+
+        Map<String, String> result = new HashMap<>();
+        result.put("message", "Successfully logged out");
+        return ResponseEntity.ok(result);
+    }
 }
