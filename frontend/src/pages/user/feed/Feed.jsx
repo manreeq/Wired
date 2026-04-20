@@ -223,17 +223,22 @@ function Feed() {
                 .then(() => fetchFriendList());
             };
 
-    function getFriendDisplay (userFriendCode, requesterName, requesterCode, targetName, targetCode) {
+    function getFriendDisplay (userFriendCode,
+        requesterName, requesterCode, requesterId,
+        targetName, targetCode,targetId) {
         let friendName;
         let listedFriendCode;
+        let listedFriendId;
         if(userFriendCode == requesterCode) {
             friendName = targetName;
             listedFriendCode = targetCode;
+            listedFriendId = targetId;
         } else {
             friendName = requesterName;
             listedFriendCode = requesterCode;
+            listedFriendId = requesterId;
         }
-        return [friendName,listedFriendCode]
+        return [friendName,listedFriendCode,listedFriendId]
     }
 
     const allowedUserIds = new Set([
@@ -277,14 +282,19 @@ function Feed() {
                                         friendCode,
                                         friend.requesterDisplayName,
                                         friend.requesterFriendCode,
+                                        friend.requesterId,
                                         friend.targetDisplayName,
-                                        friend.targetFriendCode
+                                        friend.targetFriendCode,
+                                        friend.targetId
                                     )
                                 return (
                                 <li key={friend.connectionId}>
                                     {/* right side */}
                                     <div>
                                         {friendDisplay[0]} <br/> ({friendDisplay[1]})
+                                        <a href={`/api/users/${friendDisplay[2]}`} target="_blank">
+                                          View {friendDisplay[0]}'s Profile
+                                        </a>
                                     </div>
                                     {/* left side */}
                                     <div>
@@ -308,7 +318,9 @@ function Feed() {
                         <div className={styles.postList} style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
 
                             {/* LIVE ACTIVITIES */}
-                            {liveActivities.map((item) => (
+                            {liveActivities
+                                .filter(item => allowedUserIds.has(item.userId))
+                                .map((item) => (
                                 <div key={`live-${item.userId}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                         <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
