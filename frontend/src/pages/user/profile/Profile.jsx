@@ -8,10 +8,6 @@ function Profile() {
     // get ID from the URL
     const { id } = useParams();
 
-    //get the logged in user
-    const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
-    const loggedInUserId = Number(storedUser.id || storedUser.userID);
-
     // state to hold whoever's profile we are looking at
     const [profileData, setProfileData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -24,13 +20,13 @@ function Profile() {
         const fetchProfile = async () => {
             try {
                 const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
-                    credentials: 'include' // This sends the cookie
+                    credentials: 'include' // This sends the secure cookie!
                 });
 
                 if (response.ok) {
                     const data = await response.json();
                     setProfileData({
-                        id: Number(data.userId || data.userID || data.id),
+                        id: data.userId,
                         displayName: data.displayName,
                         profilePicUrl: data.profilePicUrl,
                         isHistoryPrivate: data.isHistoryPrivate
@@ -145,10 +141,10 @@ function Profile() {
                     )}
                     <h2>{profileData.displayName}</h2>
                 </div>
-                
+
                 {/* Check if we should hide the data */}
-                {(profileData.isHistoryPrivate && profileData.id !== loggedInUserId) ? (
-                    
+                {(profileData.isHistoryPrivate && profileData.id !== id) ? (
+
                     <div style={{ marginTop: '50px', padding: '40px', backgroundColor: '#f0f0f0', borderRadius: '12px', textAlign: 'center' }}>
                         <h3 style={{ color: '#555' }}>This user's activity is hidden.</h3>
                     </div>

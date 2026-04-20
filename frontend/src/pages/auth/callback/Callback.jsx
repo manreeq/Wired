@@ -45,7 +45,7 @@ function Callback() {
 
                 // Save the user data globally to the browser
                 const userData = {
-                    id: data.userID,
+                    id: data.userId,
                     name: data.displayName,
                     friendCode: data.friendCode,
                     profilePicUrl: data.profilePicUrl
