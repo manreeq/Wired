@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import TopSongsModal from './TopSongsModal';
 import TopArtistsModal from './TopArtistsModal';
+import TopAlbumsModal from './TopAlbumsModal';	
 
 function Profile() {
 
@@ -18,14 +19,21 @@ function Profile() {
     //controls which modal is open
     const [showTopSongs, setShowTopSongs] = useState(false);
     const [showTopArtists, setShowTopArtists] = useState(false);
+	const [showTopAlbums, setShowTopAlbums] = useState(false);
+
 
     //holds the fetched data
     const [topSongs, setTopSongs] = useState([]);
     const [topArtistsData, setTopArtistsData] = useState([]);
+	const [topAlbumsData, setTopAlbumsData] = useState([]);
+
+	const [listeningTime, setListeningTime] = useState('');
+
 
     //failsafe; holds error messages if user doesnt have enough listening history for either
     const [songsError, setSongsError] = useState('');
     const [artistsError, setArtistsError] = useState('');
+	const [albumsError, setAlbumsError] = useState('');
 
     // Listening history state
     const [historyLimit, setHistoryLimit] = useState('5');
@@ -47,6 +55,19 @@ function Profile() {
             .catch(err => setHistoryError(err.message))
             .finally(() => setHistoryLoading(false));
     }, [userId, historyLimit]);
+	
+	//fetch listening stats on page load
+	useEffect(() => {
+	    fetch(`${apiUrl}/api/stats/listening-time`, {
+	        credentials: 'include'
+	    })
+	    .then(res => {
+	        if (!res.ok) throw new Error('Failed to load listening time');
+	        return res.text();
+	    })
+	    .then(time => setListeningTime(time))
+	    .catch(err => console.error(err));
+	}, []);
 
     //fetch top songs when disc button is clicked
     const handleTopSongsClick = () => {
@@ -85,6 +106,24 @@ function Profile() {
         })
         .catch(err => setArtistsError(err.message));
     };
+	
+	const handleTopAlbumsClick = () => {
+	    setAlbumsError('');
+	    fetch(`${apiUrl}/api/stats/top-albums`, {
+	        credentials: 'include'
+	    })
+	    .then(res => {
+	        if (!res.ok) {
+	            return res.text().then(msg => { throw new Error(msg); });
+	        }
+	        return res.json();
+	    })
+	    .then(data => {
+	        setTopAlbumsData(data);
+	        setShowTopAlbums(true);
+	    })
+	    .catch(err => setAlbumsError(err.message));
+	};
 
     return (
         <div>
@@ -149,6 +188,24 @@ function Profile() {
                             </p>
                         )}
                     </div>
+					
+					{/* top albums button */}
+					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+					    <button onClick={handleTopAlbumsClick} style={{
+					        background: 'none',
+					        border: 'none',
+					        cursor: 'pointer',
+					        padding: 0
+					    }}>
+					        <img src="/disc.png" alt="Top Albums" style={{ width: '80px', height: '80px' }} />
+					    </button>
+					    <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Top Albums</span>
+					    {albumsError && (
+					        <p style={{ color: 'red', fontSize: '0.75rem', maxWidth: '120px', textAlign: 'center' }}>
+					            {albumsError}
+					        </p>
+					    )}
+					</div>
                 </div>
 
                 {/* top songs modal */}
@@ -156,6 +213,7 @@ function Profile() {
                     isOpen={showTopSongs}
                     onClose={() => setShowTopSongs(false)}
                     songs={topSongs}
+					listeningTime={listeningTime}
                 />
 
                 {/* top artists modal */}
@@ -163,7 +221,16 @@ function Profile() {
                     isOpen={showTopArtists}
                     onClose={() => setShowTopArtists(false)}
                     artists={topArtistsData}
+					listeningTime={listeningTime}
                 />
+				
+				{/* top albums modal */}
+				<TopAlbumsModal
+				    isOpen={showTopAlbums}
+				    onClose={() => setShowTopAlbums(false)}
+				    albums={topAlbumsData}
+				    listeningTime={listeningTime}
+				/>
 
                 {/* ── LISTENING HISTORY ─────────────────────────────────── */}
                 <div style={{ marginTop: '50px' }}>

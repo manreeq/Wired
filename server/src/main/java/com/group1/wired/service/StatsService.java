@@ -1,6 +1,7 @@
 package com.group1.wired.service;
 import com.group1.wired.dto.TopArtistDTO;
 import com.group1.wired.dto.TopSongDTO;
+import com.group1.wired.dto.TopAlbumDTO;
 import com.group1.wired.entities.Song;
 import com.group1.wired.entities.SongArtist;
 import com.group1.wired.entities.User;
@@ -79,5 +80,32 @@ public class StatsService {
         }
 
         return topArtists;
+    }
+    public String getTotalListeningTime(User user) {
+    	Long totalListeningTime = listeningActivityRepository.getTotalListeningTimeMs(user);
+    	if (totalListeningTime == null) {
+    		return "0 minutes";
+    	}
+    	
+    	long totalMinutes = totalListeningTime/60000;
+    	return "Minutes Listened: " +  totalMinutes ;
+    }
+    
+    public List<TopAlbumDTO> getTopAlbums(User user) {
+
+        // run the query
+        List<Object[]> results = listeningActivityRepository.findTop5AlbumsByUser(user);
+
+        List<TopAlbumDTO> topAlbums = new ArrayList<>();
+
+        for (Object[] row : results) {
+            String albumName = (String) row[1];
+            String albumArtUrl = (String) row[2];
+            Long listenCount = (Long) row[3];
+
+            topAlbums.add(new TopAlbumDTO(albumName, albumArtUrl, listenCount));
+        }
+
+        return topAlbums;
     }
 }

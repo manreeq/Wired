@@ -41,4 +41,26 @@ public interface ListeningActivityRepository extends JpaRepository<ListeningActi
     	    LIMIT 5
     	""")
     	List<Object[]> findTop5ArtistsByUser(@Param("user") User user);
+    	
+   //total listening time
+    	
+	@Query("""
+			SELECT SUM(la.song.durationMs)
+    	    FROM ListeningActivity la
+    	    WHERE la.user = :user
+    	""")
+    	Long getTotalListeningTimeMs(@Param("user") User user);
+			
+	//top albums
+	@Query("""
+	    SELECT la.song.album.albumId, la.song.album.albumName, la.song.album.albumArtUrl, COUNT(la) as listenCount
+	    FROM ListeningActivity la
+	    WHERE la.user = :user
+	    GROUP BY la.song.album.albumId, la.song.album.albumName, la.song.album.albumArtUrl
+	    ORDER BY listenCount DESC
+	    LIMIT 5
+	""")
+	List<Object[]> findTop5AlbumsByUser(@Param("user") User user);
+			
+		
 }

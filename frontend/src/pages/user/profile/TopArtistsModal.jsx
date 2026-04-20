@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './TopArtistsModal.module.css';
 
 // receives isOpen (bool), onClose (function), and artists (array) from Profile.jsx
-function TopArtistsModal({ isOpen, onClose, artists = [] }) {
+function TopArtistsModal({ isOpen, onClose, artists = [], listeningTime }) {
 
     // dont render anything if the modal is closed
     if (!isOpen) return null;
@@ -33,8 +33,8 @@ function TopArtistsModal({ isOpen, onClose, artists = [] }) {
                             />
 
                             {/* artist name */}
-                            <div className={styles.songInfo}>
-                                <div className={styles.songName}>
+                            <div className={styles.artistInfo}>
+                                <div className={styles.artistName}>
                                     {artist.artistName}
                                 </div>
                             </div>
@@ -45,6 +45,10 @@ function TopArtistsModal({ isOpen, onClose, artists = [] }) {
                             </div>
                         </div>
                     ))}
+					{/* total listening time — bottom left, aligned with album photos */}
+					    <div className={styles.listeningTime}>
+					        {listeningTime}
+					    </div>
                 </div>
 
                 {/* close button in the top right corner */}

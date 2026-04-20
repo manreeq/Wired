@@ -2,7 +2,7 @@ import React from 'react';
 import styles from './TopSongsModal.module.css';
 
 //receives isOpen (bool), onClose (function), and songs (array) from Profile.jsx
-function TopSongsModal({ isOpen, onClose, songs = [] }) {
+function TopSongsModal({ isOpen, onClose, songs = [], listeningTime }) {
 
     //dont render anything if the modal is closed
     if (!isOpen) return null;
@@ -49,6 +49,10 @@ function TopSongsModal({ isOpen, onClose, songs = [] }) {
                             </div>
                         </div>
                     ))}
+					{/* total listening time — bottom left, aligned with album photos */}
+					    <div className={styles.listeningTime}>
+					        {listeningTime}
+					    </div>
                 </div>
 
                 {/* close button in the top right corner */}
