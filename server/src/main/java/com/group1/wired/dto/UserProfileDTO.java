@@ -9,14 +9,14 @@ import lombok.Setter;
 public class UserProfileDTO {
     private Long userId;
     private String displayName;
-    private String profilePicURL;
+    private String profilePicUrl;
     @JsonProperty("isHistoryPrivate")
     private boolean isHistoryPrivate;
 
-    public UserProfileDTO(Long userId, String displayName, String profilePicURL, boolean isHistoryPrivate) {
+    public UserProfileDTO(Long userId, String displayName, String profilePicUrl, boolean isHistoryPrivate) {
         this.userId = userId;
         this.displayName = displayName;
-        this.profilePicURL = profilePicURL;
+        this.profilePicUrl = profilePicUrl;
         this.isHistoryPrivate = isHistoryPrivate;
     }
 
