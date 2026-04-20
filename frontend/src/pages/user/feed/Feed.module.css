@@ -1,7 +1,10 @@
+/* ================= LAYOUT ================= */
 .container {
     display: flex;
     flex-direction: column;
     height: 100vh;
+    background-color: #111;
+    color: #fff;
 }
 
 .body {
@@ -10,19 +13,80 @@
     overflow: hidden;
 }
 
+/* =================  SIDEBAR ================= */
 .sidebar {
     display: flex;
     flex-direction: column;
     gap: 10px;
     padding: 20px;
     width: 200px;
-    border-right: 1px solid #ccc;
+    background-color: #1a1a1a;
+    border-right: 1px solid #333;
+    color: #fff;
 }
 
+.sidebar button {
+    background-color: #000;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    text-align: left;
+}
+
+.sidebar button:hover {
+    background-color: #333;
+}
+
+.sidebar ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #ccc;
+}
+
+.sidebar li a {
+    color: #ccc;
+    text-decoration: none;
+}
+
+.sidebar li a:hover {
+    color: #fff;
+}
+
+.sidebar li button {
+    background-color: #333;
+    color: #fff;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.75rem;
+}
+
+.sidebar li button:hover {
+    background-color: #555;
+}
+
+/* =================  FEED =================  */
 .feed {
     padding: 20px;
     flex: 1;
     overflow-y: auto;
+    background-color: #111;
+    color: #fff;
 }
 
 .postList {
@@ -32,14 +96,16 @@
     margin-top: 12px;
 }
 
+/* =================  POST CARD ================= */
 .postCard {
     display: flex;
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
-    border: 1px solid #e0e0e0;
+    border: 1px solid #333;
     border-radius: 8px;
-    background: #fafafa;
+    background-color: #1a1a1a;
+    color: #fff;
 }
 
 .postCard img {
@@ -58,34 +124,111 @@
 
 .postInfo strong {
     font-size: 0.95rem;
+    color: #fff;
 }
 
 .postInfo span {
     font-size: 0.82rem;
-    color: #666;
+    color: #888;
 }
 
+/* =================  MODAL OVERLAY ================= */
 .modalOverlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.5);
+    background: rgba(0, 0, 0, 0.7);
     display: flex;
     align-items: center;
     justify-content: center;
+    z-index: 1000;
 }
 
+/* ================= MODAL ================= */
 .modal {
-    background: white;
+    background-color: #1a1a1a;
+    color: #fff;
     padding: 24px;
     border-radius: 8px;
     width: 400px;
     display: flex;
     flex-direction: column;
     gap: 12px;
+    border: 1px solid #333;
 }
 
+.modal h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    color: #fff;
+}
+
+.modal h3 {
+    margin: 0;
+    font-size: 0.95rem;
+    color: #aaa;
+}
+
+.modal input,
+.modal textarea,
+.modal select {
+    background-color: #2a2a2a;
+    color: #fff;
+    border: 1px solid #444;
+    border-radius: 6px;
+    padding: 8px;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 0.9rem;
+}
+
+.modal input::placeholder,
+.modal textarea::placeholder {
+    color: #666;
+}
+
+.modal select option {
+    background-color: #2a2a2a;
+    color: #fff;
+}
+
+.modal ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.modal li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #ccc;
+    padding: 8px;
+    border: 1px solid #333;
+    border-radius: 6px;
+    background-color: #2a2a2a;
+}
+
+/* ================= MODAL BUTTONS ================= */
 .modalButtons {
     display: flex;
     gap: 10px;
     justify-content: flex-end;
+}
+
+.modalButtons button {
+    background-color: #000;
+    color: #fff;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+}
+
+.modalButtons button:hover {
+    background-color: #333;
 }

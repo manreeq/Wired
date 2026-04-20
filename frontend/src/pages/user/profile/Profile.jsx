@@ -323,13 +323,13 @@ function Profile() {
                                     <div
                                         key={`history-${index}`}
                                         style={{
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '12px',
-                                            padding: '10px 14px',
-                                            border: '1px solid #ddd',
-                                            borderRadius: '8px',
-                                            backgroundColor: '#fafafa'
+											display: 'flex',
+									        alignItems: 'center',
+									        gap: '12px',
+									        padding: '10px 14px',
+									        border: '1px solid #333',
+									        borderRadius: '8px',
+									        backgroundColor: '#1a1a1a'
                                         }}
                                     >
                                         <img
