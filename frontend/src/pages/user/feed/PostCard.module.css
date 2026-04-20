@@ -9,20 +9,44 @@
 
 .header {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    margin-bottom: 10px;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.profilePic {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: #333; 
+}
+
+.profilePicPlaceholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: #333;
+    flex-shrink: 0; 
+}
+
+.authorDetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .authorName {
     font-size: 1.1em;
     font-weight: bold;
     color: #fff;
+    line-height: 1.1; 
 }
 
 .timestamp {
     font-size: 0.85em;
     color: #888;
+    margin-top: 2px;
 }
 
 .caption {
