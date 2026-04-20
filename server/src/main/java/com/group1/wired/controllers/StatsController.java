@@ -2,6 +2,8 @@ package com.group1.wired.controllers;
 
 import com.group1.wired.dto.TopSongDTO;
 import com.group1.wired.dto.TopArtistDTO;
+import com.group1.wired.dto.TopAlbumDTO;
+
 import com.group1.wired.entities.User;
 import com.group1.wired.repositories.UserRepository;
 import com.group1.wired.service.StatsService;
@@ -65,11 +67,11 @@ public class StatsController {
     //GET /api/stats/top-songs
     //returns the current user's top 5 most listened songs
     @GetMapping("/top-songs")
-    public ResponseEntity<?> getTopSongs(HttpServletRequest request) {
+    public ResponseEntity<?> getTopSongs( @RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
         try {
             User currentUser = getCurrentUser(request);
 
-            List<TopSongDTO> topSongs = statsService.getTopSongs(currentUser);
+            List<TopSongDTO> topSongs = statsService.getTopSongs(currentUser, range);
 
             //failsafe; reject the request if the user hasnt listened to at least 5 distinct songs yet
             if (topSongs.size() < 5) {
@@ -87,11 +89,11 @@ public class StatsController {
     //GET /api/stats/top-artists
     //returns the current user's top 5 most listened artists
     @GetMapping("/top-artists")
-    public ResponseEntity<?> getTopArtists(HttpServletRequest request) {
+    public ResponseEntity<?> getTopArtists(@RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
     	try {
     		User currentUser = getCurrentUser(request);
 
-    		List<TopArtistDTO> topArtists = statsService.getTopArtists(currentUser);
+    		List<TopArtistDTO> topArtists = statsService.getTopArtists(currentUser, range);
 
     		// reject if user hasnt listened to enough distinct artists yet
     		if (topArtists.size() < 5) {
@@ -105,4 +107,37 @@ public class StatsController {
          return ResponseEntity.status(401).build();
      }
  }
+    //GET /api/stats/listening-time
+	//returns the current user's total listening time
+	@GetMapping("/listening-time")
+	public ResponseEntity<?> getTotalListeningTime(@RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
+		try {
+				User currentUser = getCurrentUser(request);
+				String listeningTime = statsService.getTotalListeningTime(currentUser, range);
+				return ResponseEntity.ok(listeningTime);
+		} catch (Exception e) {
+			return ResponseEntity.status(401).build();
+		}
+	}
+	//GET /api/stats/top-albums
+	//returns the current user's top 5 most listened albums
+	@GetMapping("/top-albums")
+	public ResponseEntity<?> getTopAlbums(@RequestParam(defaultValue = "month") String range, HttpServletRequest request) {
+	    try {
+	        User currentUser = getCurrentUser(request);
+
+	        List<TopAlbumDTO> topAlbums = statsService.getTopAlbums(currentUser, range);
+
+	        // reject if user hasnt listened to enough distinct albums yet
+	        if (topAlbums.size() < 5) {
+	            return ResponseEntity.badRequest()
+	                    .body("Not enough listening history. Listen to at least 5 albums to see your top albums.");
+	        }
+
+	        return ResponseEntity.ok(topAlbums);
+
+	    } catch (Exception e) {
+	        return ResponseEntity.status(401).build();
+	    }
+	}
 }

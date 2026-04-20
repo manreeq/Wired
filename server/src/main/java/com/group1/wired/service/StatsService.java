@@ -1,6 +1,7 @@
 package com.group1.wired.service;
 import com.group1.wired.dto.TopArtistDTO;
 import com.group1.wired.dto.TopSongDTO;
+import com.group1.wired.dto.TopAlbumDTO;
 import com.group1.wired.entities.Song;
 import com.group1.wired.entities.SongArtist;
 import com.group1.wired.entities.User;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.time.LocalDateTime;
+
 
 @Service
 public class StatsService {
@@ -28,12 +31,21 @@ public class StatsService {
         this.songArtistRepository = songArtistRepository;
         this.songRepository = songRepository;
     }
+    
+    private LocalDateTime getStartDate(String range) {
+        return switch (range) {
+            case "week"  -> LocalDateTime.now().minusWeeks(1);
+            case "month" -> LocalDateTime.now().minusMonths(1);
+            case "year"  -> LocalDateTime.now().minusYears(1);
+            default      -> LocalDateTime.of(2000, 1, 1, 0, 0); // all time
+        };
+    }
 
-    public List<TopSongDTO> getTopSongs(User user) {
-
-        //run the query, each Object[] has [songId, songName, albumArtUrl, listenCount]
-        List<Object[]> results = listeningActivityRepository.findTop5SongsByUser(user);
-
+    public List<TopSongDTO> getTopSongs(User user, String range) {
+    	LocalDateTime since = getStartDate(range);
+    	 //run the query, each Object[] has [songId, songName, albumArtUrl, listenCount]
+        List<Object[]> results = listeningActivityRepository.findTop5SongsByUser(user, since);
+       
         List<TopSongDTO> topSongs = new ArrayList<>();
 
         for (Object[] row : results) {
@@ -63,10 +75,10 @@ public class StatsService {
         return topSongs;
     }
     
-    public List<TopArtistDTO> getTopArtists(User user) {
-
-        // run the query, each Object[] contains [artistId, artistName, profilePictureUrl, listenCount]
-        List<Object[]> results = listeningActivityRepository.findTop5ArtistsByUser(user);
+    public List<TopArtistDTO> getTopArtists(User user,  String range) {
+    	LocalDateTime since = getStartDate(range);
+    	// run the query, each Object[] contains [artistId, artistName, profilePictureUrl, listenCount]
+    	List<Object[]> results = listeningActivityRepository.findTop5ArtistsByUser(user, since);
 
         List<TopArtistDTO> topArtists = new ArrayList<>();
 
@@ -79,5 +91,33 @@ public class StatsService {
         }
 
         return topArtists;
+    }
+    public String getTotalListeningTime(User user, String range) {
+    	 LocalDateTime since = getStartDate(range);
+    	Long totalListeningTime = listeningActivityRepository.getTotalListeningTimeMs(user, since);
+    	if (totalListeningTime == null) {
+    		return "0 minutes";
+    	}
+    	
+    	long totalMinutes = totalListeningTime/60000;
+    	return "Minutes Listened: " +  totalMinutes ;
+    }
+    
+    public List<TopAlbumDTO> getTopAlbums(User user, String range) {
+    	LocalDateTime since = getStartDate(range);
+        // run the query
+        List<Object[]> results = listeningActivityRepository.findTop5AlbumsByUser(user, since);
+
+        List<TopAlbumDTO> topAlbums = new ArrayList<>();
+
+        for (Object[] row : results) {
+            String albumName = (String) row[1];
+            String albumArtUrl = (String) row[2];
+            Long listenCount = (Long) row[3];
+
+            topAlbums.add(new TopAlbumDTO(albumName, albumArtUrl, listenCount));
+        }
+
+        return topAlbums;
     }
 }

@@ -21,6 +21,9 @@ public class Song {
 
     @Column(name = "albumArtURL", nullable = false)
     private String albumArtUrl = "None";
+    
+    @Column(name = "durationMs", nullable = true)
+    private Long durationMs = 0L;
 
     // Direct reference to parent album — kept as a lazy FK so it doesn't
     // cause N+1 or LazyInitializationException issues in the WebSocket flow.
@@ -30,11 +33,12 @@ public class Song {
 
     protected Song() {}
 
-    public Song(String spotifyTrackId, String songName, String albumArtUrl, Album album) {
+    public Song(String spotifyTrackId, String songName, String albumArtUrl, Album album, Long durationMs) {
         this.spotifyTrackId = spotifyTrackId;
         this.songName = songName;
         this.albumArtUrl = albumArtUrl;
         this.album = album;
+        this.durationMs = durationMs;
     }
 
 	public Long getSongId() {
@@ -75,6 +79,14 @@ public class Song {
 
 	public void setAlbum(Album album) {
 		this.album = album;
+	}
+	
+	public Long getDurationMs() {
+	    return durationMs;
+	}
+
+	public void setDurationMs(Long durationMs) {
+	    this.durationMs = durationMs;
 	}
 
 }

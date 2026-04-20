@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import Navbar from '../../../components/navbar';
 import TopSongsModal from './TopSongsModal';
 import TopArtistsModal from './TopArtistsModal';
+import TopAlbumsModal from './TopAlbumsModal';	
 
 function Profile() {
     // get ID from the URL
@@ -49,14 +50,23 @@ function Profile() {
     //controls which modal is open
     const [showTopSongs, setShowTopSongs] = useState(false);
     const [showTopArtists, setShowTopArtists] = useState(false);
+	const [showTopAlbums, setShowTopAlbums] = useState(false);
+
 
     //holds the fetched data
     const [topSongs, setTopSongs] = useState([]);
     const [topArtistsData, setTopArtistsData] = useState([]);
+	const [topAlbumsData, setTopAlbumsData] = useState([]);
+
+	const [listeningTime, setListeningTime] = useState('');
+	const [range, setRange] = useState('month');
+
+
 
     //failsafe; holds error messages if user doesnt have enough listening history for either
     const [songsError, setSongsError] = useState('');
     const [artistsError, setArtistsError] = useState('');
+	const [albumsError, setAlbumsError] = useState('');
 
     // Listening history state
     const [historyLimit, setHistoryLimit] = useState('5');
@@ -78,11 +88,24 @@ function Profile() {
             .catch(err => setHistoryError(err.message))
             .finally(() => setHistoryLoading(false));
     }, [userId, historyLimit]);
+	
+	//fetch listening stats on page load
+	useEffect(() => {
+	    fetch(`${apiUrl}/api/stats/listening-time?range=${range}`, {
+	        credentials: 'include'
+	    })
+	    .then(res => {
+	        if (!res.ok) throw new Error('Failed to load listening time');
+	        return res.text();
+	    })
+	    .then(time => setListeningTime(time))
+	    .catch(err => console.error(err));
+	}, []);
 
     //fetch top songs when disc button is clicked
     const handleTopSongsClick = () => {
         setSongsError('');
-        fetch(`${apiUrl}/api/stats/top-songs`, {
+        fetch(`${apiUrl}/api/stats/top-songs?range=${range}`, {
             credentials: 'include'
         })
         .then(res => {
@@ -101,7 +124,7 @@ function Profile() {
     // fetch top artists when disc button is clicked
     const handleTopArtistsClick = () => {
         setArtistsError('');
-        fetch(`${apiUrl}/api/stats/top-artists`, {
+        fetch(`${apiUrl}/api/stats/top-artists?range=${range}`, {
             credentials: 'include'
         })
         .then(res => {
@@ -116,6 +139,24 @@ function Profile() {
         })
         .catch(err => setArtistsError(err.message));
     };
+	
+	const handleTopAlbumsClick = () => {
+	    setAlbumsError('');
+	    fetch(`${apiUrl}/api/stats/top-albums?range=${range}`, {
+	        credentials: 'include'
+	    })
+	    .then(res => {
+	        if (!res.ok) {
+	            return res.text().then(msg => { throw new Error(msg); });
+	        }
+	        return res.json();
+	    })
+	    .then(data => {
+	        setTopAlbumsData(data);
+	        setShowTopAlbums(true);
+	    })
+	    .catch(err => setAlbumsError(err.message));
+	};
 
     if (isLoading) return <div>Loading Profile...</div>;
     if (!profileData) return <div>User not found.</div>;
@@ -141,13 +182,30 @@ function Profile() {
                     )}
                     <h2>{profileData.displayName}</h2>
                 </div>
-
+				
                 {/* Check if we should hide the data */}
                 {(profileData.isHistoryPrivate && profileData.id !== id) ? (
 
                     <div style={{ marginTop: '50px', padding: '40px', backgroundColor: '#f0f0f0', borderRadius: '12px', textAlign: 'center' }}>
                         <h3 style={{ color: '#555' }}>This user's activity is hidden.</h3>
                     </div>
+
+                {/* time range selector for top stats */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '40px' }}>
+                    <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Viewing stats for:</span>
+                    <select
+                        value={range}
+                        onChange={e => setRange(e.target.value)}
+                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}
+                    >
+                        <option value="week">Last Week</option>
+                        <option value="month">Last Month</option>
+                        <option value="year">Last Year</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+                
+                
 
                 ) : (
                     <>
@@ -173,39 +231,70 @@ function Profile() {
                                 )}
                             </div>
 
-                            {/* top artists button */}
-                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
-                                <button onClick={handleTopArtistsClick} style={{
-                                    background: 'none',
-                                    border: 'none',
-                                    cursor: 'pointer',
-                                    padding: 0
-                                }}>
-                                    <img src="/disc.png" alt="Top Artists" style={{ width: '80px', height: '80px' }} />
-                                </button>
-                                <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Top Artists</span>
-                                {/* error shown if user hasnt listened to enough artists */}
-                                {artistsError && (
-                                    <p style={{ color: 'red', fontSize: '0.75rem', maxWidth: '120px', textAlign: 'center' }}>
-                                        {artistsError}
-                                    </p>
-                                )}
-                            </div>
-                        </div>
+                    {/* top artists button */}
+                    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+                        <button onClick={handleTopArtistsClick} style={{
+                            background: 'none',
+                            border: 'none',
+                            cursor: 'pointer',
+                            padding: 0
+                        }}>
+                            <img src="/disc.png" alt="Top Artists" style={{ width: '80px', height: '80px' }} />
+                        </button>
+                        <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Top Artists</span>
+                        {/* error shown if user hasnt listened to enough artists */}
+                        {artistsError && (
+                            <p style={{ color: 'red', fontSize: '0.75rem', maxWidth: '120px', textAlign: 'center' }}>
+                                {artistsError}
+                            </p>
+                        )}
+                    </div>
+					
+					{/* top albums button */}
+					<div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px' }}>
+					    <button onClick={handleTopAlbumsClick} style={{
+					        background: 'none',
+					        border: 'none',
+					        cursor: 'pointer',
+					        padding: 0
+					    }}>
+					        <img src="/disc.png" alt="Top Albums" style={{ width: '80px', height: '80px' }} />
+					    </button>
+					    <span style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>Top Albums</span>
+					    {albumsError && (
+					        <p style={{ color: 'red', fontSize: '0.75rem', maxWidth: '120px', textAlign: 'center' }}>
+					            {albumsError}
+					        </p>
+					    )}
+					</div>
+                </div>
 
-                        {/* top songs modal */}
-                        <TopSongsModal
-                            isOpen={showTopSongs}
-                            onClose={() => setShowTopSongs(false)}
-                            songs={topSongs}
-                        />
+                {/* top songs modal */}
+                <TopSongsModal
+                    isOpen={showTopSongs}
+                    onClose={() => setShowTopSongs(false)}
+                    songs={topSongs}
+					listeningTime={listeningTime}
+					range={range}
+                />
 
-                        {/* top artists modal */}
-                        <TopArtistsModal
-                            isOpen={showTopArtists}
-                            onClose={() => setShowTopArtists(false)}
-                            artists={topArtistsData}
-                        />
+                {/* top artists modal */}
+                <TopArtistsModal
+                    isOpen={showTopArtists}
+                    onClose={() => setShowTopArtists(false)}
+                    artists={topArtistsData}
+					listeningTime={listeningTime}
+					range={range}
+                />
+				
+				{/* top albums modal */}
+				<TopAlbumsModal
+				    isOpen={showTopAlbums}
+				    onClose={() => setShowTopAlbums(false)}
+				    albums={topAlbumsData}
+				    listeningTime={listeningTime}
+					range={range}
+				/>
 
                         {/* ── LISTENING HISTORY ─────────────────────────────────── */}
                         <div style={{ marginTop: '50px' }}>

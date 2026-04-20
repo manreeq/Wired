@@ -61,8 +61,8 @@
 
 /* song name */
 .songName {
-    font-family: 'ABeeZee';
-    font-weight: 900;
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 750 !important;
     font-size: 0.9rem;
     color: #2e3357 !important;
     text-transform: uppercase;
@@ -90,12 +90,23 @@
 
 /* listen count */
 .listenCount {
-    font-family: 'ABeeZee';
-    font-size: 1.5rem;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.2rem;
     font-weight: bold;
     color: #b5004e;
     text-transform: uppercase;
     white-space: nowrap;
+}
+/* total listening time */
+.listeningTime {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 0.9rem;
+	font-weight: 600 !important;
+    position: absolute;
+    bottom: 2.65%;        
+    left: 12%;        
+    color: #2e3357;
+    text-transform: uppercase;
 }
 
 /* close button */

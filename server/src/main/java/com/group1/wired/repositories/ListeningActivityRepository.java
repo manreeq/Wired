@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 
 import org.springframework.stereotype.Repository;
 import java.util.List;
+import java.time.LocalDateTime;
+
 
 @Repository
 public interface ListeningActivityRepository extends JpaRepository<ListeningActivity,Long> {
@@ -22,23 +24,50 @@ public interface ListeningActivityRepository extends JpaRepository<ListeningActi
 
 	//top songs
 	@Query("""
-	        SELECT la.song.songId, la.song.songName, la.song.albumArtUrl, COUNT(la) as listenCount
-	        FROM ListeningActivity la
-	        WHERE la.user = :user
-	        GROUP BY la.song.songId, la.song.songName, la.song.albumArtUrl
-	        ORDER BY listenCount DESC
-	        LIMIT 5
-	    """)
-	    List<Object[]> findTop5SongsByUser(@Param("user") User user);	
+		    SELECT la.song.songId, la.song.songName, la.song.albumArtUrl, COUNT(la) as listenCount
+		    FROM ListeningActivity la
+		    WHERE la.user = :user
+		    AND la.timestamp >= :since
+		    GROUP BY la.song.songId, la.song.songName, la.song.albumArtUrl
+		    ORDER BY listenCount DESC
+		    LIMIT 5
+		""")
+	List<Object[]> findTop5SongsByUser(@Param("user") User user, @Param("since") LocalDateTime since);
+
 	//top artists, joins la on song on song artist on artist   
 	@Query("""
-    	    SELECT sa.artist.artistId, sa.artist.artistName, sa.artist.profilePictureUrl, COUNT(la) as listenCount
-    	    FROM ListeningActivity la
-    	    JOIN SongArtist sa ON sa.song = la.song
-    	    WHERE la.user = :user
-    	    GROUP BY sa.artist.artistId, sa.artist.artistName, sa.artist.profilePictureUrl
-    	    ORDER BY listenCount DESC
-    	    LIMIT 5
-    	""")
-    	List<Object[]> findTop5ArtistsByUser(@Param("user") User user);
+		    SELECT sa.artist.artistId, sa.artist.artistName, sa.artist.profilePictureUrl, COUNT(la) as listenCount
+		    FROM ListeningActivity la
+		    JOIN SongArtist sa ON sa.song = la.song
+		    WHERE la.user = :user
+		    AND la.timestamp >= :since
+		    GROUP BY sa.artist.artistId, sa.artist.artistName, sa.artist.profilePictureUrl
+		    ORDER BY listenCount DESC
+		    LIMIT 5
+		""")
+	List<Object[]> findTop5ArtistsByUser(@Param("user") User user, @Param("since") LocalDateTime since);    	
+   //total listening time
+    	
+	@Query("""
+		    SELECT SUM(la.song.durationMs)
+		    FROM ListeningActivity la
+		    WHERE la.user = :user
+		    AND la.timestamp >= :since
+		""")
+	Long getTotalListeningTimeMs(@Param("user") User user, @Param("since") LocalDateTime since);
+			
+	//top albums
+	@Query("""
+		    SELECT la.song.album.albumId, la.song.album.albumName, la.song.album.albumArtUrl, COUNT(la) as listenCount
+		    FROM ListeningActivity la
+		    WHERE la.user = :user
+		    AND la.timestamp >= :since
+		    GROUP BY la.song.album.albumId, la.song.album.albumName, la.song.album.albumArtUrl
+		    ORDER BY listenCount DESC
+		    LIMIT 5
+		""")
+	List<Object[]> findTop5AlbumsByUser(@Param("user") User user, @Param("since") LocalDateTime since);
+
+			
+		
 }
