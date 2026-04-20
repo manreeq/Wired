@@ -8,12 +8,12 @@ import lombok.Setter;
 public class UserProfileDTO {
     private Long userId;
     private String displayName;
-    private String profilePicURL;
+    private String profilePicUrl;
 
-    public UserProfileDTO(Long userId, String displayName, String profilePicURL) {
+    public UserProfileDTO(Long userId, String displayName, String profilePicUrl) {
         this.userId = userId;
         this.displayName = displayName;
-        this.profilePicURL = profilePicURL;
+        this.profilePicUrl = profilePicUrl;
     }
 
 //    public String getDisplayName() { return displayName; }

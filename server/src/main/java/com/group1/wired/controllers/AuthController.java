@@ -60,7 +60,7 @@ public class AuthController {
             // return json with all the fields the frontend needs
             Map<String, String> successResponse = new HashMap<>();
             successResponse.put("message", "Successfully logged in as: " + authResponse.getDisplayName());
-            successResponse.put("userID", String.valueOf(authResponse.getUserID()));
+            successResponse.put("userId", String.valueOf(authResponse.getUserID()));
             successResponse.put("displayName", authResponse.getDisplayName());
             successResponse.put("friendCode", authResponse.getFriendCode());
             successResponse.put("profilePicUrl", authResponse.getProfilePictureURL());
@@ -100,7 +100,7 @@ public class AuthController {
                     .orElseThrow(() -> new RuntimeException("User no longer exists"));
 
             Map<String, Object> result = new HashMap<>();
-            result.put("userID", user.getUserID());
+            result.put("userId", user.getUserID());
             result.put("displayName", user.getDisplayName());
             
             result.put("profilePicUrl", user.getProfilePictureURL()); 

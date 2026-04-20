@@ -26,7 +26,7 @@ function Profile() {
                 if (response.ok) {
                     const data = await response.json();
                     setProfileData({
-                        id: data.id,
+                        id: data.userId,
                         displayName: data.displayName,
                         profilePicUrl: data.profilePicUrl
                     });
