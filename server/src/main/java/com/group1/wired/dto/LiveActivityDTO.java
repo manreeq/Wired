@@ -10,13 +10,18 @@ public class LiveActivityDTO {
     private String songTitle;
     private String albumArtUrl;
     private String spotifyTrackId;
+    
     @JsonProperty("isPlaying")
     private boolean isPlaying;
+    
+    @JsonProperty("isHistoryPrivate") 
+    private boolean isHistoryPrivate;
 
     public LiveActivityDTO() {}
 
     public LiveActivityDTO(Long userId, String displayName, String profilePictureURL,
-                           String songTitle, String albumArtUrl, String spotifyTrackId, boolean isPlaying) {
+                           String songTitle, String albumArtUrl, String spotifyTrackId,
+                           boolean isPlaying, boolean isHistoryPrivate) {
         this.userId = userId;
         this.displayName = displayName;
         this.profilePictureURL = profilePictureURL;
@@ -24,6 +29,7 @@ public class LiveActivityDTO {
         this.albumArtUrl = albumArtUrl;
         this.spotifyTrackId = spotifyTrackId;
         this.isPlaying = isPlaying;
+        this.isHistoryPrivate = isHistoryPrivate;
     }
 
     public Long getUserId() { return userId; }
@@ -46,4 +52,7 @@ public class LiveActivityDTO {
 
     public boolean isPlaying() { return isPlaying; }
     public void setPlaying(boolean playing) { isPlaying = playing; }
+    
+    public boolean isHistoryPrivate() { return isHistoryPrivate; }
+    public void setHistoryPrivate(boolean historyPrivate) { isHistoryPrivate = historyPrivate; }
 }

@@ -125,4 +125,12 @@ public class User {
         reactions.remove(reaction);
         reaction.setUser(null);
     }
+    
+    public boolean isHistoryPrivate() {
+        return isHistoryPrivate;
+    }
+
+    public void setHistoryPrivate(boolean historyPrivate) {
+        isHistoryPrivate = historyPrivate;
+    }
 }
