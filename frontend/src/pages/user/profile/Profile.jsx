@@ -185,7 +185,7 @@ function Profile() {
 				
                 {/* Check if we should hide the data */}
                 {(profileData.isHistoryPrivate && profileData.id !== id) ? (
-
+                    <>
                     <div style={{ marginTop: '50px', padding: '40px', backgroundColor: '#f0f0f0', borderRadius: '12px', textAlign: 'center' }}>
                         <h3 style={{ color: '#555' }}>This user's activity is hidden.</h3>
                     </div>
@@ -206,7 +206,7 @@ function Profile() {
                 </div>
                 
                 
-
+                </>
                 ) : (
                     <>
                         {/* disc buttons for top songs and top artists */}
