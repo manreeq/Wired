@@ -7,6 +7,7 @@
   background-color: #121212;
   color: #ffffff;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at center, #1db95422 0%, #121212 70%);
 }
 
 .login-title {
