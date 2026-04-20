@@ -236,6 +236,23 @@ function Feed() {
         return [friendName,listedFriendCode]
     }
 
+    const allowedUserIds = new Set([
+      Number(userId),
+      ...friendList
+        .filter(friend => friend.status === "Accepted")
+        .map(friend => {
+          let otherUserId;
+          if (friend.requesterId === Number(userId)) {
+            otherUserId = friend.targetId;
+          } else {
+            otherUserId = friend.requesterId;
+          }
+          return Number(otherUserId);
+        })
+    ]);
+
+    console.log("Allowed IDs:", [...allowedUserIds]);
+
     return (
         <div className={styles.container}>
             <Navbar />
@@ -304,13 +321,16 @@ function Feed() {
                             ))}
 
                             {/* MANUAL POSTS */}
-                            {manualPosts.map((item, index) => (
-                                <PostCard 
-                                    key={`post-${item.postID || index}`} 
-                                    item={item} 
-                                    userId={userId} 
-                                    apiUrl={apiUrl} 
-                                    formatTimestamp={formatTimestamp} 
+
+                            {manualPosts
+                                .filter(item => allowedUserIds.has(item.user?.userID))
+                                .map((item, index) => (
+                                <PostCard
+                                    key={`post-${item.postID || index}`}
+                                    item={item}
+                                    userId={userId}
+                                    apiUrl={apiUrl}
+                                    formatTimestamp={formatTimestamp}
                                 />
                             ))}
 
