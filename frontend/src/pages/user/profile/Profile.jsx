@@ -9,9 +9,12 @@ function Profile() {
     // get ID from the URL
     const { id } = useParams();
 
-    // state to hold whoever's profile we are looking at
     const [profileData, setProfileData] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    
+    // state to hold whoever's profile we are looking at
+    const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
+    const loggedInUserId = Number(storedUser.id || storedUser.userID);
 
     useEffect(() => {
         // If there is an ID, we look for a friend.
@@ -27,7 +30,7 @@ function Profile() {
                 if (response.ok) {
                     const data = await response.json();
                     setProfileData({
-                        id: data.userId,
+                        id: Number(data.userId || data.userID || data.id), 
                         displayName: data.displayName,
                         profilePicUrl: data.profilePicUrl,
                         isHistoryPrivate: data.isHistoryPrivate
@@ -184,7 +187,7 @@ function Profile() {
                 </div>
 				
                 {/* Check if we should hide the data */}
-                {(profileData.isHistoryPrivate && profileData.id !== id) ? (
+                {(profileData.isHistoryPrivate && profileData.id !== loggedInUserId) ? (
                     <>
                     <div style={{ marginTop: '50px', padding: '40px', backgroundColor: '#f0f0f0', borderRadius: '12px', textAlign: 'center' }}>
                         <h3 style={{ color: '#555' }}>This user's activity is hidden.</h3>
