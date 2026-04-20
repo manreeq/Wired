@@ -126,8 +126,29 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
             
             {/* Header: User & Timestamp */}
             <div className={styles.header}>
-                <span className={styles.authorName}>{item.user?.displayName || "Unknown User"}</span>
-                <span className={styles.timestamp}>{formatTimestamp(item.timestamp)}</span>
+                {/* Profile Picture */}
+                {item.user?.profilePictureURL && item.user.profilePictureURL !== "None" ? (
+                    <img 
+                        src={item.user.profilePictureURL} 
+                        alt="Profile" 
+                        className={styles.profilePic} 
+                        onError={(e) => {
+                            // Failsafe: If the image URL is broken/blocked, swap to the placeholder CSS
+                            e.target.style.display = 'none';
+                            e.target.nextSibling.style.display = 'block';
+                        }}
+                    />
+                ) : (
+                    <div className={styles.profilePicPlaceholder}></div>
+                )}
+                {/* Hidden placeholder just in case the img onError triggers */}
+                <div className={styles.profilePicPlaceholder} style={{ display: 'none' }}></div>
+                
+                {/* Author Info Stacked */}
+                <div className={styles.authorDetails}>
+                    <span className={styles.authorName}>{item.user?.displayName || "Unknown User"}</span>
+                    <span className={styles.timestamp}>{formatTimestamp(item.timestamp)}</span>
+                </div>
             </div>
             
             {/* Post Content */}
