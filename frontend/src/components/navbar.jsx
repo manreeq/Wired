@@ -48,7 +48,7 @@ function Navbar() {
     };
 
     const handlePrivacyToggle = async () => {
-        const targetId = storedUser.id || storedUser.userID;
+        const targetId = storedUser.userId || storedUser.id || storedUser.userID;
 
         if (!targetId) {
             console.error("No user ID found in cookies!");
@@ -67,7 +67,7 @@ function Navbar() {
             });
 
             if (response.ok) {
-                // 3. Update the cookie instead of localStorage
+                // update the cookie instead of localStorage
                 const updatedUser = { ...storedUser, isHistoryPrivate: newPrivacyState };
                 setCookie('wiredUser', updatedUser);
                 console.log("Privacy setting saved to database!");
