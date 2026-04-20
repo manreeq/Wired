@@ -63,7 +63,8 @@ public class FeedController {
                         la.getSong().getSongName(),
                         la.getSong().getAlbumArtUrl(),
                         la.getSong().getSpotifyTrackId(),
-                        false   // isPlaying = false; these are past listens
+                        false,   // isPlaying = false; these are past listens
+                        la.getUser().isHistoryPrivate()
                 ))
                 .collect(Collectors.toList());
 

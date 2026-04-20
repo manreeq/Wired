@@ -102,8 +102,8 @@ public class AuthController {
             Map<String, Object> result = new HashMap<>();
             result.put("userID", user.getUserID());
             result.put("displayName", user.getDisplayName());
-            
             result.put("profilePicUrl", user.getProfilePictureURL()); 
+            result.put("isHistoryPrivate", user.isHistoryPrivate());
 
             return ResponseEntity.ok(result);
 

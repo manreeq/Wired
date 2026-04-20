@@ -1,5 +1,6 @@
 package com.group1.wired.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -9,11 +10,14 @@ public class UserProfileDTO {
     private Long userId;
     private String displayName;
     private String profilePicURL;
+    @JsonProperty("isHistoryPrivate")
+    private boolean isHistoryPrivate;
 
-    public UserProfileDTO(Long userId, String displayName, String profilePicURL) {
+    public UserProfileDTO(Long userId, String displayName, String profilePicURL, boolean isHistoryPrivate) {
         this.userId = userId;
         this.displayName = displayName;
         this.profilePicURL = profilePicURL;
+        this.isHistoryPrivate = isHistoryPrivate;
     }
 
 //    public String getDisplayName() { return displayName; }
