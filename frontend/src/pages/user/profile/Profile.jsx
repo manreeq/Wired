@@ -1,18 +1,48 @@
-import Navbar from '../../../components/navbar';
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import Navbar from '../../../components/navbar';
 import TopSongsModal from './TopSongsModal';
 import TopArtistsModal from './TopArtistsModal';
 import TopAlbumsModal from './TopAlbumsModal';	
 
 function Profile() {
+    // get ID from the URL
+    const { id } = useParams();
 
-    const navigate = useNavigate();
+    // state to hold whoever's profile we are looking at
+    const [profileData, setProfileData] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
 
-    const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
-    const displayName = storedUser.name || "User";
-    const profilePicUrl = storedUser.profilePicUrl;
-    const userId = storedUser.id;
+    useEffect(() => {
+        // If there is an ID, we look for a friend.
+        // If there is NO ID, we hit '/me' to look for ourselves.
+        const endpoint = id ? `/api/users/${id}` : `/api/auth/me`;
+
+        const fetchProfile = async () => {
+            try {
+                const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}${endpoint}`, {
+                    credentials: 'include' // This sends the secure cookie!
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    setProfileData({
+                        id: data.id,
+                        displayName: data.displayName,
+                        profilePicUrl: data.profilePicUrl
+                    });
+                }
+            } catch (error) {
+                console.error("Fetch error:", error);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchProfile();
+    }, [id]);
+
+    const userId = id || profileData?.id;
 
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
@@ -127,6 +157,9 @@ function Profile() {
 	    .catch(err => setAlbumsError(err.message));
 	};
 
+    if (isLoading) return <div>Loading Profile...</div>;
+    if (!profileData) return <div>User not found.</div>;
+
     return (
         <div>
             <Navbar />
@@ -135,19 +168,18 @@ function Profile() {
                     <h1>Wired</h1>
                 </nav>
 
-                {/* profile picture and name */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
-                    {profilePicUrl && profilePicUrl !== "None" ? (
+                    {/* Updated to use profileData instead of the hardcoded variables */}
+                    {profileData.profilePicUrl && profileData.profilePicUrl !== "None" ? (
                         <img
-                            src={profilePicUrl}
-                            alt={`${displayName}'s profile`}
+                            src={profileData.profilePicUrl}
+                            alt={`${profileData.displayName}'s profile`}
                             style={{ width: '80px', height: '80px', borderRadius: '50%', objectFit: 'cover' }}
                         />
                     ) : (
-                         //fallback if no spotify profile picture
                         <div style={{ width: '80px', height: '80px', borderRadius: '50%', backgroundColor: '#333' }}></div>
                     )}
-                    <h2>{displayName}</h2>
+                    <h2>{profileData.displayName}</h2>
                 </div>
 				
 				{/* time range selector for top stats */}

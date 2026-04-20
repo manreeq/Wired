@@ -78,8 +78,8 @@ public class SpotifyPollingService {
                     // Check if they JUST paused during this poll
                     if (cachedState != null && cachedState.isPlaying() && cachedState.getTrackId() != null) {
                         livePlaybackState.put(userId, newDto);
-
-                        Song song = parseService.parseAndSaveSongFromPlaybackJson(token, json);
+                      
+                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
                         LiveActivityDTO activityDto = new LiveActivityDTO(
                                 userId,
                                 user.getDisplayName(),
