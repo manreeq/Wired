@@ -111,7 +111,15 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
 
     const reactionCounts = getReactionCounts();
 
-    console.log(item);
+    // Dynamically build the actual Spotify URL for clickable links 
+    const getSpotifyLink = () => {
+        if (item.song) return `https://open.spotify.com/track/${item.song.spotifyTrackId}`;
+        if (item.album) return `https://open.spotify.com/album/${item.album.spotifyAlbumId}`;
+        if (item.playlist) return `https://open.spotify.com/playlist/${item.playlist.spotifyPlaylistId}`;
+        return "#";
+    };
+
+    const spotifyLink = getSpotifyLink();
     
     return (
         <div className={styles.postCardContainer}>
@@ -126,17 +134,15 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
             <p className={styles.caption}>{item.caption}</p>
             {/* Dynamic Media Content */}
             <div className={styles.mediaBox}>
+                
                 {/* Cover Art */}
-                <img 
-                    src={
-                        item.song?.albumArtUrl || 
-                        item.album?.albumArtUrl || 
-                        item.playlist?.imageUrl || 
-                        "https://via.placeholder.com/50" 
-                    } 
-                    alt="Cover Art" 
-                    className={styles.coverArt} 
-                />
+                {(item.song || item.album) && (
+                    <img 
+                        src={item.song?.albumArtUrl || item.album?.albumArtUrl} 
+                        alt="Cover Art" 
+                        className={styles.coverArt} 
+                    />
+                )}
 
                 {/* Media Info */}
                 <div className={styles.mediaInfo}>
@@ -144,11 +150,19 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                         {item.song ? 'Song' : item.album ? 'Album' : item.playlist ? 'Playlist' : 'Media'}
                     </div>
                     
+                    {/* Clickable Title Link */}
                     <div className={styles.mediaTitle}>
-                        {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown Title"}
+                        <a 
+                            href={spotifyLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className={styles.spotifyLink}
+                        >
+                            {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown Title"}
+                        </a>
                     </div>
 
-                    {/* 3. Artist Attribution */}
+                    {/* Artist Attribution */}
                     {(item.song || item.album) && (
                         <div className={styles.artistName}>
                             By {artistName || "Loading..."}
