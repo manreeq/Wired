@@ -291,9 +291,8 @@ function Feed() {
                                 <li key={friend.connectionId}>
                                     {/* right side */}
                                     <div>
+                                        <a href={`/profile/${friendDisplay[2]}`}>
                                         {friendDisplay[0]} <br/> ({friendDisplay[1]})
-                                        <a href={`/api/users/${friendDisplay[2]}`} target="_blank">
-                                          View {friendDisplay[0]}'s Profile
                                         </a>
                                     </div>
                                     {/* left side */}
