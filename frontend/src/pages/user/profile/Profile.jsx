@@ -194,25 +194,24 @@ function Profile() {
                         <h3 style={{ color: '#555' }}>This user's activity is hidden.</h3>
                     </div>
 
-                {/* time range selector for top stats */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '40px' }}>
-                    <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Viewing stats for:</span>
-                    <select
-                        value={range}
-                        onChange={e => setRange(e.target.value)}
-                        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}
-                    >
-                        <option value="week">Last Week</option>
-                        <option value="month">Last Month</option>
-                        <option value="year">Last Year</option>
-                        <option value="all">All Time</option>
-                    </select>
-                </div>
-                
-                
                 </>
                 ) : (
                     <>
+                        {/* time range selector for top stats */}
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '40px' }}>
+                            <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Viewing stats for:</span>
+                            <select
+                                value={range}
+                                onChange={e => setRange(e.target.value)}
+                                style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}
+                            >
+                                <option value="week">Last Week</option>
+                                <option value="month">Last Month</option>
+                                <option value="year">Last Year</option>
+                                <option value="all">All Time</option>
+                            </select>
+                        </div>
+
                         {/* disc buttons for top songs and top artists */}
                         <div style={{ display: 'flex', gap: '40px', marginTop: '40px' }}>
 
