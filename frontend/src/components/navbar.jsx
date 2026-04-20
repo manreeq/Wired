@@ -2,17 +2,48 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import styles from './navbar.module.css';
 
+const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        try {
+            return JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
+        } catch (e) {
+            return {};
+        }
+    }
+    return {};
+};
+
+const setCookie = (name, value, days = 7) => {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; expires=${expires}; path=/`;
+};
+
+const deleteCookie = (name) => {
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;`;
+};
+
+
 function Navbar() {
-    
     const navigate = useNavigate();
-    const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
+    const storedUser = getCookie('wiredUser');
 
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isPrivate, setIsPrivate] = useState(storedUser.isHistoryPrivate || false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-    const handleLogout = () => {
-        localStorage.clear();   // -------- NEED TO CHANGE INTO COOKIES -------- 
+    const handleLogout = async () => {
+        try {
+            await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/logout`, {
+                method: 'POST',
+                credentials: 'include' 
+            });
+        } catch (e) {
+            console.error("Backend logout failed", e);
+        }
+
+        deleteCookie('wiredUser'); 
         navigate('/'); 
     };
 
@@ -20,7 +51,7 @@ function Navbar() {
         const targetId = storedUser.id || storedUser.userID;
 
         if (!targetId) {
-            console.error("No user ID found in localStorage!");
+            console.error("No user ID found in cookies!");
             return;
         }
 
@@ -36,8 +67,9 @@ function Navbar() {
             });
 
             if (response.ok) {
+                // 3. Update the cookie instead of localStorage
                 const updatedUser = { ...storedUser, isHistoryPrivate: newPrivacyState };
-                localStorage.setItem('wiredUser', JSON.stringify(updatedUser));
+                setCookie('wiredUser', updatedUser);
                 console.log("Privacy setting saved to database!");
             } else {
                 setIsPrivate(!newPrivacyState);
@@ -53,13 +85,13 @@ function Navbar() {
         try {
             const response = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/me`, {
                 method: 'DELETE',
-                // includes the auth cookies
                 credentials: 'include' 
             });
 
             if (response.ok) {
                 console.log("Account deleted");
                 setShowDeleteModal(false);
+                deleteCookie('wiredUser');
                 navigate('/'); 
             } else {
                 console.error("Backend refused to delete the account");
@@ -75,7 +107,6 @@ function Navbar() {
         <nav className={styles.navbar}>
             
             <div className={styles.navLinks}>
-                {/* onClick triggers a function. When clicked, it tells the router to go to '/feed' */}
                 <button className={styles.navBtn} onClick={() => navigate('/feed')}>Home</button>
                 <button className={styles.navBtn} onClick={() => navigate('/profile')}>Profile</button>
             </div>
@@ -92,12 +123,10 @@ function Navbar() {
                 {isMenuOpen && (
                     <div className={styles.dropdownMenu}>
                         
-                        {/* Privacy Button */}
                         <button onClick={handlePrivacyToggle} className={styles.menuItem}>
                             <span>{isPrivate ? 'Show Profile' : 'Hide Profile'}</span>
                         </button>
                         
-                        {/* Delete Button */}
                         <button onClick={() => {
                             setShowDeleteModal(true);
                             setIsMenuOpen(false); 
@@ -107,7 +136,6 @@ function Navbar() {
                         
                         <hr className={styles.menuDivider} />
                         
-                        {/* Logout Button */}
                         <button onClick={handleLogout} className={styles.menuItem}>
                             <span>Logout</span>
                         </button>
