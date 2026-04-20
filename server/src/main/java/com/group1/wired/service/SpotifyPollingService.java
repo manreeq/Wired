@@ -79,7 +79,7 @@ public class SpotifyPollingService {
                     if (cachedState != null && cachedState.isPlaying() && cachedState.getTrackId() != null) {
                         livePlaybackState.put(userId, newDto);
 
-                        Song song = parseService.parseAndSaveSongFromPlaybackJson(json);
+                        Song song = parseService.parseAndSaveSong(token, cachedState.getTrackId());
                         LiveActivityDTO activityDto = new LiveActivityDTO(
                                 userId,
                                 user.getDisplayName(),
@@ -87,7 +87,8 @@ public class SpotifyPollingService {
                                 song.getSongName(),
                                 song.getAlbumArtUrl(),
                                 song.getSpotifyTrackId(),
-                                false);
+                                false,
+                                user.isHistoryPrivate());
                         latestLiveActivities.put(userId, activityDto);
                         messagingTemplate.convertAndSend("/topic/feed", activityDto);
                     } else {
@@ -113,7 +114,8 @@ public class SpotifyPollingService {
                             newSong.getSongName(),
                             newSong.getAlbumArtUrl(),
                             newSong.getSpotifyTrackId(),
-                            true);
+                            true,
+                            user.isHistoryPrivate());
                     latestLiveActivities.put(userId, activityDto);
                     messagingTemplate.convertAndSend("/topic/feed", activityDto);
                 }

@@ -8,6 +8,8 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
     const [comments, setComments] = useState(item.comments || []);
     const [reactions, setReactions] = useState(item.reactions || []);
 
+    const [artistName, setArtistName] = useState('');
+
     // Fetch existing comments and reactions when post loads
     useEffect(() => {
         // Fetch Reactions
@@ -25,6 +27,19 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                 if (Array.isArray(data)) setComments(data);
             })
             .catch(err => console.error("Error fetching comments:", err));
+
+        // Fetch Artist Data (Only if it's a song or album)
+        if (item.song) {
+            fetch(`${apiUrl}/api/posts/songs/${item.song.songId}/artist`)
+                .then(res => res.json())
+                .then(data => setArtistName(data.artistName))
+                .catch(err => console.error("Error fetching song artist:", err));
+        } else if (item.album) {
+            fetch(`${apiUrl}/api/posts/albums/${item.album.albumId}/artist`)
+                .then(res => res.json())
+                .then(data => setArtistName(data.artistName))
+                .catch(err => console.error("Error fetching album artist:", err));
+        }
     }, [item.postID, apiUrl]);
     
     const handleAddComment = () => {
@@ -96,6 +111,16 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
 
     const reactionCounts = getReactionCounts();
 
+    // Dynamically build the actual Spotify URL for clickable links 
+    const getSpotifyLink = () => {
+        if (item.song) return `https://open.spotify.com/track/${item.song.spotifyTrackId}`;
+        if (item.album) return `https://open.spotify.com/album/${item.album.spotifyAlbumId}`;
+        if (item.playlist) return `https://open.spotify.com/playlist/${item.playlist.spotifyPlaylistId}`;
+        return "#";
+    };
+
+    const spotifyLink = getSpotifyLink();
+    
     return (
         <div className={styles.postCardContainer}>
             
@@ -107,9 +132,43 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
             
             {/* Post Content */}
             <p className={styles.caption}>{item.caption}</p>
+            {/* Dynamic Media Content */}
             <div className={styles.mediaBox}>
-                🎧 <strong>Attached Media: </strong>
-                {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
+                
+                {/* Cover Art */}
+                {(item.song || item.album) && (
+                    <img 
+                        src={item.song?.albumArtUrl || item.album?.albumArtUrl} 
+                        alt="Cover Art" 
+                        className={styles.coverArt} 
+                    />
+                )}
+
+                {/* Media Info */}
+                <div className={styles.mediaInfo}>
+                    <div className={styles.mediaType}>
+                        {item.song ? 'Song' : item.album ? 'Album' : item.playlist ? 'Playlist' : 'Media'}
+                    </div>
+                    
+                    {/* Clickable Title Link */}
+                    <div className={styles.mediaTitle}>
+                        <a 
+                            href={spotifyLink} 
+                            target="_blank" 
+                            rel="noopener noreferrer" 
+                            className={styles.spotifyLink}
+                        >
+                            {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown Title"}
+                        </a>
+                    </div>
+
+                    {/* Artist Attribution */}
+                    {(item.song || item.album) && (
+                        <div className={styles.artistName}>
+                            By {artistName || "Loading..."}
+                        </div>
+                    )}
+                </div>
             </div>
 
              {/* Reactions Bar */}
