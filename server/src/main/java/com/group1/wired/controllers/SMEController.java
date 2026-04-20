@@ -23,6 +23,10 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
+import com.group1.wired.repositories.SongArtistRepository;
+import com.group1.wired.repositories.AlbumArtistRepository;
+import java.util.Map;
+
 @CrossOrigin(origins = "*", allowedHeaders = "*") // allows React talk to this controller
 @RestController
 @RequestMapping("/api/posts")
@@ -32,15 +36,23 @@ public class SMEController {
     private final SongPostRepository songPostRepository;
     private final AlbumPostRepository albumPostRepository;
     private final PlaylistPostRepository playlistPostRepository;
+    
+    private final SongArtistRepository songArtistRepository;
+    private final AlbumArtistRepository albumArtistRepository;
+    
 
     public SMEController(SocialMediaEngine socialMediaEngine,
             SongPostRepository songPostRepository,
             AlbumPostRepository albumPostRepository,
-            PlaylistPostRepository playlistPostRepository) {
+            PlaylistPostRepository playlistPostRepository,
+            SongArtistRepository songArtistRepository,
+            AlbumArtistRepository albumArtistRepository) {
         this.socialMediaEngine = socialMediaEngine;
         this.songPostRepository = songPostRepository;
         this.albumPostRepository = albumPostRepository;
         this.playlistPostRepository = playlistPostRepository;
+        this.songArtistRepository = songArtistRepository;
+        this.albumArtistRepository = albumArtistRepository;
     }
 
     // Feed History
@@ -100,6 +112,22 @@ public class SMEController {
         }
         // Otherwise assume it's already a raw Spotify ID
         return trimmed;
+    }
+    
+    // Fetch Artist for a Song Post
+    @GetMapping("/songs/{songId}/artist")
+    public ResponseEntity<Map<String, String>> getSongArtist(@PathVariable Long songId) {
+        List<SongArtist> artists = songArtistRepository.findBySong_SongId(songId);
+        String artistName = artists.isEmpty() ? "Unknown Artist" : artists.get(0).getArtist().getArtistName();
+        return ResponseEntity.ok(Map.of("artistName", artistName));
+    }
+
+    // Fetch Artist for an Album Post
+    @GetMapping("/albums/{albumId}/artist")
+    public ResponseEntity<Map<String, String>> getAlbumArtist(@PathVariable Long albumId) {
+        List<AlbumArtist> artists = albumArtistRepository.findByAlbum_AlbumId(albumId);
+        String artistName = artists.isEmpty() ? "Unknown Artist" : artists.get(0).getArtist().getArtistName();
+        return ResponseEntity.ok(Map.of("artistName", artistName));
     }
     
     // Add Comment

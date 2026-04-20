@@ -8,6 +8,8 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
     const [comments, setComments] = useState(item.comments || []);
     const [reactions, setReactions] = useState(item.reactions || []);
 
+    const [artistName, setArtistName] = useState('');
+
     // Fetch existing comments and reactions when post loads
     useEffect(() => {
         // Fetch Reactions
@@ -25,6 +27,19 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                 if (Array.isArray(data)) setComments(data);
             })
             .catch(err => console.error("Error fetching comments:", err));
+
+        // Fetch Artist Data (Only if it's a song or album)
+        if (item.song) {
+            fetch(`${apiUrl}/api/posts/songs/${item.song.songId}/artist`)
+                .then(res => res.json())
+                .then(data => setArtistName(data.artistName))
+                .catch(err => console.error("Error fetching song artist:", err));
+        } else if (item.album) {
+            fetch(`${apiUrl}/api/posts/albums/${item.album.albumId}/artist`)
+                .then(res => res.json())
+                .then(data => setArtistName(data.artistName))
+                .catch(err => console.error("Error fetching album artist:", err));
+        }
     }, [item.postID, apiUrl]);
     
     const handleAddComment = () => {
@@ -96,6 +111,8 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
 
     const reactionCounts = getReactionCounts();
 
+    console.log(item);
+    
     return (
         <div className={styles.postCardContainer}>
             
@@ -107,9 +124,37 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
             
             {/* Post Content */}
             <p className={styles.caption}>{item.caption}</p>
+            {/* Dynamic Media Content */}
             <div className={styles.mediaBox}>
-                🎧 <strong>Attached Media: </strong>
-                {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown"}
+                {/* Cover Art */}
+                <img 
+                    src={
+                        item.song?.albumArtUrl || 
+                        item.album?.albumArtUrl || 
+                        item.playlist?.imageUrl || 
+                        "https://via.placeholder.com/50" 
+                    } 
+                    alt="Cover Art" 
+                    className={styles.coverArt} 
+                />
+
+                {/* Media Info */}
+                <div className={styles.mediaInfo}>
+                    <div className={styles.mediaType}>
+                        {item.song ? 'Song' : item.album ? 'Album' : item.playlist ? 'Playlist' : 'Media'}
+                    </div>
+                    
+                    <div className={styles.mediaTitle}>
+                        {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown Title"}
+                    </div>
+
+                    {/* 3. Artist Attribution */}
+                    {(item.song || item.album) && (
+                        <div className={styles.artistName}>
+                            By {artistName || "Loading..."}
+                        </div>
+                    )}
+                </div>
             </div>
 
              {/* Reactions Bar */}

@@ -12,4 +12,6 @@ public interface SongArtistRepository extends JpaRepository<SongArtist, Long> {
 
     // get all artists linked to a song
     List<SongArtist> findBySong(Song song);
+    
+    List<SongArtist> findBySong_SongId(Long songId);
 }
