@@ -319,7 +319,7 @@ function Feed() {
                             {/* LIVE ACTIVITIES */}
                             {liveActivities
                                 .filter(item => allowedUserIds.has(item.userId))
-                                .filter(item => !item.isHistoryPrivate)
+                                .filter(item => !item.isHistoryPrivate || Number(item.userId) === Number(userId))
                                 .map((item) => (
                                 <div key={`live-${item.userId}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>

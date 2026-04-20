@@ -186,10 +186,6 @@ function Profile() {
                     )}
                     <h2>{profileData.displayName}</h2>
                 </div>
-				{/* temporary debug — remove after fixing */}
-				<p style={{ color: 'red', fontSize: '0.75rem' }}>
-				    profileData.id: {String(profileData.id)} | url id: {String(id)} | isHistoryPrivate: {String(profileData.isHistoryPrivate)}
-				</p>
 				
                 {/* Check if we should hide the data */}
                 {(profileData.isHistoryPrivate && id) ? (

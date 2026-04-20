@@ -1,9 +1,13 @@
 // This code file essentially just handles returning to the Wired app after logging in via 
 // the spotify login portal, and collects the code found in the url need
 
-
 import React, { useEffect, useState } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+
+const setCookie = (name, value, days = 7) => {
+    const expires = new Date(Date.now() + days * 864e5).toUTCString();
+    document.cookie = `${name}=${encodeURIComponent(JSON.stringify(value))}; expires=${expires}; path=/`;
+};
 
 function Callback() {
     // searchParams lets the code look into urls (like looking for ?code=...)
@@ -24,12 +28,12 @@ function Callback() {
         // if found a code in the URL, run the login process
         if (code) {
             // send a network request to AuthController
- 			fetch(import.meta.env.VITE_SPOTIFY_REDIRECT_URI_CALLBACK, {
-			    method: 'POST',
-			    headers: { 'Content-Type': 'application/json' },
-			    body: JSON.stringify({ code: code }),
-			    credentials: 'include' 
-			})
+            fetch(import.meta.env.VITE_SPOTIFY_REDIRECT_URI_CALLBACK, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ code: code }),
+                credentials: 'include' 
+            })
             // .then() runs after it finishes processing the request
             .then(response => {
                 // if it returns an error, throw error 
@@ -45,27 +49,27 @@ function Callback() {
 
                 // Save the user data globally to the browser
                 const userData = {
-                    id: data.userId,
+                    id: data.userId, // This is lowercase "userId" from Spring Boot
                     name: data.displayName,
                     friendCode: data.friendCode,
                     profilePicUrl: data.profilePicUrl
                 };
-                localStorage.setItem('wiredUser', JSON.stringify(userData));
+                setCookie('wiredUser', userData);
 
                 // wait 1.5 seconds so the user sees the success message, then move to profile
-				setTimeout(() => {
-				    navigate('/feed');
-				}, 1500);})
+                setTimeout(() => {
+                    navigate('/feed');
+                }, 1500);})
             // if something goes wrong (network crash, backend error), catch it here
-			.catch(error => {
-			    setStatus('Login failed. Please try again.');
-			    console.error('Error during login:', error);
-			    
-			    // wait 2 seconds so they can see the error, then send back to login
-			    setTimeout(() => {
-			        navigate('/');
-			    }, 2000);
-			});
+            .catch(error => {
+                setStatus('Login failed. Please try again.');
+                console.error('Error during login:', error);
+                
+                // wait 2 seconds so they can see the error, then send back to login
+                setTimeout(() => {
+                    navigate('/');
+                }, 2000);
+            });
             
         } else {
             // if the user somehow loaded /callback without a code in the URL
