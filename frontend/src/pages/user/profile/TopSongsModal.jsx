@@ -2,10 +2,16 @@ import React from 'react';
 import styles from './TopSongsModal.module.css';
 
 //receives isOpen (bool), onClose (function), and songs (array) from Profile.jsx
-function TopSongsModal({ isOpen, onClose, songs = [], listeningTime }) {
-
+function TopSongsModal({ isOpen, onClose, songs = [], listeningTime, range }) {
+	
+	
+	
     //dont render anything if the modal is closed
     if (!isOpen) return null;
+	
+	//map range to the correct template number
+	const templateMap = { all: 1, week: 2, month: 3, year: 4 };
+	const templateNum = templateMap[range] || 3; //default is month
 
     return (
         //dark overlay behind the popup, clicking it will close the modal
@@ -15,7 +21,7 @@ function TopSongsModal({ isOpen, onClose, songs = [], listeningTime }) {
             <div className={styles.popup} onClick={e => e.stopPropagation()}>
 
                 {/* the blank canva template as the background */}
-                <img src="/1.png" alt="Top Songs Template" className={styles.template} />
+                <img src={`/${templateNum}.png`} alt="Top Songs Template" className={styles.template} />
 
                 {/* data layer sits on top of the template using absolute positioning */}
                 <div className={styles.dataLayer}>

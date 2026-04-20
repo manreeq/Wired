@@ -28,6 +28,8 @@ function Profile() {
 	const [topAlbumsData, setTopAlbumsData] = useState([]);
 
 	const [listeningTime, setListeningTime] = useState('');
+	const [range, setRange] = useState('month');
+
 
 
     //failsafe; holds error messages if user doesnt have enough listening history for either
@@ -58,7 +60,7 @@ function Profile() {
 	
 	//fetch listening stats on page load
 	useEffect(() => {
-	    fetch(`${apiUrl}/api/stats/listening-time`, {
+	    fetch(`${apiUrl}/api/stats/listening-time?range=${range}`, {
 	        credentials: 'include'
 	    })
 	    .then(res => {
@@ -72,7 +74,7 @@ function Profile() {
     //fetch top songs when disc button is clicked
     const handleTopSongsClick = () => {
         setSongsError('');
-        fetch(`${apiUrl}/api/stats/top-songs`, {
+        fetch(`${apiUrl}/api/stats/top-songs?range=${range}`, {
             credentials: 'include'
         })
         .then(res => {
@@ -91,7 +93,7 @@ function Profile() {
     // fetch top artists when disc button is clicked
     const handleTopArtistsClick = () => {
         setArtistsError('');
-        fetch(`${apiUrl}/api/stats/top-artists`, {
+        fetch(`${apiUrl}/api/stats/top-artists?range=${range}`, {
             credentials: 'include'
         })
         .then(res => {
@@ -109,7 +111,7 @@ function Profile() {
 	
 	const handleTopAlbumsClick = () => {
 	    setAlbumsError('');
-	    fetch(`${apiUrl}/api/stats/top-albums`, {
+	    fetch(`${apiUrl}/api/stats/top-albums?range=${range}`, {
 	        credentials: 'include'
 	    })
 	    .then(res => {
@@ -147,7 +149,22 @@ function Profile() {
                     )}
                     <h2>{displayName}</h2>
                 </div>
-
+				
+				{/* time range selector for top stats */}
+				<div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '40px' }}>
+				    <span style={{ fontWeight: 'bold', fontSize: '0.85rem' }}>Viewing stats for:</span>
+				    <select
+				        value={range}
+				        onChange={e => setRange(e.target.value)}
+				        style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}
+				    >
+				        <option value="week">Last Week</option>
+				        <option value="month">Last Month</option>
+				        <option value="year">Last Year</option>
+				        <option value="all">All Time</option>
+				    </select>
+				</div>
+				
                 {/* disc buttons for top songs and top artists */}
                 <div style={{ display: 'flex', gap: '40px', marginTop: '40px' }}>
 
@@ -214,6 +231,7 @@ function Profile() {
                     onClose={() => setShowTopSongs(false)}
                     songs={topSongs}
 					listeningTime={listeningTime}
+					range={range}
                 />
 
                 {/* top artists modal */}
@@ -222,6 +240,7 @@ function Profile() {
                     onClose={() => setShowTopArtists(false)}
                     artists={topArtistsData}
 					listeningTime={listeningTime}
+					range={range}
                 />
 				
 				{/* top albums modal */}
@@ -230,6 +249,7 @@ function Profile() {
 				    onClose={() => setShowTopAlbums(false)}
 				    albums={topAlbumsData}
 				    listeningTime={listeningTime}
+					range={range}
 				/>
 
                 {/* ── LISTENING HISTORY ─────────────────────────────────── */}
