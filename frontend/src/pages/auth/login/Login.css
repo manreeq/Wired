@@ -1,0 +1,47 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  background-color: #121212;
+  color: #ffffff;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background: radial-gradient(circle at center, #1db95422 0%, #121212 70%);
+}
+
+.login-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1.7rem;
+  letter-spacing: -1.5px;
+}
+
+.login-subtitle {
+  font-size: 1.1rem;
+  color: #b3b3b3;
+  margin-bottom: 2.5rem;
+}
+
+.spotify-btn {
+  background-color: #1DB954;
+  color: #ffffff;
+  border: none;
+  border-radius: 500px;
+  padding: 16px 34px;
+  font-size: 1.1rem;
+  font-weight: 100;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0px 35px rgba(44, 168, 85, 0.664);
+}
+
+.spotify-btn:hover {
+  background-color: #1ed760;
+  transform: scale(1.04);
+}
+
+.login-link {
+  text-decoration: none;
+}
