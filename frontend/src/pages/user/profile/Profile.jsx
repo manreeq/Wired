@@ -26,6 +26,7 @@ function Profile() {
                 if (response.ok) {
                     const data = await response.json();
                     setProfileData({
+                        id: data.id,
                         displayName: data.displayName,
                         profilePicUrl: data.profilePicUrl
                     });
@@ -40,6 +41,8 @@ function Profile() {
         fetchProfile();
     }, [id]);
 
+    const userId = id || profileData?.id;
+
     const apiUrl = import.meta.env.VITE_API_BASE_URL;
 
     //controls which modal is open
@@ -53,6 +56,27 @@ function Profile() {
     //failsafe; holds error messages if user doesnt have enough listening history for either
     const [songsError, setSongsError] = useState('');
     const [artistsError, setArtistsError] = useState('');
+
+    // Listening history state
+    const [historyLimit, setHistoryLimit] = useState('5');
+    const [listeningHistory, setListeningHistory] = useState([]);
+    const [historyLoading, setHistoryLoading] = useState(false);
+    const [historyError, setHistoryError] = useState('');
+
+    // Fetch listening history whenever userId or limit changes
+    useEffect(() => {
+        if (!userId) return;
+        setHistoryLoading(true);
+        setHistoryError('');
+        fetch(`${apiUrl}/api/feed/history/${userId}?limit=${historyLimit}`)
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to load listening history');
+                return res.json();
+            })
+            .then(data => setListeningHistory(data))
+            .catch(err => setHistoryError(err.message))
+            .finally(() => setHistoryLoading(false));
+    }, [userId, historyLimit]);
 
     //fetch top songs when disc button is clicked
     const handleTopSongsClick = () => {
@@ -172,6 +196,59 @@ function Profile() {
                     onClose={() => setShowTopArtists(false)}
                     artists={topArtistsData}
                 />
+
+                {/* ── LISTENING HISTORY ─────────────────────────────────── */}
+                <div style={{ marginTop: '50px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '16px' }}>
+                        <h3 style={{ margin: 0 }}>Listening History</h3>
+                        <select
+                            value={historyLimit}
+                            onChange={e => setHistoryLimit(e.target.value)}
+                            style={{ padding: '4px 8px', borderRadius: '6px', border: '1px solid #ccc', cursor: 'pointer' }}
+                        >
+                            <option value="5">Last 5</option>
+                            <option value="10">Last 10</option>
+                            <option value="all">All</option>
+                        </select>
+                    </div>
+
+                    {historyLoading && <p>Loading...</p>}
+                    {historyError && <p style={{ color: 'red' }}>{historyError}</p>}
+
+                    {!historyLoading && !historyError && listeningHistory.length === 0 && (
+                        <p style={{ color: '#888' }}>No listening history yet. Start playing some songs on Spotify!</p>
+                    )}
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {listeningHistory.map((item, index) => (
+                            <div
+                                key={`history-${index}`}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '12px',
+                                    padding: '10px 14px',
+                                    border: '1px solid #ddd',
+                                    borderRadius: '8px',
+                                    backgroundColor: '#fafafa'
+                                }}
+                            >
+                                <img
+                                    src={item.albumArtUrl}
+                                    alt={item.songTitle}
+                                    style={{ width: '48px', height: '48px', borderRadius: '4px', objectFit: 'cover' }}
+                                />
+                                <div>
+                                    <p style={{ margin: 0, fontWeight: 'bold' }}>{item.songTitle}</p>
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#666' }}>
+                                        You listened to this
+                                    </p>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+
             </div>
         </div>
     );

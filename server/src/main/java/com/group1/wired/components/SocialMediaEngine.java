@@ -18,7 +18,6 @@ public class SocialMediaEngine {
     private final SongPostRepository songPostRepo;
     private final AlbumPostRepository albumPostRepo;
     private final PlaylistPostRepository playlistPostRepo;
-    private final ListeningActivityPostRepository listeningActivityPostRepo;
 
     // entity repositories
     private final UserRepository userRepo;
@@ -37,7 +36,6 @@ public class SocialMediaEngine {
             SongPostRepository songPostRepo,
             AlbumPostRepository albumPostRepo,
             PlaylistPostRepository playlistPostRepo,
-            ListeningActivityPostRepository listeningActivityPostRepo,
             UserRepository userRepo,
             ListeningActivityRepository listeningActivityRepo,
             AuthService authService,
@@ -47,7 +45,6 @@ public class SocialMediaEngine {
         this.songPostRepo = songPostRepo;
         this.albumPostRepo = albumPostRepo;
         this.playlistPostRepo = playlistPostRepo;
-        this.listeningActivityPostRepo = listeningActivityPostRepo;
         this.userRepo = userRepo;
         this.listeningActivityRepo = listeningActivityRepo;
         this.authService = authService;
