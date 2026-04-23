@@ -5,6 +5,7 @@ import com.group1.wired.entities.AuthCredentials;
 import com.group1.wired.entities.User;
 import com.group1.wired.repositories.AuthCredentialsRepository;
 import com.group1.wired.repositories.FriendConnectionRepository;
+import com.group1.wired.repositories.ListeningActivityRepository;
 import com.group1.wired.repositories.UserRepository;
 import com.group1.wired.utils.JwtUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthCredentialsRepository credentialsRepository;
     private final FriendConnectionRepository friendRepository;
+    private final ListeningActivityRepository listeningActivityRepository;
     private final TextEncryptor textEncryptor;
     private final RestTemplate restTemplate;
 
@@ -53,12 +55,13 @@ public class AuthService {
     private JwtUtils jwtUtils;
     
     @Autowired
-    public AuthService(UserRepository userRepository, AuthCredentialsRepository credentialsRepository, FriendConnectionRepository friendRepository, RestTemplate restTemplate, TextEncryptor textEncryptor) {
+    public AuthService(UserRepository userRepository, AuthCredentialsRepository credentialsRepository,FriendConnectionRepository friendRepository, RestTemplate restTemplate, TextEncryptor textEncryptor, ListeningActivityRepository listeningActivityRepository) {
         this.userRepository = userRepository;
         this.credentialsRepository = credentialsRepository;
         this.friendRepository = friendRepository;
         this.restTemplate = restTemplate;
         this.textEncryptor = textEncryptor;
+        this.listeningActivityRepository = listeningActivityRepository;
     }
 
     public AuthResponse processSpotifyLogin(String authCode) {
@@ -249,15 +252,20 @@ public class AuthService {
 
         // Remove OAuth data
         credentialsRepository.findByUser(user).ifPresent(credentials -> {
-        	credentialsRepository.delete(credentials);
+        		credentialsRepository.delete(credentials);
         });
         
         // Remove friend connections
         friendRepository.deleteByRequesterIdOrTargetId(userId, userId);
+        
+        // Remove listening history
+        listeningActivityRepository.deleteAllByUserId(userId);
 
         // Disconnect Spotify
         user.setSpotifyURI(null);
         userRepository.save(user); 
         userRepository.delete(user);
     }
+    
+    
 }
