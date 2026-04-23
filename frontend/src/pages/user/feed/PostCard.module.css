@@ -179,9 +179,71 @@
 }
 
 .commentItem {
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-size: 0.9em;
     color: var(--wired-text-muted);
+}
+
+.commentHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.commenterPic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--wired-border);
+}
+
+.commenterPicPlaceholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--wired-surface-2);
+    border: 1px solid var(--wired-border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--wired-text-muted);
+}
+
+.commentBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.commentMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.commentAuthor {
+    font-weight: 600;
+    color: var(--wired-text);
+    font-size: 0.88em;
+}
+
+.commentTimestamp {
+    font-size: 0.75em;
+    color: var(--wired-text-dim);
+    white-space: nowrap;
+}
+
+.commentContent {
+    margin: 0;
+    color: var(--wired-text-muted);
+    font-size: 0.9em;
+    line-height: 1.4;
 }
 
 .commentInputArea {
