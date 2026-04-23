@@ -54,6 +54,8 @@ function Callback() {
                     friendCode: data.friendCode,
                     profilePicUrl: data.profilePicUrl
                 };
+                localStorage.removeItem('wiredUser'); 
+                localStorage.clear();
                 setCookie('wiredUser', userData);
 
                 // wait 1.5 seconds so the user sees the success message, then move to profile
