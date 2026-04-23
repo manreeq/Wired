@@ -1,85 +1,96 @@
+/* ================= NAVBAR ================= */
 .navbar {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
-    padding: 10px 20px;
-    background-color: #000000;
-    color: white;
+    padding: 12px 24px;
+    background-color: rgba(18, 18, 18, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--wired-border);
+    color: var(--wired-text);
+    position: sticky;
+    top: 0;
+    z-index: 100;
 }
 
 .navLinks {
     display: flex;
-    gap: 15px;
+    gap: 8px;
 }
 
 .navBtn {
     background: none;
     border: none;
-    color: white;
+    color: var(--wired-text-muted);
     cursor: pointer;
-    font-size: 16px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: var(--wired-transition);
+    font-family: var(--wired-font);
 }
 
 .navBtn:hover {
-    text-decoration: underline;
+    color: var(--wired-text);
+    background-color: var(--wired-surface);
 }
 
 .settingsContainer {
-    position: relative; 
+    position: relative;
     display: inline-block;
-}
-
-.settingsIconBtn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
 }
 
 .dropdownMenu {
     position: absolute;
-    top: 40px; 
-    right: 0;  
-    background-color: #1e1e1e; 
-    border-radius: 8px;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.5);
-    width: 200px;
+    top: calc(100% + 8px);
+    right: 0;
+    background-color: var(--wired-surface);
+    border: 1px solid var(--wired-border);
+    border-radius: 10px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    width: 210px;
     display: flex;
     flex-direction: column;
-    padding: 8px 0;
-    z-index: 1000; 
+    padding: 6px 0;
+    z-index: 1000;
 }
 
 .menuItem {
     background: none;
     border: none;
-    color: #e3e3e3;
+    color: var(--wired-text-muted);
     padding: 12px 16px;
     text-align: left;
-    font-size: 14px;
+    font-size: 0.9rem;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 10px;
+    transition: var(--wired-transition);
+    font-family: var(--wired-font);
 }
 
 .menuItem:hover {
-    background-color: #333333; 
+    background-color: var(--wired-surface-2);
+    color: var(--wired-text);
 }
 
 .menuDivider {
     border: none;
-    border-top: 1px solid #444;
+    border-top: 1px solid var(--wired-border);
     margin: 4px 0;
 }
 
+/* ---- Confirm / Delete Modal ---- */
 .modalOverlay {
     position: fixed;
     top: 0;
     left: 0;
     width: 100vw;
     height: 100vh;
-    background: rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.75);
     display: flex;
     justify-content: center;
     align-items: center;
@@ -87,43 +98,62 @@
 }
 
 .modal {
-    background: #1e1e1e;
-    padding: 20px 30px;
-    border-radius: 10px;
+    background: var(--wired-surface);
+    border: 1px solid var(--wired-border);
+    padding: 28px 32px;
+    border-radius: 14px;
     text-align: center;
-    color: white;
-    max-width: 400px;
+    color: var(--wired-text);
+    max-width: 420px;
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.6);
 }
 
-.confirmBtn {
-    background-color: #ff4d4d;
-    color: white;
-    border: none;
-    padding: 8px 16px;
-    border-radius: 5px;
-    cursor: pointer;
+.modal h3 {
+    margin-top: 0;
+    margin-bottom: 12px;
+    font-size: 1.2rem;
+    color: var(--wired-text);
 }
 
-.confirmBtn:hover {
-    background-color: #cc0000;
+.modal p {
+    color: var(--wired-text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 0;
 }
 
 .modalActions {
     display: flex;
     justify-content: center;
-    gap: 50px;
-    margin-top: 20px;
+    gap: 16px;
+    margin-top: 24px;
 }
 
 .modalActions button {
-    min-width: 100px;
+    min-width: 110px;
     padding: 10px 20px;
     cursor: pointer;
-    border-radius: 5px;
-    border: none;
+    border-radius: 20px;
+    border: 1px solid var(--wired-border);
+    background-color: var(--wired-surface-2);
+    color: var(--wired-text);
+    font-size: 0.9rem;
+    transition: var(--wired-transition);
+    font-family: var(--wired-font);
 }
 
-.modal h3 {
-    margin-top: 0;
-    margin-bottom: 15px;
+.modalActions button:hover {
+    border-color: var(--wired-accent);
+    color: var(--wired-accent);
+}
+
+.confirmBtn {
+    background-color: var(--wired-error) !important;
+    border-color: var(--wired-error) !important;
+    color: white !important;
+}
+
+.confirmBtn:hover {
+    background-color: #cc0000 !important;
+    border-color: #cc0000 !important;
+    color: white !important;
 }

@@ -219,13 +219,29 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                     {/* List of existing comments */}
                     {comments.map((c, idx) => (
                         <div key={c.commentId || idx} className={styles.commentItem}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
-                                <strong>{c.displayName}</strong>
-                                <span style={{ fontSize: '0.75em', color: '#888' }}>
-                                    {c.timestamp ? formatTimestamp(c.timestamp) : 'Just now'}
-                                </span>
+                            <div className={styles.commentHeader}>
+                                {/* Commenter profile picture */}
+                                {c.profilePicUrl && c.profilePicUrl !== 'None' ? (
+                                    <img
+                                        src={c.profilePicUrl}
+                                        alt={c.displayName}
+                                        className={styles.commenterPic}
+                                        onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                    />
+                                ) : null}
+                                <div className={styles.commenterPicPlaceholder} style={{ display: (c.profilePicUrl && c.profilePicUrl !== 'None') ? 'none' : 'flex' }}>
+                                    {c.displayName ? c.displayName.charAt(0).toUpperCase() : '?'}
+                                </div>
+                                <div className={styles.commentBody}>
+                                    <div className={styles.commentMeta}>
+                                        <strong className={styles.commentAuthor}>{c.displayName}</strong>
+                                        <span className={styles.commentTimestamp}>
+                                            {c.timestamp ? formatTimestamp(c.timestamp) : 'Just now'}
+                                        </span>
+                                    </div>
+                                    <p className={styles.commentContent}>{c.content}</p>
+                                </div>
                             </div>
-                            <p style={{ margin: '4px 0 0 0' }}>{c.content}</p>
                         </div>
                     ))}
 

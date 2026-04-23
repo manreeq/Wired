@@ -105,42 +105,43 @@ function Navbar() {
 
     return (
         <nav className={styles.navbar}>
-            
+
+            {/* All nav items centered in one group */}
             <div className={styles.navLinks}>
                 <button className={styles.navBtn} onClick={() => navigate('/feed')}>Home</button>
                 <button className={styles.navBtn} onClick={() => navigate('/profile')}>Profile</button>
-            </div>
 
-            <div className={styles.settingsContainer}>
-                
-                <button 
-                    className={styles.settingsIconBtn} 
-                    onClick={() => setIsMenuOpen(!isMenuOpen)}
-                >
-                    ⚙️
-                </button>
+                {/* Settings — same style as other nav buttons, with dropdown */}
+                <div className={styles.settingsContainer}>
+                    <button
+                        className={styles.navBtn}
+                        onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    >
+                        Settings
+                    </button>
 
-                {isMenuOpen && (
-                    <div className={styles.dropdownMenu}>
-                        
-                        <button onClick={handlePrivacyToggle} className={styles.menuItem}>
-                            <span>{isPrivate ? 'Show Profile' : 'Hide Profile'}</span>
-                        </button>
-                        
-                        <button onClick={() => {
-                            setShowDeleteModal(true);
-                            setIsMenuOpen(false); 
-                        }} className={styles.menuItem}>
-                            <span>Delete Account</span>
-                        </button>
-                        
-                        <hr className={styles.menuDivider} />
-                        
-                        <button onClick={handleLogout} className={styles.menuItem}>
-                            <span>Logout</span>
-                        </button>
-                    </div>
-                )}
+                    {isMenuOpen && (
+                        <div className={styles.dropdownMenu}>
+
+                            <button onClick={handlePrivacyToggle} className={styles.menuItem}>
+                                <span>{isPrivate ? 'Show Profile' : 'Hide Profile'}</span>
+                            </button>
+
+                            <button onClick={() => {
+                                setShowDeleteModal(true);
+                                setIsMenuOpen(false);
+                            }} className={styles.menuItem}>
+                                <span>Delete Account</span>
+                            </button>
+
+                            <hr className={styles.menuDivider} />
+
+                            <button onClick={handleLogout} className={styles.menuItem}>
+                                <span>Logout</span>
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {showDeleteModal && (
@@ -148,10 +149,10 @@ function Navbar() {
                     <div className={styles.modal}>
                         <h3>Are you sure?</h3>
                         <p>This will permanently erase your data and disconnect Spotify.</p>
-                        
+
                         <div className={styles.modalActions}>
                             <button onClick={() => setShowDeleteModal(false)}>Cancel</button>
-                            
+
                             <button onClick={handleDeleteAccount} className={styles.confirmBtn}>
                                 Confirm
                             </button>

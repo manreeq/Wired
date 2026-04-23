@@ -1,0 +1,237 @@
+/* ================= PROFILE PAGE ================= */
+
+.pageWrapper {
+    min-height: 100vh;
+    background-color: var(--wired-bg);
+    color: var(--wired-text);
+    font-family: var(--wired-font);
+}
+
+.content {
+    padding: 40px;
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+/* ---- Header / Identity ---- */
+.profileHeader {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 40px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--wired-border);
+}
+
+.profileAvatar {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--wired-accent);
+    box-shadow: 0 0 18px var(--wired-accent-glow);
+}
+
+.profileAvatarPlaceholder {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background-color: var(--wired-surface-2);
+    border: 2px solid var(--wired-border);
+    flex-shrink: 0;
+}
+
+.profileName {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--wired-text);
+    letter-spacing: -0.5px;
+    margin: 0;
+}
+
+/* ---- Private banner ---- */
+.privateBanner {
+    margin-top: 50px;
+    padding: 40px;
+    background-color: var(--wired-surface);
+    border: 1px solid var(--wired-border);
+    border-radius: 12px;
+    text-align: center;
+}
+
+.privateBanner h3 {
+    color: var(--wired-text-muted);
+    font-size: 1.1rem;
+}
+
+/* ---- Range selector ---- */
+.rangeSelector {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 32px;
+}
+
+.rangeLabel {
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--wired-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.rangeSelect {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--wired-border);
+    background-color: var(--wired-surface-2);
+    color: var(--wired-text);
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: var(--wired-transition);
+    outline: none;
+}
+
+.rangeSelect:focus,
+.rangeSelect:hover {
+    border-color: var(--wired-accent);
+}
+
+/* ---- Disc buttons ---- */
+.discGrid {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 48px;
+}
+
+.discItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+.discBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    transition: var(--wired-transition);
+}
+
+.discBtn:hover {
+    transform: scale(1.08) rotate(5deg);
+    filter: drop-shadow(0 0 12px var(--wired-accent-glow));
+}
+
+.discImg {
+    width: 80px;
+    height: 80px;
+}
+
+.discLabel {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--wired-text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.discError {
+    color: var(--wired-error);
+    font-size: 0.75rem;
+    max-width: 120px;
+    text-align: center;
+}
+
+/* ---- Listening History ---- */
+.historySection {
+    margin-top: 12px;
+}
+
+.historyHeader {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.historyTitle {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--wired-text);
+    margin: 0;
+}
+
+.historySelect {
+    padding: 6px 12px;
+    border-radius: 20px;
+    border: 1px solid var(--wired-border);
+    background-color: var(--wired-surface-2);
+    color: var(--wired-text);
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--wired-transition);
+    outline: none;
+}
+
+.historySelect:focus,
+.historySelect:hover {
+    border-color: var(--wired-accent);
+}
+
+.historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.historyItem {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 14px;
+    border: 1px solid var(--wired-border);
+    border-radius: 10px;
+    background-color: var(--wired-surface);
+    transition: var(--wired-transition);
+}
+
+.historyItem:hover {
+    border-color: var(--wired-accent);
+}
+
+.historyArt {
+    width: 48px;
+    height: 48px;
+    border-radius: 4px;
+    object-fit: cover;
+}
+
+.historyInfo p {
+    margin: 0;
+}
+
+.historySongTitle {
+    font-weight: 600;
+    color: var(--wired-text);
+    font-size: 0.95rem;
+}
+
+.historySongSub {
+    font-size: 0.8rem;
+    color: var(--wired-text-dim);
+}
+
+/* ---- Utility ---- */
+.loadingState,
+.emptyState {
+    color: var(--wired-text-muted);
+    font-size: 0.9rem;
+    padding: 8px 0;
+}
+
+.errorState {
+    color: var(--wired-error);
+    font-size: 0.9rem;
+}
