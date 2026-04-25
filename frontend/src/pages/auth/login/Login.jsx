@@ -3,7 +3,8 @@ import './Login.css';
 
 function Login(){
     const CLIENT_ID = import.meta.env.VITE_SPOTIFY_CLIENT_ID;
-    const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
+    // const REDIRECT_URI = import.meta.env.VITE_SPOTIFY_REDIRECT_URI;
+    const REDIRECT_URI = `${import.meta.env.VITE_FRONTEND_BASE_URL}/callback`;
     const AUTH_ENDPOINT = 'https://accounts.spotify.com/authorize';
     const RESPONSE_TYPE = 'code';
     // scopes for actually getting user data later
