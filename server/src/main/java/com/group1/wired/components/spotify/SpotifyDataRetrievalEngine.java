@@ -1,4 +1,4 @@
-package com.group1.wired.components;
+package com.group1.wired.components.spotify;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

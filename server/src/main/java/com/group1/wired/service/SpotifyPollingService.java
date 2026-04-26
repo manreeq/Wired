@@ -1,7 +1,7 @@
 package com.group1.wired.service;
 
-import com.group1.wired.components.SpotifyDataRetrievalEngine;
-import com.group1.wired.controllers.PlaybackStateDTO;
+import com.group1.wired.components.spotify.SpotifyDataRetrievalEngine;
+import com.group1.wired.dto.PlaybackStateDTO;
 import com.group1.wired.dto.LiveActivityDTO;
 import com.group1.wired.entities.ListeningActivity;
 import com.group1.wired.entities.Song;

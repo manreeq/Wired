@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.controllers.social;
 
 import com.group1.wired.dto.LiveActivityDTO;
 import com.group1.wired.entities.ListeningActivity;

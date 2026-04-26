@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.controllers.auth;
 import com.group1.wired.dto.AuthResponse;
 import com.group1.wired.dto.SpotifyLoginRequestDTO;
 import com.group1.wired.entities.User;

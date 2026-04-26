@@ -1,4 +1,4 @@
-package com.group1.wired.components;
+package com.group1.wired.components.social;
 
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;

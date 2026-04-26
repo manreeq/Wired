@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.controllers.user;
 
 import com.group1.wired.dto.UserProfileDTO;
 import com.group1.wired.entities.User;

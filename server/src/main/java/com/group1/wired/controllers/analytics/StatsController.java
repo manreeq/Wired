@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.controllers.analytics;
 
 import com.group1.wired.dto.TopSongDTO;
 import com.group1.wired.dto.TopArtistDTO;
