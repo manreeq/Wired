@@ -22,7 +22,7 @@ public class CorsConfig {
     public CorsFilter corsFilter() {
         CorsConfiguration configuration = new CorsConfiguration(); 								//new set of CORS rules
         configuration.setAllowCredentials(true);												//allows cookies to be sent with requests
-        configuration.setAllowedOrigins(List.of("http://127.0.0.1:5173", "https://iteration4.d2t0j7fh8av7wl.amplifyapp.com"));						//only accepts requests from local frontend
+        configuration.setAllowedOrigins(List.of("${allowed.origins"));						//only accepts requests from local frontend
         configuration.setAllowedHeaders(List.of("*"));											//allows any headers in the request
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));	//allows only these http methods
 
