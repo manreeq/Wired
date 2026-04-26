@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { useNavigate } from 'react-router-dom';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
@@ -126,17 +127,17 @@ function Feed() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(res => {
-            if (!res.ok) throw new Error(`Failed to create post. Server returned status ${res.status}`);
-            return res.json();
-        })
-        .then(data => {
-            setManualPosts(prev => [data, ...prev]);
-            setContent('');
-            setMediaId('');
-            setShowModal(false);
-        })
-        .catch(err => console.error(err));
+            .then(res => {
+                if (!res.ok) throw new Error(`Failed to create post. Server returned status ${res.status}`);
+                return res.json();
+            })
+            .then(data => {
+                setManualPosts(prev => [data, ...prev]);
+                setContent('');
+                setMediaId('');
+                setShowModal(false);
+            })
+            .catch(err => console.error(err));
     };
 
     const hasContent = liveActivities.length > 0 || manualPosts.length > 0;
@@ -154,7 +155,15 @@ function Feed() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
         })
-        .then(() => { setTargetFriendCode(''); });
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to send friend request');
+                setTargetFriendCode('');
+                toast.success('Friend request sent!');
+            })
+            .catch(err => {
+                console.error(err);
+                toast.error('Failed to send friend request.');
+            });
     };
 
     const fetchFriendList = () => {
@@ -180,21 +189,67 @@ function Feed() {
     };
 
     const handleFriendRequestAccept = (connectionId) => {
+        // Grab the requester's name before removing the request from state
+        const req = friendRequests.find(r => r.connectionId === connectionId);
+        const [acceptedName] = req ? getFriendDisplay(
+            friendCode,
+            req.requesterDisplayName, req.requesterFriendCode, req.requesterId, null,
+            req.targetDisplayName, req.targetFriendCode, req.targetId, null
+        ) : ['Someone'];
+
         fetch(`${apiUrl}/api/friends/requests/accept/${connectionId}`, { method: "PUT" })
-            .then(() => fetchPendingRequests())
-            .then(() => fetchFriendList());
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to accept request');
+                return fetchPendingRequests();
+            })
+            .then(() => fetchFriendList())
+            .then(() => toast.success(`You're now friends with ${acceptedName}!`))
+            .catch(err => {
+                console.error(err);
+                toast.error('Failed to accept friend request.');
+            });
     };
 
     const handleFriendRequestDecline = (connectionId) => {
+        const req = friendRequests.find(r => r.connectionId === connectionId);
+        const [declinedName] = req ? getFriendDisplay(
+            friendCode,
+            req.requesterDisplayName, req.requesterFriendCode, req.requesterId, null,
+            req.targetDisplayName, req.targetFriendCode, req.targetId, null
+        ) : ['Someone'];
+
         fetch(`${apiUrl}/api/friends/requests/decline/${connectionId}`, { method: "PUT" })
-            .then(() => fetchPendingRequests())
-            .then(() => fetchFriendList());
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to decline request');
+                return fetchPendingRequests();
+            })
+            .then(() => fetchFriendList())
+            .then(() => toast.success(`You've declined ${declinedName}'s friend request.`))
+            .catch(err => {
+                console.error(err);
+                toast.error('Failed to decline friend request.');
+            });
     };
 
     const handleRemoveFriend = (connectionId) => {
+        const entry = friendList.find(f => f.connectionId === connectionId);
+        const [removedName] = entry ? getFriendDisplay(
+            friendCode,
+            entry.requesterDisplayName, entry.requesterFriendCode, entry.requesterId, null,
+            entry.targetDisplayName, entry.targetFriendCode, entry.targetId, null
+        ) : ['Friend'];
+
         fetch(`${apiUrl}/api/friends/remove/${connectionId}`, { method: "DELETE" })
-            .then(() => fetchPendingRequests())
-            .then(() => fetchFriendList());
+            .then(res => {
+                if (!res.ok) throw new Error('Failed to remove friend');
+                return fetchPendingRequests();
+            })
+            .then(() => fetchFriendList())
+            .then(() => toast.success(`${removedName} has been removed as a friend.`))
+            .catch(err => {
+                console.error(err);
+                toast.error('Failed to remove friend.');
+            });
         setPendingRemoveId(null);
     };
 
@@ -392,29 +447,29 @@ function Feed() {
                                 .filter(item => allowedUserIds.has(item.userId))
                                 .filter(item => !item.isHistoryPrivate || Number(item.userId) === Number(userId))
                                 .map((item) => (
-                                <div key={`live-${item.userId}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                                        <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
-                                        <div>
-                                            <strong>{item.displayName} {item.isPlaying ? 'is now listening to' : 'was listening to'}</strong>
-                                            <p style={{ margin: 0 }}>{item.songTitle}</p>
+                                    <div key={`live-${item.userId}`} className={styles.postCard} style={{ border: '2px solid #1DB954', padding: '10px', borderRadius: '8px' }}>
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                            <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
+                                            <div>
+                                                <strong>{item.displayName} {item.isPlaying ? 'is now listening to' : 'was listening to'}</strong>
+                                                <p style={{ margin: 0 }}>{item.songTitle}</p>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
 
                             {/* MANUAL POSTS */}
                             {manualPosts
                                 .filter(item => allowedUserIds.has(item.user?.userID))
                                 .map((item, index) => (
-                                <PostCard
-                                    key={`post-${item.postID || index}`}
-                                    item={item}
-                                    userId={userId}
-                                    apiUrl={apiUrl}
-                                    formatTimestamp={formatTimestamp}
-                                />
-                            ))}
+                                    <PostCard
+                                        key={`post-${item.postID || index}`}
+                                        item={item}
+                                        userId={userId}
+                                        apiUrl={apiUrl}
+                                        formatTimestamp={formatTimestamp}
+                                    />
+                                ))}
 
                         </div>
                     )}
