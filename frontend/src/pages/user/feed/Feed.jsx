@@ -6,13 +6,25 @@ import Navbar from '../../../components/navbar';
 import styles from './Feed.module.css';
 import PostCard from './PostCard';
 
+const getCookie = (name) => {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        try {
+            return JSON.parse(decodeURIComponent(parts.pop().split(';').shift()));
+        } catch (e) {
+            return {};
+        }
+    }
+    return {};
+};
+
 function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
 
-    //entity of logged in user
-    const storedUser = JSON.parse(localStorage.getItem('wiredUser')) || {};
-    const userId = storedUser.id;
+    const storedUser = getCookie('wiredUser');
+    const userId = storedUser.userId || storedUser.id;
     const friendCode = storedUser.friendCode;
 
     // for adding friends modal
@@ -71,7 +83,7 @@ function Feed() {
 
     // EFFECT 3: WebSocket Connection — liveActivities
     useEffect(() => {
-        const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
+        const wsUrl = `${import.meta.env.VITE_API_BASE_URL}/chat`
 
         const client = new Client({
             webSocketFactory: () => new SockJS(wsUrl),
@@ -383,7 +395,7 @@ function Feed() {
                 </div>
             )}
 
-            {/*  show friend modal */}
+            {/* show friend modal */}
             {showAddFriendsModal && (
                 <div className={styles.modalOverlay} onClick={() => setShowAddFriendsModal(false)}>
                     <div className={styles.modal} onClick={e => e.stopPropagation()}>

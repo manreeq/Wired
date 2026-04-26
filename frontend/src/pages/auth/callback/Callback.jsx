@@ -28,7 +28,9 @@ function Callback() {
         // if found a code in the URL, run the login process
         if (code) {
             // send a network request to AuthController
-            fetch(import.meta.env.VITE_SPOTIFY_REDIRECT_URI_CALLBACK, {
+            // fetch(import.meta.env.VITE_SPOTIFY_REDIRECT_URI_CALLBACK, {
+            fetch(`${import.meta.env.VITE_API_BASE_URL}/api/auth/spotify`, {
+
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ code: code }),
@@ -54,6 +56,8 @@ function Callback() {
                     friendCode: data.friendCode,
                     profilePicUrl: data.profilePicUrl
                 };
+                localStorage.removeItem('wiredUser'); 
+                localStorage.clear();
                 setCookie('wiredUser', userData);
 
                 // wait 1.5 seconds so the user sees the success message, then move to profile
