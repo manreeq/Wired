@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.controllers.social;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import com.group1.wired.components.SocialMediaEngine;
+import com.group1.wired.components.social.SocialMediaEngine;
 import com.group1.wired.entities.*;
 import com.group1.wired.repositories.SongPostRepository;
 import com.group1.wired.repositories.AlbumPostRepository;
@@ -18,6 +18,7 @@ import com.group1.wired.repositories.PlaylistPostRepository;
 import com.group1.wired.dto.CommentDTO;
 import com.group1.wired.dto.ReactionDTO;
 import com.group1.wired.dto.InteractionRequestDTO;
+import com.group1.wired.dto.CreatePostRequestDTO;
 
 import java.util.ArrayList;
 import java.util.Comparator;

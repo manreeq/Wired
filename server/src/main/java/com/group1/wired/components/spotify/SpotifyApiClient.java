@@ -1,4 +1,4 @@
-package com.group1.wired.components;
+package com.group1.wired.components.spotify;
 
 import retrofit2.Call;
 import retrofit2.http.GET;

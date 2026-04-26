@@ -1,4 +1,4 @@
-package com.group1.wired.controllers;
+package com.group1.wired.controllers.spotify;
 
 import com.group1.wired.entities.Album;
 import com.group1.wired.entities.Playlist;
