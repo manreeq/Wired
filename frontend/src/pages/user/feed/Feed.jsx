@@ -83,7 +83,7 @@ function Feed() {
 
     // EFFECT 3: WebSocket Connection — liveActivities
     useEffect(() => {
-        const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
+        const wsUrl = `${import.meta.env.VITE_API_BASE_URL}/chat`
 
         const client = new Client({
             webSocketFactory: () => new SockJS(wsUrl),
