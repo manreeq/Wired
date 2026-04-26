@@ -21,9 +21,8 @@ function Feed() {
     const navigate = useNavigate();
     const [showModal, setShowModal] = useState(false);
 
-    // Read user from cookie (consistent with Navbar)
     const storedUser = getCookie('wiredUser');
-    const userId = storedUser.id;
+    const userId = storedUser.userId || storedUser.id;
     const friendCode = storedUser.friendCode;
     const currentUserName = storedUser.name;
     const currentUserPic = storedUser.profilePicUrl;
@@ -83,7 +82,8 @@ function Feed() {
 
     // EFFECT 3: WebSocket Connection
     useEffect(() => {
-        const wsUrl = import.meta.env.VITE_WS_URL || 'http://localhost:8080/chat';
+        const wsUrl = `${import.meta.env.VITE_API_BASE_URL}/chat`
+
         const client = new Client({
             webSocketFactory: () => new SockJS(wsUrl),
             onConnect: () => {
