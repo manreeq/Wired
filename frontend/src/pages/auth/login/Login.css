@@ -4,7 +4,6 @@
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: var(--wired-bg);
   color: var(--wired-text);
   font-family: var(--wired-font);
 }

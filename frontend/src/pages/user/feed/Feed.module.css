@@ -5,6 +5,7 @@
     height: 100vh;
     background-color: var(--wired-bg);
     color: var(--wired-text);
+    position: relative;
 }
 
 .body {
@@ -17,72 +18,338 @@
 .sidebar {
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    padding: 20px;
-    width: 220px;
+    gap: 6px;
+    padding: 16px 12px;
+    width: 240px;
     background-color: var(--wired-surface);
     border-right: 1px solid var(--wired-border);
     color: var(--wired-text);
+    overflow-y: auto;
 }
 
-.sidebar button {
+/* ---- Profile Card ---- */
+.sidebarProfile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: var(--wired-transition);
+    margin-bottom: 6px;
+    border: 1px solid transparent;
+}
+
+.sidebarProfile:hover {
+    background-color: var(--wired-surface-2);
+    border-color: var(--wired-accent);
+}
+
+.sidebarAvatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--wired-accent);
+    flex-shrink: 0;
+}
+
+.sidebarAvatarPlaceholder {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-color: var(--wired-surface-2);
+    border: 2px solid var(--wired-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.95rem;
+    color: var(--wired-text-muted);
+    flex-shrink: 0;
+}
+
+.sidebarUsername {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--wired-text);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* ---- Dropdown toggle buttons ---- */
+.sidebarDropdownBtn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
     background-color: var(--wired-surface-2);
     color: var(--wired-text);
     border: 1px solid var(--wired-border);
     padding: 8px 12px;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
     font-size: 0.85rem;
+    font-weight: 500;
     text-align: left;
     transition: var(--wired-transition);
+    font-family: var(--wired-font);
 }
 
-.sidebar button:hover {
-    background-color: var(--wired-border);
+.sidebarDropdownBtn:hover {
+    border-color: var(--wired-accent);
     color: var(--wired-accent);
 }
 
-.sidebar ul {
+.chevron {
+    font-size: 0.65rem;
+    color: var(--wired-text-dim);
+}
+
+/* ---- Dropdown content panel ---- */
+.dropdownList {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px 4px;
+    border-left: 2px solid var(--wired-border);
+    margin-left: 6px;
+}
+
+/* ---- Friend code row ---- */
+.friendCodeRow {
+    display: flex;
+    flex-direction: column;
+    padding: 4px 8px;
+    gap: 2px;
+}
+
+.friendCodeLabel {
+    font-size: 0.7rem;
+    color: var(--wired-text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.friendCode {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--wired-accent);
+    word-break: break-all;
+}
+
+/* ---- Friends list ---- */
+.friendsList {
     list-style: none;
     padding: 0;
     margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 4px;
 }
 
-.sidebar li {
+.friendItem {
     display: flex;
-    justify-content: space-between;
     align-items: center;
-    font-size: 0.85rem;
-    color: var(--wired-text-muted);
-}
-
-.sidebar li a {
-    color: var(--wired-text-muted);
-    text-decoration: none;
+    gap: 8px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--wired-border);
+    background-color: var(--wired-surface-2);
     transition: var(--wired-transition);
 }
 
-.sidebar li a:hover {
+.friendItem:hover {
+    border-color: var(--wired-accent);
+}
+
+.friendAvatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--wired-border);
+}
+
+.friendAvatarPlaceholder {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: var(--wired-surface);
+    border: 1px solid var(--wired-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    color: var(--wired-text-muted);
+    flex-shrink: 0;
+}
+
+.friendInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    text-decoration: none;
+    overflow: hidden;
+}
+
+.friendName {
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--wired-text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.friendCodeSmall {
+    font-size: 0.7rem;
+    color: var(--wired-text-dim);
+}
+
+.friendInfo:hover .friendName {
     color: var(--wired-accent);
 }
 
-.sidebar li button {
-    background-color: var(--wired-surface-2);
-    color: var(--wired-text);
-    border: 1px solid var(--wired-border);
-    padding: 4px 8px;
-    border-radius: 4px;
+.removeBtn {
+    background: none;
+    border: 1px solid transparent;
+    color: var(--wired-text-dim);
     cursor: pointer;
     font-size: 0.75rem;
+    padding: 2px 5px;
+    border-radius: 4px;
+    flex-shrink: 0;
+    transition: var(--wired-transition);
+    line-height: 1;
+}
+
+.removeBtn:hover {
+    border-color: var(--wired-error);
+    color: var(--wired-error);
+}
+
+/* ---- Friend Requests list ---- */
+.requestsList {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.requestItem {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    padding: 6px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--wired-border);
+    background-color: var(--wired-surface-2);
+    font-size: 0.8rem;
+}
+
+.requestName {
+    flex: 1;
+    color: var(--wired-text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.requestActions {
+    display: flex;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.acceptBtn {
+    background: none;
+    border: 1px solid var(--wired-accent);
+    color: var(--wired-accent);
+    cursor: pointer;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.85rem;
     transition: var(--wired-transition);
 }
 
-.sidebar li button:hover {
+.acceptBtn:hover {
+    background-color: var(--wired-accent);
+    color: #fff;
+}
+
+.declineBtn {
+    background: none;
+    border: 1px solid var(--wired-border);
+    color: var(--wired-text-dim);
+    cursor: pointer;
+    padding: 2px 7px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    transition: var(--wired-transition);
+}
+
+.declineBtn:hover {
+    border-color: var(--wired-error);
+    color: var(--wired-error);
+}
+
+/* ---- Add Friend inline field ---- */
+.addFriendRow {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.addFriendInput {
+    flex: 1;
+    padding: 6px 10px;
+    border: 1px solid var(--wired-border);
+    border-radius: 6px;
+    background-color: var(--wired-surface-2);
+    color: var(--wired-text);
+    font-size: 0.8rem;
+    outline: none;
+    transition: var(--wired-transition);
+    font-family: var(--wired-font);
+}
+
+.addFriendInput:focus {
     border-color: var(--wired-accent);
-    color: var(--wired-accent);
+}
+
+.addFriendInput::placeholder {
+    color: var(--wired-text-dim);
+}
+
+.addFriendSendBtn {
+    background-color: var(--wired-accent);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: var(--wired-transition);
+    flex-shrink: 0;
+}
+
+.addFriendSendBtn:hover {
+    background-color: var(--wired-accent-hover);
+}
+
+/* ---- Misc ---- */
+.emptyNote {
+    font-size: 0.8rem;
+    color: var(--wired-text-dim);
+    padding: 4px 8px;
+    font-style: italic;
 }
 
 /* =================  FEED =================  */
@@ -101,7 +368,7 @@
     margin-top: 12px;
 }
 
-/* =================  POST CARD ================= */
+/* =================  POST CARD (live activity) ================= */
 .postCard {
     display: flex;
     align-items: center;
@@ -140,6 +407,33 @@
 .postInfo span {
     font-size: 0.82rem;
     color: var(--wired-text-dim);
+}
+
+/* =================  FLOATING ACTION BUTTON ================= */
+.fab {
+    position: fixed;
+    bottom: 32px;
+    right: 32px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background-color: var(--wired-accent);
+    color: #fff;
+    border: none;
+    font-size: 2rem;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: var(--wired-shadow-glow);
+    transition: var(--wired-transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 500;
+}
+
+.fab:hover {
+    background-color: var(--wired-accent-hover);
+    transform: scale(1.1) rotate(90deg);
 }
 
 /* =================  MODAL OVERLAY ================= */
@@ -210,27 +504,6 @@
     color: var(--wired-text);
 }
 
-.modal ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-
-.modal li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    font-size: 0.85rem;
-    color: var(--wired-text-muted);
-    padding: 8px 12px;
-    border: 1px solid var(--wired-border);
-    border-radius: 6px;
-    background-color: var(--wired-surface-2);
-}
-
 /* ================= MODAL BUTTONS ================= */
 .modalButtons {
     display: flex;
@@ -254,14 +527,3 @@
     border-color: var(--wired-accent);
     color: #fff;
 }
-
-/* primary action button (e.g. post/submit) */
-.modalButtons button.primary {
-    background-color: var(--wired-accent);
-    border-color: var(--wired-accent);
-    box-shadow: var(--wired-shadow-glow);
-}
-
-.modalButtons button.primary:hover {
-    background-color: var(--wired-accent-hover);
-}
