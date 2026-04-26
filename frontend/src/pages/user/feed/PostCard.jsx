@@ -154,8 +154,12 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
             {/* Post Content */}
             <p className={styles.caption}>{item.caption}</p>
             {/* Dynamic Media Content */}
-            <div className={styles.mediaBox}>
-                
+            <a 
+                href={spotifyLink} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className={styles.mediaBox}
+            >
                 {/* Cover Art */}
                 {(item.song || item.album) && (
                     <img 
@@ -171,16 +175,8 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                         {item.song ? 'Song' : item.album ? 'Album' : item.playlist ? 'Playlist' : 'Media'}
                     </div>
                     
-                    {/* Clickable Title Link */}
                     <div className={styles.mediaTitle}>
-                        <a 
-                            href={spotifyLink} 
-                            target="_blank" 
-                            rel="noopener noreferrer" 
-                            className={styles.spotifyLink}
-                        >
-                            {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown Title"}
-                        </a>
+                        {item.song?.songName || item.album?.albumName || item.playlist?.playlistName || "Unknown Title"}
                     </div>
 
                     {/* Artist Attribution */}
@@ -190,7 +186,7 @@ function PostCard({ item, userId, apiUrl, formatTimestamp }) {
                         </div>
                     )}
                 </div>
-            </div>
+            </a>
 
              {/* Reactions Bar */}
             <div className={styles.reactionsBar}>

@@ -70,6 +70,8 @@
     transition: var(--wired-transition);
     position: relative;
     min-height: 60px;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 .mediaBox:hover {
@@ -118,18 +120,6 @@
     font-size: 0.9em;
     color: var(--wired-text-muted);
     margin-top: 2px;
-}
-
-.spotifyLink {
-    text-decoration: none;
-    color: var(--wired-text);
-    transition: var(--wired-transition);
-    pointer-events: all;
-}
-
-.spotifyLink:hover {
-    color: var(--wired-accent);
-    text-decoration: underline;
 }
 
 .reactionsBar {

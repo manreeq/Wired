@@ -452,7 +452,24 @@ function Feed() {
                                             <img src={item.albumArtUrl} alt={item.songTitle} style={{ width: '50px', height: '50px' }} />
                                             <div>
                                                 <strong>{item.displayName} {item.isPlaying ? 'is now listening to' : 'was listening to'}</strong>
-                                                <p style={{ margin: 0 }}>{item.songTitle}</p>
+                                                <p style={{ margin: 0 }}>
+                                                    <a
+                                                        href={`https://open.spotify.com/track/${item.spotifyTrackId}`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        style={{ color: 'inherit', fontWeight: 'bold', textDecoration: 'none', transition: 'color 0.2s ease' }}
+                                                        onMouseOver={e => {
+                                                            e.target.style.color = '#1DB954';
+                                                            e.target.style.textDecoration = 'underline';
+                                                        }}
+                                                        onMouseOut={e => {
+                                                            e.target.style.color = 'inherit';
+                                                            e.target.style.textDecoration = 'none';
+                                                        }}
+                                                    >
+                                                        {item.songTitle}
+                                                    </a>
+                                                </p>
                                             </div>
                                         </div>
                                     </div>
