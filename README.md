@@ -1,6 +1,6 @@
 # Wired
 
-**A Spotify-integrated music social network.** Wired turns what you're listening to into a shared, real-time social experience — see what friends are playing as it happens, post and react to tracks, and explore your listening stats. Built as a group project for CSCI 42.
+**A Spotify-integrated music social network.** Wired turns what you're listening to into a shared, real-time social experience — see what friends are playing as it happens, post and react to tracks, and explore your listening stats.
 
 ## Project Status
 
