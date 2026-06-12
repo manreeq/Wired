@@ -30,7 +30,7 @@ public class Comment {
     @Column(nullable = false, updatable = false)
     private LocalDateTime timestamp;
 
-    protected Comment() {}
+    public Comment() {}
 
     public Comment(Post post, User user, String content) {
         this.post = post;

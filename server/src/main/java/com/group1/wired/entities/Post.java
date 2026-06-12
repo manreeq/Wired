@@ -1,13 +1,18 @@
 package com.group1.wired.entities;
 
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "posts")
-
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @Inheritance(strategy = InheritanceType.JOINED) // identifies that post is a parent class; tells hibernate 
 												// to create separate tables for children
 public class Post {
@@ -19,8 +24,8 @@ public class Post {
 	
 	@ManyToOne(fetch = FetchType.LAZY)					// foreign key; many posts can belong to one user
 	@JoinColumn(name = "user_id", nullable = false)		//lazy fetchtype; only gets the actual post, not everything else that comes with the fk
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "posts"})
 	private User user;
-	
 
 	@NotNull 											// discriminator (S, P, LA, A)
 	@Column(name = "post_type", nullable = false) 							
@@ -28,11 +33,16 @@ public class Post {
 	
 	@Column(nullable = true) 		
 	private String caption; 					
-	
-	@NotNull 						
+	 						
 	@CreationTimestamp									
     @Column(nullable = false, updatable = false) 		
 	private LocalDateTime timestamp;
+	
+	@OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reaction> reactions;
 
 	
 	protected Post() {}
@@ -78,4 +88,25 @@ public class Post {
 	public LocalDateTime getTimestamp() {
 		return timestamp;
 	}
+	
+	// helper methods for comments and reactions
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setPost(this); // 'this' refers to the current Post
+    }
+
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setPost(null);
+    }
+
+    public void addReaction(Reaction reaction) {
+        reactions.add(reaction);
+        reaction.setPost(this);
+    }
+
+    public void removeReaction(Reaction reaction) {
+        reactions.remove(reaction);
+        reaction.setPost(null);
+    }
 }

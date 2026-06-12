@@ -1,0 +1,46 @@
+.login-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  color: var(--wired-text);
+  font-family: var(--wired-font);
+}
+
+.login-title {
+  font-size: 3.5rem;
+  font-weight: 800;
+  margin-bottom: 1.7rem;
+  letter-spacing: -1.5px;
+  color: var(--wired-text);
+}
+
+.login-subtitle {
+  font-size: 1.1rem;
+  color: var(--wired-text-muted);
+  margin-bottom: 2.5rem;
+}
+
+.spotify-btn {
+  background-color: var(--wired-accent);
+  color: var(--wired-text);
+  border: none;
+  border-radius: 500px;
+  padding: 16px 34px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: var(--wired-transition);
+  box-shadow: var(--wired-shadow-glow);
+}
+
+.spotify-btn:hover {
+  background-color: var(--wired-accent-hover);
+  transform: scale(1.04);
+}
+
+.login-link {
+  text-decoration: none;
+}

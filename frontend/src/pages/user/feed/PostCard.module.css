@@ -1,0 +1,287 @@
+.postCardContainer {
+    border: 1px solid var(--wired-border);
+    padding: 15px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    background-color: var(--wired-surface);
+    color: var(--wired-text);
+    transition: var(--wired-transition);
+}
+
+.postCardContainer:hover {
+    border-color: var(--wired-accent);
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.profilePic {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    object-fit: cover;
+    background-color: var(--wired-surface-2);
+}
+
+.profilePicPlaceholder {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background-color: var(--wired-surface-2);
+    flex-shrink: 0;
+}
+
+.authorDetails {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.authorName {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--wired-text);
+    line-height: 1.1;
+}
+
+.timestamp {
+    font-size: 0.85em;
+    color: var(--wired-text-dim);
+    margin-top: 2px;
+}
+
+.caption {
+    margin: 8px 0;
+    color: var(--wired-text-muted);
+}
+
+.mediaBox {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    background-color: var(--wired-surface-2);
+    border-radius: 8px;
+    margin-bottom: 12px;
+    border: 1px solid var(--wired-border);
+    transition: var(--wired-transition);
+    position: relative;
+    min-height: 60px;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+.mediaBox:hover {
+    border-color: var(--wired-accent);
+}
+
+.coverArt {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    object-fit: cover;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+    margin-right: 15px;
+}
+
+.mediaInfo {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    pointer-events: none;
+    width: max-content;
+    max-width: 60%;
+}
+
+.mediaType {
+    font-size: 0.75em;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--wired-accent);
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.mediaTitle {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: var(--wired-text);
+}
+
+.artistName {
+    font-size: 0.9em;
+    color: var(--wired-text-muted);
+    margin-top: 2px;
+}
+
+.reactionsBar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+    align-items: center;
+}
+
+.reactionBtn {
+    background: none;
+    border: 1px solid var(--wired-border);
+    border-radius: 6px;
+    cursor: pointer;
+    padding: 4px 10px;
+    font-size: 1.2em;
+    color: var(--wired-text);
+    transition: var(--wired-transition);
+}
+
+.reactionBtn:hover {
+    background-color: var(--wired-surface-2);
+    border-color: var(--wired-accent);
+    transform: scale(1.1);
+}
+
+.reactionBtn:active {
+    transform: scale(0.95);
+}
+
+.reactionCount {
+    font-size: 0.9em;
+    color: var(--wired-text-dim);
+}
+
+.toggleBtn {
+    background: none;
+    border: none;
+    color: var(--wired-accent);
+    cursor: pointer;
+    padding: 0;
+    font-weight: bold;
+    transition: var(--wired-transition);
+}
+
+.toggleBtn:hover {
+    color: var(--wired-accent-hover);
+    text-decoration: underline;
+}
+
+.commentsSection {
+    margin-top: 10px;
+    border-top: 1px solid var(--wired-border);
+    padding-top: 10px;
+}
+
+.commentItem {
+    margin-bottom: 10px;
+    font-size: 0.9em;
+    color: var(--wired-text-muted);
+}
+
+.commentHeader {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.commenterPic {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+    border: 1px solid var(--wired-border);
+}
+
+.commenterPicPlaceholder {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background-color: var(--wired-surface-2);
+    border: 1px solid var(--wired-border);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.75rem;
+    font-weight: bold;
+    color: var(--wired-text-muted);
+}
+
+.commentBody {
+    flex: 1;
+    min-width: 0;
+}
+
+.commentMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 2px;
+}
+
+.commentAuthor {
+    font-weight: 600;
+    color: var(--wired-text);
+    font-size: 0.88em;
+}
+
+.commentTimestamp {
+    font-size: 0.75em;
+    color: var(--wired-text-dim);
+    white-space: nowrap;
+}
+
+.commentContent {
+    margin: 0;
+    color: var(--wired-text-muted);
+    font-size: 0.9em;
+    line-height: 1.4;
+}
+
+.commentInputArea {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.commentInput {
+    flex-grow: 1;
+    padding: 8px 12px;
+    border: 1px solid var(--wired-border);
+    border-radius: 6px;
+    background-color: var(--wired-surface-2);
+    color: var(--wired-text);
+    transition: var(--wired-transition);
+    outline: none;
+}
+
+.commentInput:focus {
+    border-color: var(--wired-accent);
+}
+
+.commentInput::placeholder {
+    color: var(--wired-text-dim);
+}
+
+.postCommentBtn {
+    padding: 8px 18px;
+    background-color: var(--wired-accent);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: var(--wired-transition);
+    box-shadow: var(--wired-shadow-glow);
+}
+
+.postCommentBtn:hover {
+    background-color: var(--wired-accent-hover);
+    transform: scale(1.03);
+}

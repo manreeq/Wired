@@ -1,11 +1,19 @@
 package com.group1.wired.entities;
 import org.hibernate.annotations.CreationTimestamp;
+
+import java.util.List;
+import java.util.UUID;
+
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 import java.time.LocalDateTime;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "posts"})
 public class User {
 	
 	@Id
@@ -28,6 +36,21 @@ public class User {
 	@CreationTimestamp										//creation timestamp at current time
     @Column(nullable = false, updatable = false) 		
 	private LocalDateTime joinDate;
+	
+	@Column(name = "is_history_private", nullable = false, columnDefinition = "boolean default false")
+	private boolean isHistoryPrivate = false;
+	
+	@Column(unique = true, nullable = false)
+	private String friendCode;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Post> posts;
+	
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Comment> comments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reaction> reactions;
 
 	
 	protected User() {}
@@ -35,6 +58,7 @@ public class User {
 	public User(String spotifyURI, String displayName) { 	//constructor 
         this.spotifyURI = spotifyURI;
         this.displayName = displayName;
+        this.friendCode = "WIRED-" + UUID.randomUUID().toString().substring(0, 6).toUpperCase(); //create friendcode
     }
 
 	public Long getUserID() {
@@ -56,6 +80,10 @@ public class User {
 	public String getDisplayName() {
 		return displayName;
 	}
+	
+	public String getFriendCode() {
+	    return friendCode;
+	}
 
 	public void setDisplayName(String displayName) {
 		this.displayName = displayName;
@@ -76,7 +104,33 @@ public class User {
 	public LocalDateTime getJoinDate() {
 		return joinDate;
 	}
+	
+	// helper methods for comments and reactions
+    public void addComment(Comment comment) {
+        comments.add(comment);
+        comment.setUser(this);
+    }
 
-	
-	
+    public void removeComment(Comment comment) {
+        comments.remove(comment);
+        comment.setUser(null);
+    }
+
+    public void addReaction(Reaction reaction) {
+        reactions.add(reaction);
+        reaction.setUser(this);
+    }
+
+    public void removeReaction(Reaction reaction) {
+        reactions.remove(reaction);
+        reaction.setUser(null);
+    }
+    
+    public boolean isHistoryPrivate() {
+        return isHistoryPrivate;
+    }
+
+    public void setHistoryPrivate(boolean historyPrivate) {
+        isHistoryPrivate = historyPrivate;
+    }
 }

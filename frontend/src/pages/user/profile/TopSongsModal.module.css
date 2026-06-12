@@ -1,0 +1,125 @@
+/* dark overlay behind the popup */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+/* the popup box */
+.popup {
+    position: relative;
+    width: 420px;
+}
+
+/* the blank canva template as the background */
+.template {
+    width: 100%;
+    display: block;
+}
+
+/* data layer sits on top of the template */
+.dataLayer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* each song row */
+.row {
+    position: absolute;
+    left: 12%;
+    width: 80%;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+	flex-wrap: nowrap;
+}
+
+/* album art */
+.albumArt {
+    width: 16.5%;
+    aspect-ratio: 1;
+    object-fit: cover;
+	align-self: center;
+}
+
+/* song name and artist container */
+.songInfo {
+    margin-left: -1px;
+    flex: 1;
+	text-align: left;
+}
+
+/* song name */
+.songName {
+    font-family: 'Open Sans', sans-serif;
+    font-weight: 750 !important;
+    font-size: 0.9rem;
+    color: #2e3357 !important;
+    text-transform: uppercase;
+    max-width: 200px;
+    line-height: 0.95;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;       
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* artist name */
+.artistName {
+    font-family: 'ABeeZee';
+    font-weight: normal;
+    font-size: 0.7rem;
+    color: #444;
+    text-transform: uppercase;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    max-width: 400px;
+}
+
+/* listen count */
+.listenCount {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #b5004e;
+    text-transform: uppercase;
+    white-space: nowrap;
+}
+/* total listening time */
+.listeningTime {
+	font-family: 'Open Sans', sans-serif;
+	font-size: 0.9rem;
+	font-weight: 600 !important;
+    position: absolute;
+    bottom: 2.65%;        
+    left: 12%;        
+    color: #2e3357;
+    text-transform: uppercase;
+}
+
+/* close button */
+.closeButton {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.4);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    cursor: pointer;
+    font-size: 14px;
+}

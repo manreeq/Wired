@@ -1,5 +1,6 @@
 package com.group1.wired.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 @Entity
@@ -9,9 +10,10 @@ public class SongPost extends Post {
 	
 	@ManyToOne(fetch = FetchType.LAZY) 		// creates the fk connecting the post to a song
 	@JoinColumn(name = "song_id", nullable = false)
+	@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 	private Song song;
 	
-	protected SongPost() {}
+	public SongPost() {}
 	
 	public SongPost(User user, String caption, Song song) { 
 		

@@ -1,0 +1,79 @@
+/* =========================================================
+   WIRED — Global Design System
+   Spotify-inspired dark theme
+   ========================================================= */
+
+:root {
+  /* Brand colours */
+  --wired-bg:           #121212;
+  --wired-surface:      #1a1a1a;
+  --wired-surface-2:    #2a2a2a;
+  --wired-border:       #333333;
+  --wired-accent:       #1DB954;
+  --wired-accent-hover: #1ed760;
+  --wired-accent-glow:  rgba(29, 185, 84, 0.40);
+  --wired-text:         #ffffff;
+  --wired-text-muted:   #b3b3b3;
+  --wired-text-dim:     #888888;
+  --wired-error:        #ff4d4d;
+  --wired-gradient:     radial-gradient(circle at center, rgba(29,185,84,0.13) 0%, #121212 70%);
+
+  /* Typography */
+  --wired-font: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+
+  /* Shadows / transitions */
+  --wired-shadow-glow: 0 0 35px var(--wired-accent-glow);
+  --wired-transition:  all 0.25s ease;
+}
+
+/* ---- Base reset ---- */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--wired-bg);
+  background-image: var(--wired-gradient);
+  background-attachment: fixed;
+  color: var(--wired-text);
+  font-family: var(--wired-font);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  min-height: 100vh;
+}
+
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Typography defaults ---- */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+  color: var(--wired-text);
+  font-family: var(--wired-font);
+}
+
+p {
+  margin: 0;
+  color: var(--wired-text-muted);
+}
+
+a {
+  color: var(--wired-accent);
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--wired-accent-hover);
+}
